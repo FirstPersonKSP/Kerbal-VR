@@ -495,6 +495,7 @@ namespace KerbalVR
 #endif
                         Camera kspCamera = GetKspCameraComponent(kspCameraName);
                         if (kspCamera == null) continue;
+                        if (kspCameraName.Contains("ScaledSpace")) continue; //Do not disable the ScaledSpace camera, as scatterer needs it, apparently.
                         if (kspCamera.enabled) {
 #if DEBUG
                             Utils.Log("TransitionScene: disabling KSP camera " + kspCameraName);
