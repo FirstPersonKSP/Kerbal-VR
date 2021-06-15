@@ -51,7 +51,7 @@ namespace KerbalVR
         #region Properties
         public GameObject LeftHand { get; private set; }
         public GameObject RightHand { get; private set; }
-        public GameObject HeadUpDisplay { get; private set; }
+        //public GameObject HeadUpDisplay { get; private set; }
         #endregion
 
 
@@ -135,10 +135,10 @@ namespace KerbalVR
             DontDestroyOnLoad(teleportSystemGameObject);
 
             // init the head up display
-            HeadUpDisplay = new GameObject("KVR_HeadUpDisplay");
-            DontDestroyOnLoad(HeadUpDisplay);
-            hud = HeadUpDisplay.AddComponent<KerbalVR.HeadUpDisplay>();
-            hud.Initialize();
+            //HeadUpDisplay = new GameObject("KVR_HeadUpDisplay");
+            //DontDestroyOnLoad(HeadUpDisplay);
+            //hud = HeadUpDisplay.AddComponent<KerbalVR.HeadUpDisplay>();
+            //hud.Initialize();
         }
 
         /// <summary>
