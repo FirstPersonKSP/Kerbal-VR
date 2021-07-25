@@ -45,12 +45,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)\inc;$(ProgramW6432)\Unity\Hub\Editor\2019.2.2f1\Editor\Data\PluginAPI;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\inc;$(ProgramW6432)\Unity\Hub\Editor\2019.4.18f1\Editor\Data\PluginAPI;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(ProjectDir)\inc;$(ProgramW6432)\Unity\Hub\Editor\2019.2.2f1\Editor\Data\PluginAPI;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\inc;$(ProgramW6432)\Unity\Hub\Editor\2019.4.18f1\Editor\Data\PluginAPI;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -68,6 +68,7 @@
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>openvr_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <Version>1.0</Version>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -89,6 +90,7 @@
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>openvr_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <Version>1.0</Version>
     </Link>
     <PostBuildEvent>
       <Command>SETLOCAL
