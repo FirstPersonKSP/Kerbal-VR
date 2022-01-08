@@ -10,8 +10,10 @@ namespace KerbalVR
     /// </summary>
     public class Utils
     {
+#if false
         private static AppDebugGUI debugUi = null;
 
+#endif
         public static T GetOrAddComponent<T>(GameObject obj) where T : Component {
             T c = obj.GetComponent<T>();
             if (c == null) {
@@ -35,7 +37,7 @@ namespace KerbalVR
         public static void PostScreenMessage(object obj) {
             ScreenMessages.PostScreenMessage(Globals.LOG_PREFIX + obj);
         }
-
+#if false
         public static void SetDebugText(object obj) {
             if (debugUi == null) {
                 debugUi = GameObject.FindObjectOfType<AppDebugGUI>();
@@ -70,6 +72,7 @@ namespace KerbalVR
             }
             return value;
         }
+#endif
 
         public static int[] Int32MaskToArray(int mask) {
             List<int> maskBits = new List<int>(32);
@@ -432,9 +435,9 @@ namespace KerbalVR
     /// representation of the colliders attached to this GameObject.
     /// </summary>
     public class ColliderVisualizer : MonoBehaviour {
-        #region Private Members
+#region Private Members
         protected GameObject visual;
-        #endregion
+#endregion
 
         /// <summary>
         /// On Awake, look for colliders attached to this GameObject
@@ -447,7 +450,7 @@ namespace KerbalVR
             if (capsuleCollider != null) {
                 Utils.Log("ColliderVisualizer found CapsuleCollider");
 
-                visual = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                visual = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                 Destroy(visual.GetComponent<CapsuleCollider>());
                 visual.transform.SetParent(this.transform);
                 visual.transform.localScale = new Vector3(
@@ -469,8 +472,22 @@ namespace KerbalVR
                 visual.transform.localPosition = sphereCollider.center;
             }
 
+            BoxCollider boxCollider = this.gameObject.GetComponent<BoxCollider>();
+            if (boxCollider != null)
+			{
+                Utils.Log("ColliderVisualizer found BoxCollider");
+
+                visual = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                Destroy(visual.GetComponent<BoxCollider>());
+                visual.transform.SetParent(this.transform);
+                visual.transform.localScale = boxCollider.size;
+                visual.transform.localRotation = Quaternion.identity;
+                visual.transform.localPosition = boxCollider.center;
+			}
+
             if (visual != null) {
                 visual.name = "ColliderVisualizer";
+                visual.layer = this.gameObject.layer;
                 visual.GetComponent<MeshRenderer>().sharedMaterial = new Material(AssetLoader.Instance.GetShader("KerbalVR/FlatWireframe"));
             }
         }

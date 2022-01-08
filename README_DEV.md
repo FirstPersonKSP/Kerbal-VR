@@ -2,37 +2,18 @@
 
 These are a collection of notes aimed at developers working with the KerbalVR codebase.
 
-## Organization
+## History
 
-As of KerbalVR version 4.x.x, the structure of the codebase is organized into
-4 projects.
+This is JonnyOThan's fork of Vivero's KerbalVR mod.  You should look at https://github.com/Vivero/Kerbal-VR to understand why some things are the way that they are.  But I will try to keep this document up to date regarding how to build and contribute to this mod as it stands today.
+
+Vivero's version of KerbalVR achieved stereoscopic rendering by using custom cameras in the game world to render the scene to textures and a native DLL to send those textures off to the headset.  My approach is different: I've used a Unity patcher to enable Unity's native VR support, which seems to give smoother performance overall.  See https://www.notion.so/beastsaber/How-To-Force-Any-Unity-Game-to-Run-In-Native-VR-Mode-cf8c50f66f2740d5b692db786a8386a1 
+
+## Organization
 
 - **KerbalVR_Mod**
 
   This is the Kerbal Space Program mod. A standard C# project that implements
   all of the mod features, structured like any other KSP mod.
-
-- **KerbalVR_Renderer**
-
-  This is a custom-built native plugin for Unity written in C++. It's sole
-  purpose is to interface with Unity's multi-threaded Direct3D11 renderer.
-  It receives a Unity RenderTexture and submits the texture to the OpenVR
-  API, to be displayed on the VR headset. These OpenVR calls must happen on
-  Unity's render thread, hence why we must use this plugin in the first place.
-  This is the only available mechanism by which we can communicate with Unity's
-  render thread to run custom code.
-
-  This plugin is intentionally made very concise, very compact, with a single
-  purpose: to submit images to the VR headset. It is best not to add any
-  further functionality. KISS.
-
-  Creating this plugin has averted the instability of trying to render
-  images in the headset from the main Unity thread. Trying to submit images
-  from the main thread causes endless game crashes (Access Violation errors)
-  due to other D3D11 threads trying to read/write to the Camera RenderTextures.
-
-  I just spent 3 paragraphs describing my baby. It's a beautiful plugin.
-  Let me have this moment.
 
 - **KerbalVR_Unity**
 
@@ -49,63 +30,37 @@ As of KerbalVR version 4.x.x, the structure of the codebase is organized into
 
 - **KerbalVR_Mod**
 
-  Open in **Visual Studio 2019**. It assumes that the directory
-  *&lt;KerbalVR_root&gt;\KerbalVR_Mod\ksp_lib* exists and contains everything
-  from the *&lt;KSP_root&gt;\KSP_x64_Data\Managed* folder. To compile,
-  hit **Build > Build Solution**.
+  Open in **Visual Studio 2019**. In the project properties under Reference Paths, add the path to your &lt;KSP_ROOT&gt;\KSP_x64_Data\Managed directory.  This information is not stored in the csproj so different developers can have different KSP install locations.  To compile,  hit **Build > Build Solution**.
 
-  This project automatically copies files into **C:\KSP_win64\GameData**.
-  Modify the *KerbalVR.csproj* file if you want to change this behavior.
+  This project automatically copies files into the GameData directory.  If you are iterating on code, I suggest making a junction or symlink from your KSP's GameData directory to point at your development directory.
 
   If you clone the *KerbalVR* repo, you can build this project alone **without
   the having to first build the other projects**. The repo will contain the
-  latest binaries generated from the other projects, including *KerbalVR_Renderer.dll*
-  and other Unity asset bundles.
-
-- **KerbalVR_Renderer**
-
-  Open in **Visual Studio 2019**. It will automatically copy the output file
-  *KerbalVR_Renderer.dll* into the appropriate directory in the *KerbalVR_Mod*
-  project.
+  latest binaries generated from the other projects, including the Unity asset bundles.
 
 - **KerbalVR_Unity**
 
-  Open in **Unity 2019.2.2f1**. Use *PartTools* to export the asset bundles
+  Open in **Unity 2019.4.18f1**. Use *PartTools* to export the asset bundles
   for KSP. Run *&lt;KerbalVR_root&gt;\KerbalVR_Unity\export_asset_bundles.cmd*
   to copy the asset bundles from this project into the appropriate directory
   in the *KerbalVR_Mod* project.
 
 - **KerbalVR_UnitySteamVR**
 
-  Open in **Unity 2019.2.2f1**. Go to **Window > SteamVR Input**. Make any
+  Open in **Unity 2019.4.18f1**. Go to **Window > SteamVR Input**. Make any
   modifications to actions as needed. Click **Save and Generate**. To make
   changes to controller bindings, click **Open binding UI**. Edit the
   *Local Changes* configuration for a selected controller. When finished,
   click the **Replace Default Binding** button on the bottom-right.
 
   To export all the changes, run
-  *&lt;KerbalVR_root&gt;\KerbalVR_UnitySteamVR\export_input_bindings.cmd*,
-  which will place all the input bindings into the appropriate directory
-  in the *KerbalVR_Mod* project.
+  *&lt;KerbalVR_root&gt;\KerbalVR_BuildTools\copy_input_bindings.py*,
+  which will place all the input bindings into the GameData folder.
 
 ## Other Thoughts
 
-You may be wondering, hmm, why aren't the two Unity projects just one single
-project? And I would argue, the *KerbalVR_Unity* project intentionally
-excludes the SteamVR code, because when I export assets like the hand gloves
-from the SteamVR package, I don't want it to export the C# scripts that are
-associated with those assets, because KSP does not -- in fact -- include those
-SteamVR scripts in the first place. So the asset will not correctly load at
-runtime if it needs SteamVR scripts. Instead, I incorporate *some* of the
-SteamVR scripts into the *KerbalVR_Mod* project, on an as-needed basis. You may
-even notice that some of the *SteamVR* scripts in the *KerbalVR_Mod* have
-been modified by me, because many of these scripts make assumptions about the
-Unity project that we -- in the KSP world -- cannot make. For example, we cannot
-use **SteamVR.cs** because it can only run under the assumption that the game's
-Unity settings have enabled XR. The KSP Unity project does not in fact have
-the XR setting enabled, because the game is not built for virtual reality
-in the first place.
+I experimented for a long time trying to use the SteamVR interaction system out-of-the-box, which requires exporting an assetbundle containing SteamVR scripts from unity and loading that in KSP at runtime.  This *almost* worked except that non-component data in the prefab was not serialized correctly due to not being supported by Unity: https://issuetracker.unity3d.com/issues/assetbundle-is-not-loaded-correctly-when-they-reference-a-script-in-custom-dll-which-contains-system-dot-serializable-in-the-build.  Note that the scripted components themselves loaded just fine as long as a SteamVR.dll assembly was present and contained classes with the same names (it didn't even have to be the same one that was built from Unity).
 
-Are there a lot of redundant files in this project? Yea probably. There are like
-three different subsets of the same SteamVR scripts among the various projects.
-I say to you, whatever, this is my project, I do what I want. #kthxbye
+Because of the prefab/assetbundle experiments, SteamVR is now split out to its own project and assembly.  It is now rather close to the stock version that Unity would build rather than the stripped down version that was included in the old mod.  The only edits to this project should be to make it compatible with the KSP environment.
+
+I haven't figured out how to distribute this yet; the VR patching step is probably too complicated for most users.  A BepInEx mod similar to the "VREnabler" on the patching page might be the best path forward.

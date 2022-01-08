@@ -2,7 +2,69 @@ using System;
 using System.Collections;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.XR;
 using Valve.VR;
+
+namespace KerbalVR
+{
+    public static class Core
+	{
+        public static bool IsVrRunning { get; private set; } = true; // TODO: re-hookup
+        public static bool IsOpenVrReady { get; private set; } = true; // TODO: re-hookup
+        public static bool IsVrEnabled { get; set; } = false;
+
+        public static void InitSystems()
+        {
+            //// initialize KerbalVR GameObjects
+            //GameObject kvrConfiguration = new GameObject("KVR_Configuration");
+            //kvrConfiguration.AddComponent<KerbalVR.Configuration>();
+            //Configuration kvrConfigurationComponent = Configuration.Instance; // init the singleton
+            //DontDestroyOnLoad(kvrConfiguration);
+
+            GameObject kvrAssetLoader = new GameObject("KVR_AssetLoader");
+            kvrAssetLoader.AddComponent<KerbalVR.AssetLoader>();
+            AssetLoader kvrAssetLoaderComponent = AssetLoader.Instance; // init the singleton
+            GameObject.DontDestroyOnLoad(kvrAssetLoader);
+
+            //GameObject kvrScene = new GameObject("KVR_Scene");
+            //kvrScene.AddComponent<KerbalVR.Scene>();
+            //Scene kvrSceneComponent = Scene.Instance; // init the singleton
+            //GameObject.DontDestroyOnLoad(kvrScene);
+
+            GameObject kvrInteractionSys = new GameObject("KVR_InteractionSystem");
+            kvrInteractionSys.AddComponent<KerbalVR.InteractionSystem>();
+            InteractionSystem kvrInteractionSysComponent = InteractionSystem.Instance; // init the singleton
+            GameObject.DontDestroyOnLoad(kvrInteractionSys);
+        }
+
+        public static void InitSteamVRInput()
+		{
+            // initialize SteamVR input
+            SteamVR_Actions.PreInitialize();
+            SteamVR_Input.IdentifyActionsFile();
+            SteamVR_Input.Initialize();
+            ActivateActionSet("default");
+            //ActivateActionSet("editor");
+            ActivateActionSet("flight");
+            //ActivateActionSet("EVA");
+        }
+
+        static void ActivateActionSet(string actionSetName)
+        {
+            SteamVR_ActionSet actionSet = SteamVR_Input.GetActionSet(actionSetName, false, true);
+            if (actionSet != null)
+            {
+                actionSet.Activate(SteamVR_Input_Sources.Any);
+            }
+            else
+            {
+                Utils.LogError("Action Set '" + actionSetName + "' does not exist");
+            }
+        }
+    }
+}
+
+#if false
 
 namespace KerbalVR 
 {
@@ -16,31 +78,18 @@ namespace KerbalVR
         [DllImport("kernel32.dll", SetLastError = true)]
         protected static extern bool SetDllDirectory(string lpPathName);
 
-        // import KerbalVR_Renderer plugin functions
-        [DllImport("KerbalVR_Renderer")]
-        private static extern IntPtr GetRenderEventFunc();
 
-        [DllImport("KerbalVR_Renderer")]
-        private static extern void SetTextureFromUnity(
-            int textureIndex,
-            System.IntPtr textureHandle,
-            float boundsUMin,
-            float boundsUMax,
-            float boundsVMin,
-            float boundsVMax);
-
-
-        #region Types
+#region Types
         public enum OpenVrState {
             Uninitialized,
             Initializing,
             Initialized,
             InitFailed,
         }
-        #endregion
+#endregion
 
 
-        #region Properties
+#region Properties
         /// <summary>
         /// Returns true if VR is currently enabled. Enabled
         /// does not necessarily mean VR is currently running, only
@@ -55,10 +104,6 @@ namespace KerbalVR
         /// </summary>
         public static bool IsVrRunning { get; private set; } = false;
 
-        // these arrays each hold one object for the corresponding eye, where
-        // index 0 = Left_Eye, index 1 = Right_Eye
-        public static RenderTexture[] HmdEyeRenderTexture { get; private set; } = new RenderTexture[2];
-
         public static TrackedDevicePose_t[] GamePoses { get; private set; } = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
 
         public static bool IsOpenVrReady {
@@ -67,10 +112,10 @@ namespace KerbalVR
             }
         }
 
-        #endregion
+#endregion
 
 
-        #region Private Members
+#region Private Members
         // keep track of when the HMD is rendering images
         protected static OpenVrState openVrState = OpenVrState.Uninitialized;
         protected static bool vrIsRunningPrev = false;
@@ -79,7 +124,7 @@ namespace KerbalVR
         // store the tracked device poses
         protected static TrackedDevicePose_t[] devicePoses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
         protected static TrackedDevicePose_t[] renderPoses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
-        #endregion
+#endregion
 
 
         /// <summary>
@@ -87,31 +132,15 @@ namespace KerbalVR
         /// </summary>
         protected void Awake() {
             // set the location of the native plugin DLLs
-            SetDllDirectory(Globals.EXTERNAL_DLL_PATH);
+            //SetDllDirectory(Globals.EXTERNAL_DLL_PATH);
 
-            // initialize KerbalVR GameObjects
-            GameObject kvrConfiguration = new GameObject("KVR_Configuration");
-            kvrConfiguration.AddComponent<KerbalVR.Configuration>();
-            Configuration kvrConfigurationComponent = Configuration.Instance; // init the singleton
-            DontDestroyOnLoad(kvrConfiguration);
+            InitSystems();
 
-            GameObject kvrAssetLoader = new GameObject("KVR_AssetLoader");
-            kvrAssetLoader.AddComponent<KerbalVR.AssetLoader>();
-            AssetLoader kvrAssetLoaderComponent = AssetLoader.Instance; // init the singleton
-            DontDestroyOnLoad(kvrAssetLoader);
+			// for whatever reason, enabling VR mode during loading makes it super slow
+			XRSettings.enabled = false;
 
-            GameObject kvrScene = new GameObject("KVR_Scene");
-            kvrScene.AddComponent<KerbalVR.Scene>();
-            Scene kvrSceneComponent = Scene.Instance; // init the singleton
-            DontDestroyOnLoad(kvrScene);
-
-            GameObject kvrInteractionSys = new GameObject("KVR_InteractionSystem");
-            kvrScene.AddComponent<KerbalVR.InteractionSystem>();
-            InteractionSystem kvrInteractionSysComponent = InteractionSystem.Instance; // init the singleton
-            DontDestroyOnLoad(kvrInteractionSys);
-
-            // initialize OpenVR immediately if allowed in config
-            if (KerbalVR.Configuration.Instance.InitOpenVrAtStartup) {
+			// initialize OpenVR immediately if allowed in config
+			if (KerbalVR.Configuration.Instance.InitOpenVrAtStartup) {
                 TryInitializeOpenVr();
             }
 
@@ -145,6 +174,7 @@ namespace KerbalVR
                 // wait until all frame rendering is done
                 yield return new WaitForEndOfFrame();
 
+				/*
                 // if VR is active, issue the render callback
                 if (IsVrRunning) {
                     // need to obtain the latest poses for tracked devices. there seems to be two
@@ -174,6 +204,7 @@ namespace KerbalVR
                     // so this can actually just be any int.
                     GL.IssuePluginEvent(GetRenderEventFunc(), 0);
                 }
+				*/
             }
         }
 
@@ -211,9 +242,6 @@ namespace KerbalVR
                     Utils.Log("VR is now turned on");
                     ResetInitialHmdPosition();
                 }
-
-                // copy the rendered image onto the screen (the KSP window)
-                Graphics.Blit(HmdEyeRenderTexture[0], null as RenderTexture);
             }
 
             // update controllers input logic
@@ -226,9 +254,9 @@ namespace KerbalVR
 
             // emit an update if the running status changed
             if (IsVrRunning != vrIsRunningPrev) {
+                vrIsRunningPrev = IsVrRunning;
                 KerbalVR.Events.HmdStatusUpdated.Send(IsVrRunning);
             }
-            vrIsRunningPrev = IsVrRunning;
         }
 
         /// <summary>
@@ -304,12 +332,20 @@ namespace KerbalVR
             }
         }
 
-        /// <summary>
-        /// An event called when the game is switching scenes.
-        /// </summary>
-        /// <param name="scene">The scene being switched into</param>
-        protected void OnGameSceneLoadRequested(GameScenes scene) {
-        }
+		/// <summary>
+		/// An event called when the game is switching scenes.
+		/// </summary>
+		/// <param name="scene">The scene being switched into</param>
+		protected void OnGameSceneLoadRequested(GameScenes scene)
+		{
+			if (scene != GameScenes.LOADING)
+			{
+				XRSettings.enabled = true;
+
+				GameObject.Find("UIMainCamera").GetComponent<Camera>().stereoTargetEye = StereoTargetEyeMask.None;
+				GameObject.Find("UIVectorCamera").GetComponent<Camera>().stereoTargetEye = StereoTargetEyeMask.None;
+			}
+		}
 
         /// <summary>
         /// Initialize VR using OpenVR API calls. Throws an exception on error.
@@ -341,6 +377,7 @@ namespace KerbalVR
             // the position you would like to consider "seated", before running this code.
             ResetInitialHmdPosition();
 
+#if false
             // get HMD render target size
             uint renderTextureWidth = 0;
             uint renderTextureHeight = 0;
@@ -372,25 +409,9 @@ namespace KerbalVR
                 // send the textures to the native renderer plugin
                 SetTextureFromUnity(i, HmdEyeRenderTexture[i].GetNativeTexturePtr(), 0f, 1f, 1f, 0f);
             }
+#endif
 
-            // initialize SteamVR input
-            SteamVR_Actions.PreInitialize();
-            SteamVR_Input.IdentifyActionsFile();
-            SteamVR_Input.Initialize();
-            ActivateActionSet("default");
-            ActivateActionSet("editor");
-            ActivateActionSet("flight");
-            ActivateActionSet("EVA");
-        }
-
-        protected static void ActivateActionSet(string actionSetName) {
-            SteamVR_ActionSet actionSet = SteamVR_Input.GetActionSet(actionSetName, false, true);
-            if (actionSet != null) {
-                actionSet.Activate(SteamVR_Input_Sources.Any);
-            }
-            else {
-                Utils.LogError("Action Set '" + actionSetName + "' does not exist");
-            }
+            InitSteamVRInput();
         }
 
         /// <summary>
@@ -422,3 +443,5 @@ namespace KerbalVR
 
     } // class Core
 } // namespace KerbalVR
+
+#endif

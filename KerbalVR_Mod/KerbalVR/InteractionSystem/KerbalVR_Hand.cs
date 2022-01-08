@@ -30,29 +30,32 @@ namespace KerbalVR {
         /// The other hand's GameObject
         /// </summary>
         public GameObject otherHand;
+
         #endregion
 
 
         #region Private Members
         // hand game objects
-        protected GameObject handObject;
+        public GameObject handObject;
+        static readonly Vector3 GripOffset = new Vector3(0, 0, -0.1f);
+        public Vector3 GripPosition
+		{
+            get { return handObject.transform.TransformPoint(GripOffset); }
+		}
         protected SkinnedMeshRenderer handRenderer;
         protected SteamVR_Behaviour_Skeleton handSkeleton;
-        protected SphereCollider handCollider;
-        protected Rigidbody handRigidbody;
 
         // keep tracking of render state
         protected Types.ShiftRegister<bool> isRenderingHands = new Types.ShiftRegister<bool>(2);
         protected Types.ShiftRegister<int> renderLayerHands = new Types.ShiftRegister<int>(2);
 
         // keep track of held objects
-        protected InteractableInternalModule hoveredObject;
-        protected InteractableInternalModule heldObject;
+        protected HandCollider handCollider;
+        protected InteractableBehaviour heldObject;
         protected SteamVR_Action_Boolean actionGrab;
 
         // interacting with mouse-clickable objects
         protected FingertipCollider fingertipInteraction;
-        protected SteamVR_Action_Boolean actionClick;
         #endregion
 
 
@@ -90,6 +93,7 @@ namespace KerbalVR {
             handSkeleton = handObject.AddComponent<SteamVR_Behaviour_Skeleton>();
             handSkeleton.skeletonRoot = handObject.transform.Find(skeletonRoot);
             handSkeleton.inputSource = handType;
+            handSkeleton.rangeOfMotion = EVRSkeletalMotionRange.WithController;
             handSkeleton.mirroring = (handType == SteamVR_Input_Sources.LeftHand) ? SteamVR_Behaviour_Skeleton.MirrorType.RightToLeft : SteamVR_Behaviour_Skeleton.MirrorType.None;
             handSkeleton.updatePose = false;
             handSkeleton.skeletonAction = SteamVR_Input.GetSkeletonAction("default", skeletonActionName, false);
@@ -103,27 +107,32 @@ namespace KerbalVR {
             handSkeleton.fallbackPoser = handPoser;
             handSkeleton.Initialize();
 
-            // add interactable collider
-            handCollider = this.gameObject.AddComponent<SphereCollider>();
-            handCollider.isTrigger = true;
-            handCollider.center = new Vector3(0f, 0f, -0.1f);
-            handCollider.radius = 0.08f;
+            // add tracking
+            var pose = handObject.AddComponent<SteamVR_Behaviour_Pose>();
+            pose.inputSource = handType;
 
-            handRigidbody = this.gameObject.AddComponent<Rigidbody>();
-            handRigidbody.useGravity = false;
-            handRigidbody.isKinematic = true;
+            handCollider = handObject.AddComponent<HandCollider>();
 
             // add fingertip collider for "mouse clicks"
             string fingertipTransformPath = renderModelParentPath + "/Root/wrist_r/finger_index_meta_r/finger_index_0_r/finger_index_1_r/finger_index_2_r/finger_index_r_end";
             Transform fingertipTransform = handObject.transform.Find(fingertipTransformPath);
             fingertipInteraction = fingertipTransform.gameObject.AddComponent<FingertipCollider>();
+            fingertipInteraction.inputSource = handType;
 
             // set up actions
             actionGrab = SteamVR_Input.GetBooleanAction("default", "GrabGrip");
             actionGrab[handType].onChange += OnChangeGrab;
 
-            actionClick = SteamVR_Input.GetBooleanAction("flight", "InteractClick");
-            actionClick[handType].onChange += OnChangeInteractClick;
+            // attach these objects to the interaction system
+            handObject.transform.SetParent(transform, false);
+
+            // debugging stuff
+#if HAND_GIZMOS
+            var handGizmo = Utils.CreateGizmo();
+            handGizmo.transform.SetParent(handObject.transform, false);
+            handObject.AddComponent<ColliderVisualizer>();
+#endif
+
         }
 
         /// <summary>
@@ -134,37 +143,16 @@ namespace KerbalVR {
         /// <param name="newState">New state of this action</param>
         protected void OnChangeGrab(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource, bool newState) {
             if (newState) {
-                if (hoveredObject != null) {
-                    heldObject = hoveredObject;
-                    heldObject.IsGrabbed = true;
+                if (handCollider.HoveredObject != null) {
+                    heldObject = handCollider.HoveredObject;
                     heldObject.GrabbedHand = this;
                     handSkeleton.BlendToPoser(heldObject.SkeletonPoser);
                 }
             } else {
                 if (heldObject != null) {
-                    heldObject.IsGrabbed = false;
                     heldObject.GrabbedHand = null;
                     heldObject = null;
                     handSkeleton.BlendToSkeleton();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Handle interacting with mouse-clickable objects (like RPM props)
-        /// </summary>
-        /// <param name="fromAction">SteamVR action that triggered this callback</param>
-        /// <param name="fromSource">Hand type that triggered this callback</param>
-        /// <param name="newState">New state of this action</param>
-        protected void OnChangeInteractClick(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource, bool newState) {
-            if (newState) {
-                foreach (GameObject go in fingertipInteraction.CollidedGameObjects) {
-                    go.SendMessage("OnMouseDown");
-                }
-            }
-            else {
-                foreach (GameObject go in fingertipInteraction.CollidedGameObjects) {
-                    go.SendMessage("OnMouseUp");
                 }
             }
         }
@@ -209,6 +197,7 @@ namespace KerbalVR {
                 bool isConnected = handActionPose.GetDeviceIsConnected(handType);
                 uint deviceIndex = handActionPose.GetDeviceIndex(handType);
                 if (isConnected && deviceIndex < OpenVR.k_unMaxTrackedDeviceCount) {
+#if false
                     // keep this object (Hand script) always tracking the device
                     SteamVR_Utils.RigidTransform handTransform = new SteamVR_Utils.RigidTransform(KerbalVR.Core.GamePoses[deviceIndex].mDeviceToAbsoluteTracking);
                     Vector3 handTransformPos = KerbalVR.Scene.Instance.DevicePoseToWorld(handTransform.pos);
@@ -239,6 +228,7 @@ namespace KerbalVR {
                         handObject.transform.position = handTransformPos;
                         handObject.transform.rotation = handTransformRot;
                     }
+#endif
                 } else {
                     isRendering = false;
                 }
@@ -255,38 +245,20 @@ namespace KerbalVR {
             }
         }
 
-        protected void OnTriggerEnter(Collider other) {
-            if (other.gameObject.name.StartsWith("KVR_")) {
-                InteractableInternalModule interactable = other.gameObject.GetComponent<InteractableInternalModule>();
-                if (interactable != null) {
-                    hoveredObject = interactable;
-                }
-            }
-        }
-
-        protected void OnTriggerExit(Collider other) {
-            if (hoveredObject != null) {
-                InteractableInternalModule interactable = other.gameObject.GetComponent<InteractableInternalModule>();
-                if (interactable == hoveredObject) {
-                    hoveredObject = null;
-                }
-            }
-        }
-
 
         /// <summary>
         /// A helper class to collect objects that collide with the index fingertip.
         /// </summary>
         protected class FingertipCollider : MonoBehaviour {
 
-            #region Properties
-            public List<GameObject> CollidedGameObjects { get; protected set; } = new List<GameObject>();
-            #endregion
+#region Properties
+            public SteamVR_Input_Sources inputSource;
+#endregion
 
             #region Private Members
             protected SphereCollider fingertipCollider;
             protected Rigidbody fingertipRigidbody;
-            #endregion
+#endregion
 
             protected void Awake() {
                 fingertipRigidbody = this.gameObject.AddComponent<Rigidbody>();
@@ -298,14 +270,78 @@ namespace KerbalVR {
 
             protected void OnTriggerEnter(Collider other) {
                 // only interact with layer 20 (Internal Space) objects
-                if (other.gameObject.layer == 20 && !CollidedGameObjects.Contains(other.gameObject)) {
-                    CollidedGameObjects.Add(other.gameObject);
+                if (other.gameObject.layer == 20)
+                {
+                    var interactable = other.gameObject.GetComponent<IFingertipInteractable>();
+                    if (interactable != null)
+					{
+                        interactable.OnEnter(other, inputSource);
+					}
+                }
+            }
+
+            protected void OnTriggerStay(Collider other)
+            {
+                if (other.gameObject.layer == 20)
+				{
+                    var interactable = other.gameObject.GetComponent<IFingertipInteractable>();
+                    if (interactable != null)
+                    {
+                        interactable.OnStay(other, inputSource);
+                    }
                 }
             }
 
             protected void OnTriggerExit(Collider other) {
-                if (CollidedGameObjects.Contains(other.gameObject)) {
-                    CollidedGameObjects.Remove(other.gameObject);
+                if (other.gameObject.layer == 20)
+                {
+                    var interactable = other.gameObject.GetComponent<IFingertipInteractable>();
+                    if (interactable != null)
+                    {
+                        interactable.OnExit(other, inputSource);
+                    }
+                }
+            }
+        }
+
+        protected class HandCollider : MonoBehaviour
+		{
+            public InteractableBehaviour HoveredObject { get; private set; }
+
+            protected SphereCollider handCollider;
+            protected Rigidbody handRigidbody;
+
+			protected void Awake()
+			{
+                // add interactable collider
+                handCollider = this.gameObject.AddComponent<SphereCollider>();
+                handCollider.isTrigger = true;
+                handCollider.center = Hand.GripOffset;
+                handCollider.radius = 0.08f;
+
+                handRigidbody = this.gameObject.AddComponent<Rigidbody>();
+                handRigidbody.useGravity = false;
+                handRigidbody.isKinematic = true;
+            }
+
+			protected void OnTriggerEnter(Collider other)
+            {
+                InteractableBehaviour interactable = other.gameObject.GetComponent<InteractableBehaviour>();
+                if (interactable != null)
+                {
+                    HoveredObject = interactable;
+                }
+            }
+
+			protected void OnTriggerExit(Collider other)
+            {
+                if (HoveredObject != null)
+                {
+                    InteractableBehaviour interactable = other.gameObject.GetComponent<InteractableBehaviour>();
+                    if (interactable == HoveredObject)
+                    {
+                        HoveredObject = null;
+                    }
                 }
             }
         }

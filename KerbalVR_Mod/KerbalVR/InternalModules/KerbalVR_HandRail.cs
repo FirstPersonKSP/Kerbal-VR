@@ -1,18 +1,19 @@
 using UnityEngine;
 using Valve.VR;
+#if false
 
 namespace KerbalVR.InternalModules {
     public class HandRail : InteractableInternalModule {
 
-        #region KSP Config Fields
+#region KSP Config Fields
         [KSPField]
         public float railLength = 0.1f;
-        #endregion
+#endregion
 
-        #region Private Members
+#region Private Members
         protected ConfigNode moduleConfigNode;
         protected CapsuleCollider handleCollider;
-        #endregion
+#endregion
 
         protected void Start() {
             // no setup needed in editor mode
@@ -57,3 +58,5 @@ namespace KerbalVR.InternalModules {
         }
     }
 }
+
+#endif

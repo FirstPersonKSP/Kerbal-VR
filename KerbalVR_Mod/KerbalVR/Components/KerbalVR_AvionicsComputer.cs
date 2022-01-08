@@ -1,6 +1,7 @@
 using UnityEngine;
 using Valve.VR;
 
+#if false
 namespace KerbalVR.Components {
     /// <summary>
     /// A part module that manages data flow to the vessel,
@@ -9,24 +10,24 @@ namespace KerbalVR.Components {
     [KSPAddon(KSPAddon.Startup.Flight, false)]
     public class AvionicsComputer : MonoBehaviour {
 
-        #region Private Members
+#region Private Members
         protected SteamVR_Action_Vector2 controlFlightStick;
         protected SteamVR_Action_Vector2 controlYawStick;
         protected SteamVR_Action_Vector2 controlThrottleStick;
         protected bool isVrFunctionalityInitialized = false;
 
         protected float commandThrottle = 0f;
-        #endregion
+#endregion
 
 
-        #region Properties
+#region Properties
         public float YawAngle { get; private set; } = 0f;
         public float PitchAngle { get; private set; } = 0f;
         public float RollAngle { get; private set; } = 0f;
-        #endregion
+#endregion
 
 
-        #region Singleton
+#region Singleton
         /// <summary>
         /// This is a singleton class, and there must be exactly one GameObject with this Component in the scene.
         /// </summary>
@@ -52,7 +53,7 @@ namespace KerbalVR.Components {
         protected void Initialize() {
             Utils.Log("AvionicsComputer initialized");
         }
-        #endregion
+#endregion
 
 
         protected void InitializeVrFunctionality() {
@@ -185,3 +186,5 @@ namespace KerbalVR.Components {
 
     }
 }
+
+#endif

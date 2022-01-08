@@ -125,6 +125,7 @@ namespace KerbalVR {
                 else {
                     // button has been lifted, move to that location
                     if (IsTeleportAllowed && isTeleportTargetValid) {
+#if false
                         Vector3 hmdPosition = KerbalVR.Scene.Instance.HmdTransform.pos;
                         Vector3 newPlayerPosition = teleportTargetPosition - new Vector3(hmdPosition.x, 0f, hmdPosition.z);
                         if (HighLogic.LoadedScene == GameScenes.FLIGHT && FlightGlobals.ActiveVessel != null) {
@@ -133,6 +134,7 @@ namespace KerbalVR {
                         else if (HighLogic.LoadedScene == GameScenes.MAINMENU) {
                             KerbalVR.Scene.Instance.CurrentPosition = newPlayerPosition;
                         }
+#endif
                     }
                     teleportSource = SteamVR_Input_Sources.Any;
                     isTeleportShowing = false;

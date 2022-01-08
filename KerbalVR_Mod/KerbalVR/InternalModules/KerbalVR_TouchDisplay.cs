@@ -5,12 +5,14 @@ using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+
+#if false
 using Vectrosity;
 
 namespace KerbalVR.InternalModules {
     public class TouchDisplay : InternalModule {
 
-        #region KSP Config Fields
+#region KSP Config Fields
         [KSPField]
         public string screenTransformName = "";
 
@@ -28,10 +30,10 @@ namespace KerbalVR.InternalModules {
 
         [KSPField]
         public Color emptyColor = Color.black;
-        #endregion
+#endregion
 
 
-        #region Private Members
+#region Private Members
         protected ConfigNode moduleConfigNode;
         protected float lastScreenUpdateTime;
 
@@ -57,7 +59,7 @@ namespace KerbalVR.InternalModules {
         protected TextMeshPro dataLabelAltitudeValue, dataLabelAltitudeUnits;
         protected TextMeshPro dataLabelRollValue, dataLabelRollUnits;
         protected TextMeshPro dataLabelPitchValue, dataLabelPitchUnits;
-        #endregion
+#endregion
 
 
         // DEBUG ---
@@ -348,3 +350,5 @@ namespace KerbalVR.InternalModules {
         }
     }
 }
+
+#endif

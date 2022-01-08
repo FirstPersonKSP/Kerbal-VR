@@ -5,7 +5,7 @@ import re, os, shutil
 # start with input json files
 input_files_path = os.path.join('..', 'KerbalVR_UnitySteamVR', 'Assets', 'StreamingAssets', 'SteamVR')
 output_files = [f for f in os.listdir(input_files_path) if os.path.isfile(os.path.join(input_files_path, f)) and f.endswith('.json')]
-output_path = os.path.join('..', 'KerbalVR_Mod', 'KerbalVR', 'Assets', 'Input')
+output_path = os.path.join('..', 'KerbalVR_Mod', 'GameData', 'KerbalVR', 'Assets', 'Input')
 
 for filename in output_files:
     input_full_path = os.path.abspath(os.path.join(input_files_path, filename))

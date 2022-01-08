@@ -6,13 +6,14 @@ using Valve.VR;
 using TMPro;
 
 namespace KerbalVR {
-    /// <summary>
-    /// The Hand component is applied to each of the two hand GameObjects.
-    /// It handles all the interactions related to using the hands in VR.
-    /// </summary>
+	/// <summary>
+	/// The Hand component is applied to each of the two hand GameObjects.
+	/// It handles all the interactions related to using the hands in VR.
+	/// </summary>
+#if false
     public class HeadUpDisplay : MonoBehaviour {
 
-        #region Public Members
+#region Public Members
         /// <summary>
         /// How far away from your eyes to place the Head Up Display
         /// </summary>
@@ -28,10 +29,10 @@ namespace KerbalVR {
                 }
             }
         }
-        #endregion
+#endregion
 
 
-        #region Private Members
+#region Private Members
         // hud game object
         protected GameObject hudGameObject;
         protected MeshRenderer hudRenderer;
@@ -53,7 +54,7 @@ namespace KerbalVR {
         protected Types.ShiftRegister<bool> isRendering = new Types.ShiftRegister<bool>(2);
 
         protected TextMeshPro label;
-        #endregion
+#endregion
 
 
         public void Initialize() {
@@ -234,4 +235,5 @@ namespace KerbalVR {
             label.rectTransform.localPosition = new Vector3(-hudPixelWidth * 0.45f, hudPixelHeight * 0.4f);
         }
     }
+#endif
 }

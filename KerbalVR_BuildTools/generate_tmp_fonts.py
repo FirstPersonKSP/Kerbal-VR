@@ -453,9 +453,9 @@ for filename in output_files:
 
     shutil.move(input_full_path, output_full_path)
 
-# move the output texture files to the KerbalVR_Mod folder
+# move the output texture files to the GameData folder
 output_files = [f for f in os.listdir(input_files_path) if os.path.isfile(os.path.join(input_files_path, f)) and f.endswith('.bin')]
-output_path = os.path.join('..', 'KerbalVR_Mod', 'KerbalVR', 'Assets', 'Textures')
+output_path = os.path.join('..', 'KerbalVR_Mod', 'GameData', 'KerbalVR', 'Assets', 'Textures')
 
 for filename in output_files:
     input_full_path = os.path.abspath(os.path.join(input_files_path, filename))

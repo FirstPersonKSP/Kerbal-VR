@@ -62,7 +62,7 @@ namespace KerbalVR
         protected KerbalVR.Hand handScriptL, handScriptR;
 
         // head up display
-        protected KerbalVR.HeadUpDisplay hud;
+        //protected KerbalVR.HeadUpDisplay hud;
 
         // device behaviors and actions
         protected bool isHandsInitialized = false;
@@ -107,6 +107,7 @@ namespace KerbalVR
 
             // set up the hand objects
             LeftHand = new GameObject("KVR_HandL");
+            LeftHand.transform.SetParent(transform, false);
             DontDestroyOnLoad(LeftHand);
             handScriptL = LeftHand.AddComponent<KerbalVR.Hand>();
             handScriptL.handPrefab = glovePrefabL;
@@ -114,6 +115,7 @@ namespace KerbalVR
             handScriptL.handActionPose = handActionPose;
 
             RightHand = new GameObject("KVR_HandR");
+            RightHand.transform.SetParent(transform, false);
             DontDestroyOnLoad(RightHand);
             handScriptR = RightHand.AddComponent<KerbalVR.Hand>();
             handScriptR.handPrefab = glovePrefabR;

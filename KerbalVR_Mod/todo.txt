@@ -1,0 +1,62 @@
+﻿pillar: playing the flight-mode game in VR.
+Everything else is secondary - VAB, UI, etc.
+
+=============================================
+MVP: can fly a rocket to orbit
+=============================================
+
+DONE: Get throttle control working properly
+
+DONE: Remove kerbal arms
+
+DONE: Add seat throttle control
+
+DONE: Add seat attitude control
+	DONE: create internal module
+	DONE: animate in response to inputs
+	DONE: implement grabbing
+
+Implement MFD button presses
+	detect taps
+	add VRButton InternalModule
+		
+
+better staging button
+
+make sure recovery works
+
+=============================================
+polish
+=============================================
+
+Implement twist knobs
+
+Implement flickable switches
+
+RCS translation controls
+
+Hook up thumbsticks when grabbing flightstick/rcs knob
+
+=============================================
+EVA stuff
+=============================================
+
+ThroughTheEyes integration? or roll our own?
+
+Hatch interactions
+
+How to move on the surface?
+
+Jetpack hookup
+
+EVA Part interactions (PAW in 3d? YES)
+
+=============================================
+Distant future
+=============================================
+
+FreeIVA type movement
+
+VAB support
+
+other UI support (mission control, space center, etc)

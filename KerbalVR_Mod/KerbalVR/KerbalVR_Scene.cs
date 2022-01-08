@@ -6,6 +6,20 @@ using Valve.VR;
 
 namespace KerbalVR
 {
+    public static class Scene
+	{
+        public static bool IsInIVA()
+        {
+            return (CameraManager.Instance != null) && (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA);
+        }
+
+        public static bool IsInEVA()
+        {
+            return (FlightGlobals.ActiveVessel != null) && FlightGlobals.ActiveVessel.isEVA;
+        }
+    }
+
+#if false
     /// <summary>
     /// Scene is a singleton class that encapsulates the code that positions
     /// the game cameras correctly for rendering them to the VR headset,
@@ -46,7 +60,7 @@ namespace KerbalVR
         ///   off around the time that GameScenes switch.
         ///
 
-        #region Constants
+    #region Constants
         public static readonly string[] KSP_CAMERA_NAMES_MAINMENU = {
             "GalaxyCamera",
             "Landscape Camera",
@@ -91,9 +105,9 @@ namespace KerbalVR
             "sceneryCam",
             "Main Camera",
         };
-        #endregion
+    #endregion
 
-        #region Singleton
+    #region Singleton
         /// <summary>
         /// This is a singleton class, and there must be exactly one GameObject with this Component in the scene.
         /// </summary>
@@ -116,10 +130,10 @@ namespace KerbalVR
         /// One-time initialization for this singleton class.
         /// </summary>
         private void Initialize() { }
-        #endregion
+    #endregion
 
 
-        #region Properties
+    #region Properties
         // The initial world position of the cameras for the current scene. This
         // position corresponds to the origin in the real world physical device
         // coordinate system.
@@ -136,9 +150,7 @@ namespace KerbalVR
         public ETrackingUniverseOrigin TrackingSpace { get; private set; } = ETrackingUniverseOrigin.TrackingUniverseSeated;
 
         public SteamVR_Utils.RigidTransform HmdTransform { get; private set; } = new SteamVR_Utils.RigidTransform();
-        public SteamVR_Utils.RigidTransform[] HmdEyeTransform { get; private set; } = new SteamVR_Utils.RigidTransform[2];
 
-        public List<Types.VRCameraSet> VRCameraSets { get; private set; } = new List<Types.VRCameraSet>();
         public bool IsVrCamerasEnabled { get; private set; } = false;
         public bool IsVrAllowed {
             get {
@@ -149,19 +161,19 @@ namespace KerbalVR
                     HighLogic.LoadedScene == GameScenes.FLIGHT;
             }
         }
-        #endregion
+    #endregion
 
 
-        #region Private Members
+    #region Private Members
         protected bool isVrCameraRigCreated = false;
         protected string[] currentKspSceneCameraNames = null;
-        #endregion
+    #endregion
 
 
         protected void Start() {
             // kick off a coroutine that constantly checks whether
             // we can copy KSP camera parameters onto our own VRCameraSet
-            StartCoroutine("CopyKspCameraParameters");
+            // StartCoroutine("CopyKspCameraParameters");
         }
 
         protected void OnEnable() {
@@ -184,7 +196,7 @@ namespace KerbalVR
         protected void Update() {
             if (KerbalVR.Core.IsOpenVrReady && !isVrCameraRigCreated) {
                 // very the VR cameras have been constructed
-                BuildVrCameraRig();
+                // BuildVrCameraRig();
             }
         }
 
@@ -196,119 +208,9 @@ namespace KerbalVR
             }
         }
 
-        protected void BuildVrCameraRig() {
-            // create the set of all VR cameras
-            if (!isVrCameraRigCreated) {
-                for (int camIdx = 0; camIdx < KSP_CAMERA_NAMES_ALL.Length; ++camIdx) {
-                    Types.VRCameraSet cameraSet = new Types.VRCameraSet();
-                    string kspCameraName = KSP_CAMERA_NAMES_ALL[camIdx];
-
-                    // create a camera for each eye
-                    cameraSet.vrCameras = new Types.VREyeCamera[2];
-                    for (int eyeIdx = 0; eyeIdx < 2; ++eyeIdx) {
-                        EVREye eye = (EVREye)eyeIdx;
-                        string kvrCameraName = "KVR_Eye_Camera (" + eye.ToString() + ") (" + kspCameraName + ")";
-                        GameObject kvrCameraGameObject = new GameObject(kvrCameraName);
-                        DontDestroyOnLoad(kvrCameraGameObject);
-                        Camera kvrCameraComponent = kvrCameraGameObject.AddComponent<Camera>();
-                        kvrCameraComponent.enabled = false;
-                        kvrCameraComponent.targetTexture = KerbalVR.Core.HmdEyeRenderTexture[eyeIdx];
-
-                        // save the camera references
-                        cameraSet.vrCameras[eyeIdx].cameraGameObject = kvrCameraGameObject;
-                        cameraSet.vrCameras[eyeIdx].cameraComponent = kvrCameraComponent;
-                    }
-
-                    // save the camera set
-                    cameraSet.kspCameraName = kspCameraName;
-                    cameraSet.kspCameraComponent = null;
-                    cameraSet.isInitialized = false;
-                    VRCameraSets.Add(cameraSet);
-                }
-                isVrCameraRigCreated = true;
-            }
-        }
-
-        protected IEnumerator CopyKspCameraParameters() {
-            while (true) {
-                // need to check if the KSP camera has come into existance, so we
-                // can copy its parameters
-
-                // but if we don't have a set of cameras to check, wait till next frame
-                if (currentKspSceneCameraNames == null) {
-                    yield return null;
-                    continue;
-                }
-
-                for (int camIdx = 0; camIdx < VRCameraSets.Count; ++camIdx) {
-                    if (VRCameraSets[camIdx].isInitialized) continue;
-                    string kspCameraName = VRCameraSets[camIdx].kspCameraName;
-
-                    // do we care about this camera? check if it's in the current set of cameras
-                    if (currentKspSceneCameraNames == null ||
-                        (currentKspSceneCameraNames != null && Array.IndexOf(currentKspSceneCameraNames, kspCameraName) < 0)) {
-                        yield return null;
-                        continue;
-                    }
-
-                    // try to find the GameObject with this camera name
-                    GameObject kspCameraGameObject = GameObject.Find(kspCameraName);
-                    if (kspCameraGameObject == null) {
-                        // stop here and wait for the next frame. we want to minimize calls to Find.
-                        yield return null;
-                        continue;
-                    }
-                    Camera kspCameraComponent = kspCameraGameObject.GetComponent<Camera>();
-                    if (kspCameraGameObject == null) {
-                        // we should never hit this condition
-                        Utils.LogWarning("CopyKspCameraParameters: Unexpected state, could not fetch Camera component for: " + kspCameraName);
-                        yield return null;
-                        continue;
-                    }
-
-                    // copy camera params for each eye
-                    for (int eyeIdx = 0; eyeIdx < 2; ++eyeIdx) {
-                        EVREye eye = (EVREye)eyeIdx;
-
-                        Camera kvrCameraComponent = VRCameraSets[camIdx].vrCameras[eyeIdx].cameraComponent;
-                        kvrCameraComponent.allowDynamicResolution = kspCameraComponent.allowDynamicResolution;
-                        kvrCameraComponent.allowHDR = kspCameraComponent.allowHDR;
-                        kvrCameraComponent.allowMSAA = kspCameraComponent.allowMSAA;
-                        kvrCameraComponent.backgroundColor = kspCameraComponent.backgroundColor;
-                        kvrCameraComponent.clearFlags = kspCameraComponent.clearFlags;
-                        kvrCameraComponent.clearStencilAfterLightingPass = kspCameraComponent.clearStencilAfterLightingPass;
-                        kvrCameraComponent.cullingMask = kspCameraComponent.cullingMask;
-                        kvrCameraComponent.depth = kspCameraComponent.depth + (eyeIdx * 0.5f);
-                        kvrCameraComponent.depthTextureMode = kspCameraComponent.depthTextureMode;
-                        kvrCameraComponent.eventMask = kspCameraComponent.eventMask;
-                        kvrCameraComponent.farClipPlane = kspCameraComponent.farClipPlane;
-                        kvrCameraComponent.layerCullDistances = kspCameraComponent.layerCullDistances;
-                        kvrCameraComponent.layerCullSpherical = kspCameraComponent.layerCullSpherical;
-                        kvrCameraComponent.nearClipPlane = kspCameraComponent.nearClipPlane;
-                        kvrCameraComponent.opaqueSortMode = kspCameraComponent.opaqueSortMode;
-                        kvrCameraComponent.orthographic = kspCameraComponent.orthographic;
-                        kvrCameraComponent.renderingPath = kspCameraComponent.renderingPath;
-                        kvrCameraComponent.useOcclusionCulling = kspCameraComponent.useOcclusionCulling;
-
-                        // set VR specific settings
-                        HmdMatrix44_t projectionMatrix = OpenVR.System.GetProjectionMatrix(
-                            eye, kvrCameraComponent.nearClipPlane, kvrCameraComponent.farClipPlane);
-                        kvrCameraComponent.projectionMatrix = MathUtils.Matrix4x4_OpenVr2UnityFormat(ref projectionMatrix);
-                    }
-
-                    VRCameraSets[camIdx].kspCameraComponent = kspCameraComponent;
-                    VRCameraSets[camIdx].isInitialized = true;
-#if DEBUG
-                    Utils.Log("Copied camera parameters for: " + kspCameraComponent);
-#endif
-                }
-
-                // end here and re-run on the next frame
-                yield return null;
-            }
-        }
 
         protected void UpdateCameraPositions() {
+#if false
             // re-position cameras as modified by game controls (e.g. Kerbals moving about)
             switch (HighLogic.LoadedScene) {
                 case GameScenes.FLIGHT:
@@ -405,6 +307,7 @@ namespace KerbalVR
                     }
                 }
             }
+#endif
         }
 
         protected void OnGameSceneSwitchRequested(GameEvents.FromToAction<GameScenes, GameScenes> fromToAction) {
@@ -425,15 +328,19 @@ namespace KerbalVR
         protected void OnHmdStatusUpdated(bool isRunning) {
             // if enabling VR, ensure camera rig is built
             if (isRunning) {
-                BuildVrCameraRig();
+                // BuildVrCameraRig();
             }
             StartCoroutine(TransitionScene());
         }
 
         protected IEnumerator TransitionScene(bool doFastTransition = false) {
+#if false
+
 #if DEBUG
             Utils.Log("TransitionScene: started...");
 #endif
+
+
             // if we don't have the current camera names, get them
             if (currentKspSceneCameraNames == null) {
                 currentKspSceneCameraNames = GetCameraNamesForCurrentScene();
@@ -463,7 +370,6 @@ namespace KerbalVR
                     }
                 }
             }
-
             // wait some time
             if (doFastTransition) {
                 yield return null;
@@ -534,6 +440,8 @@ namespace KerbalVR
                 // set up the VR cameras
                 SetVrCameraPositions();
             }
+#endif
+            yield return null;
         }
 
         /// <summary>
@@ -543,6 +451,7 @@ namespace KerbalVR
         /// </summary>
         /// <param name="kspCameraName">Name of the KSP camera</param>
         protected Camera GetKspCameraComponent(string kspCameraName) {
+#if false
             foreach (var cameraSet in VRCameraSets) {
                 if (cameraSet.kspCameraName == kspCameraName) {
                     if (cameraSet.kspCameraComponent != null) {
@@ -571,6 +480,7 @@ namespace KerbalVR
             }
             // did not find the camera
             Utils.LogWarning("GetKspCameraComponent: Unexpected state, cannot find camera " + kspCameraName);
+#endif
             return null;
         }
 
@@ -745,4 +655,6 @@ namespace KerbalVR
             return (FlightGlobals.ActiveVessel != null) && FlightGlobals.ActiveVessel.isEVA;
         }
     } // class Scene
+
+#endif
 } // namespace KerbalVR
