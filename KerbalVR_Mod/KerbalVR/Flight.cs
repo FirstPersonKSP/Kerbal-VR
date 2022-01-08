@@ -4,14 +4,14 @@ using UnityEngine;
 using UnityEngine.XR;
 using Valve.VR;
 
-namespace FirstPersonKerbal
+namespace KerbalVR
 {
 	[KSPAddon(KSPAddon.Startup.Flight, false)]
 	public class FirstPersonKerbalFlight : MonoBehaviour
 	{
 		public void Awake()
 		{
-			Util.LogMessage("Flight.Awake");
+			Utils.Log("Flight.Awake");
 
 			GameEvents.OnIVACameraKerbalChange.Add(OnIVACameraKerbalChange);
 			GameEvents.OnCameraChange.Add(OnCameraChange);
@@ -25,7 +25,7 @@ namespace FirstPersonKerbal
 
 		public void OnDestroy()
 		{
-			Util.LogMessage("Flight.OnDestroy");
+			Utils.Log("Flight.OnDestroy");
 			GameEvents.OnIVACameraKerbalChange.Remove(OnIVACameraKerbalChange);
 			GameEvents.OnCameraChange.Remove(OnCameraChange);
 		}
@@ -48,7 +48,7 @@ namespace FirstPersonKerbal
 
 		private void FixIVACamera()
 		{
-			Util.LogMessage("Flight.FixIVACamera");
+			Utils.Log("Flight.FixIVACamera");
 			
 			// when in VR, the origin of the camera transform generally needs to be on the floor rather than at the eye position
 			// Further, the IVA seats have a scale on them and VR camera doesn't seem to respect local scale on the camera's transform itself

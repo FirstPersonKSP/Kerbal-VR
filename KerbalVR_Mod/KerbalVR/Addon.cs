@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
 
-namespace FirstPersonKerbal
+namespace KerbalVR
 {
 	[KSPAddon(KSPAddon.Startup.Instantly, true)]
 	public class FirstPersonKerbalAddon : MonoBehaviour
 	{
 		public void Awake()
 		{
-			Util.LogMessage("Addon Awake");
+			Utils.Log("Addon Awake");
 
 			// for whatever reason, enabling VR mode during loading makes it super slow
 			XRSettings.enabled = false;
@@ -30,7 +30,7 @@ namespace FirstPersonKerbal
 
 		public void OnLevelWasLoaded(GameScenes gameScene)
 		{
-			Util.LogMessage($"OnLevelWasLoaded: {gameScene}");
+			Utils.Log($"OnLevelWasLoaded: {gameScene}");
 
 			if (gameScene == GameScenes.PSYSTEM)
 			{
@@ -49,7 +49,7 @@ namespace FirstPersonKerbal
 		}
 		private void OnPSystemReady()
 		{
-			Util.LogMessage("OnPSystemReady");
+			Utils.Log("OnPSystemReady");
 
 			GameObject.Find("UIMainCamera").GetComponent<Camera>().stereoTargetEye = StereoTargetEyeMask.None;
 			GameObject.Find("UIVectorCamera").GetComponent<Camera>().stereoTargetEye = StereoTargetEyeMask.None;
