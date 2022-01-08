@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7BC04BF6-70BE-47B5-A9E2-0FD68441CBA6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>KerbalVR</RootNamespace>
+    <AssemblyName>KerbalVR</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;UNITY_5_3_OR_NEWER</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;UNITY_5_3_OR_NEWER</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AssetBundleModule">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.JSONSerializeModule">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.VRModule">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.VRModule.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Components\KerbalVR_AvionicsComputer.cs" />
+    <Compile Include="KerbalVR_Configuration.cs" />
+    <Compile Include="KerbalVR_ConfigUtils.cs" />
+    <Compile Include="KerbalVR_Core.cs" />
+    <Compile Include="KerbalVR_Events.cs" />
+    <Compile Include="KerbalVR_AssetLoader.cs" />
+    <Compile Include="KerbalVR_Globals.cs" />
+    <Compile Include="KerbalVR_InteractionSystem.cs" />
+    <Compile Include="KerbalVR_Scene.cs" />
+    <Compile Include="KerbalVR_MathUtils.cs" />
+    <Compile Include="KerbalVR_AppGUI.cs" />
+    <Compile Include="KerbalVR_Types.cs" />
+    <Compile Include="KerbalVR_Utils.cs" />
+    <Compile Include="InteractionSystem\KerbalVR_Hand.cs" />
+    <Compile Include="InteractionSystem\KerbalVR_HeadUpDisplay.cs" />
+    <Compile Include="InteractionSystem\KerbalVR_InteractableInternalModule.cs" />
+    <Compile Include="InteractionSystem\KerbalVR_TeleportSystem.cs" />
+    <Compile Include="InternalModules\KerbalVR_HandRail.cs" />
+    <Compile Include="InternalModules\KerbalVR_TouchDisplay.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SkeletonPoses\KerbalVR_FallbackRelaxedPose.cs" />
+    <Compile Include="SkeletonPoses\KerbalVR_HandleRailGrabPose.cs" />
+    <Compile Include="SteamVR\Input\BehaviourUnityEvents\SteamVR_Behaviour_BooleanEvent.cs" />
+    <Compile Include="SteamVR\Input\BehaviourUnityEvents\SteamVR_Behaviour_PoseEvent.cs" />
+    <Compile Include="SteamVR\Input\BehaviourUnityEvents\SteamVR_Behaviour_Pose_ConnectedChangedEvent.cs" />
+    <Compile Include="SteamVR\Input\BehaviourUnityEvents\SteamVR_Behaviour_Pose_DeviceIndexChangedEvent.cs" />
+    <Compile Include="SteamVR\Input\BehaviourUnityEvents\SteamVR_Behaviour_Pose_TrackingChangedEvent.cs" />
+    <Compile Include="SteamVR\Input\BehaviourUnityEvents\SteamVR_Behaviour_SingleEvent.cs" />
+    <Compile Include="SteamVR\Input\BehaviourUnityEvents\SteamVR_Behaviour_SkeletonEvent.cs" />
+    <Compile Include="SteamVR\Input\BehaviourUnityEvents\SteamVR_Behaviour_Skeleton_ConnectedChangedEvent.cs" />
+    <Compile Include="SteamVR\Input\BehaviourUnityEvents\SteamVR_Behaviour_Skeleton_TrackingChangedEvent.cs" />
+    <Compile Include="SteamVR\Input\BehaviourUnityEvents\SteamVR_Behaviour_Vector2Event.cs" />
+    <Compile Include="SteamVR\Input\BehaviourUnityEvents\SteamVR_Behaviour_Vector3Event.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Action.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_ActionDirections.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_ActionSet.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_ActionSet_Manager.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Action_Boolean.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Action_In.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Action_Out.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Action_Pose.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Action_Single.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Action_Skeleton.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Action_Vector2.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Action_Vector3.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Action_Vibration.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_ActivateActionSetOnLoad.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Behaviour_Boolean.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Behaviour_Pose.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Behaviour_Single.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Behaviour_Skeleton.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Behaviour_SkeletonCustom.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Behaviour_Vector2.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Behaviour_Vector3.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_DefaultAction.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_DefaultActionSet.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Input.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Input_ActionFile.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Input_ActionScopes.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Input_ActionSetUsages.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Input_BindingFile.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Input_Generator_Names.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Input_References.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Input_Source.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Input_Sources.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Skeleton_Pose.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_Skeleton_Poser.cs" />
+    <Compile Include="SteamVR\Input\SteamVR_UpdateModes.cs" />
+    <Compile Include="SteamVR\Plugins\openvr_api.cs" />
+    <Compile Include="SteamVR\Scripts\SteamVR_Events.cs" />
+    <Compile Include="SteamVR\Scripts\SteamVR_RingBuffer.cs" />
+    <Compile Include="SteamVR\Scripts\SteamVR_Utils.cs" />
+    <Compile Include="SteamVR_Input\ActionSetClasses\SteamVR_Input_ActionSet_default.cs" />
+    <Compile Include="SteamVR_Input\ActionSetClasses\SteamVR_Input_ActionSet_editor.cs" />
+    <Compile Include="SteamVR_Input\ActionSetClasses\SteamVR_Input_ActionSet_EVA.cs" />
+    <Compile Include="SteamVR_Input\ActionSetClasses\SteamVR_Input_ActionSet_flight.cs" />
+    <Compile Include="SteamVR_Input\SteamVR_Input_Actions.cs" />
+    <Compile Include="SteamVR_Input\SteamVR_Input_ActionSets.cs" />
+    <Compile Include="SteamVR_Input\SteamVR_Input_Initialization.cs" />
+    <Compile Include="TMPFonts\KerbalVR_SpaceMono_Regular_SDF.cs" />
+    <Compile Include="TMPFonts\KerbalVR_Futura_Medium_BT_SDF.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>:: Create a release folder
+SETLOCAL
+set KSP_ROOT=C:\KSP_win64
+mkdir "$(TargetDir)rel\GameData\KerbalVR\lib"
+mkdir "$(TargetDir)rel\GameData\KerbalVR\Assets"
+copy /Y "$(TargetDir)"\"$(TargetFileName)" "$(TargetDir)\rel\GameData\KerbalVR\"
+robocopy "$(ProjectDir)lib" "$(TargetDir)\rel\GameData\KerbalVR\lib" /E
+robocopy "$(ProjectDir)Assets" "$(TargetDir)\rel\GameData\KerbalVR\Assets" /E
+
+:: Copy release into KSP directory
+if EXIST "%KSP_ROOT%" (
+  robocopy "$(TargetDir)\rel\GameData\KerbalVR" "%KSP_ROOT%\GameData\KerbalVR" /E
+)
+
+:: Do NOT make robocopy the last command here. It gives a "bad" return value.
+:: Make these simple copy commands the last events.
+copy /Y "$(SolutionDir)\..\LICENSE-aset_props" "$(TargetDir)\rel\"
+copy /Y "$(SolutionDir)\..\LICENSE-openvr" "$(TargetDir)\rel\"
+copy /Y "$(SolutionDir)\..\LICENSE-steamvr" "$(TargetDir)\rel\"
+copy /Y "$(SolutionDir)\..\LICENSE" "$(TargetDir)\rel\"
+copy /Y "$(SolutionDir)\..\README.md" "$(TargetDir)\rel\"
+ENDLOCAL
+</PostBuildEvent>
+  </PropertyGroup>
+  <Target Name="AfterClean">
+    <RemoveDir Directories="$(TargetDir)\rel" />
+  </Target>
+</Project>

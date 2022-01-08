@@ -1,0 +1,27 @@
+{
+  "alias_info": {},
+  "bindings": {
+    "/actions/default": {
+      "chords": [],
+      "haptics": [],
+      "poses": [],
+      "skeleton": [],
+      "sources": [
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/default/in/headsetonhead"
+            }
+          },
+          "mode": "button",
+          "path": "/user/head/proximity"
+        }
+      ]
+    }
+  },
+  "controller_type": "vive_cosmos",
+  "description": "VR controls for use with the KerbalVR mod in Kerbal Space Program",
+  "name": "KerbalVR (Vive Cosmos HMD) Defaults",
+  "options": {},
+  "simulated_actions": []
+}
