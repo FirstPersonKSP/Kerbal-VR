@@ -16,11 +16,10 @@ DONE: Add seat attitude control
 	DONE: animate in response to inputs
 	DONE: implement grabbing
 
-Implement MFD button presses
-	detect taps
-	add VRButton InternalModule
+DONE: Implement MFD button presses
+	DONE: detect taps
+	DONE: add VRButton InternalModule
 		
-
 better staging button
 
 make sure recovery works
