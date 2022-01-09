@@ -17,7 +17,7 @@ namespace KerbalVR.InternalModules
 		public Vector3 axis = Vector3.down;
 
 		[KSPField]
-		public float pressThreshold = 0.005f;
+		public float pressThreshold = 0.004f;
 
 		VRButtonInteractionListener interactionListener = null;
 
