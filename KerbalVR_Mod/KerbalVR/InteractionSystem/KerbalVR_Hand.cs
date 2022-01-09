@@ -265,7 +265,14 @@ namespace KerbalVR {
                 fingertipRigidbody.isKinematic = true;
                 fingertipCollider = this.gameObject.AddComponent<SphereCollider>();
                 fingertipCollider.isTrigger = true;
-                fingertipCollider.radius = 0.006f;
+                fingertipCollider.radius = 0.005f;
+
+
+#if FINGER_GIZMOS
+                var handGizmo = Utils.CreateGizmo();
+                handGizmo.transform.SetParent(transform, false);
+                gameObject.AddComponent<ColliderVisualizer>();
+#endif
             }
 
             protected void OnTriggerEnter(Collider other) {
@@ -275,7 +282,7 @@ namespace KerbalVR {
                     var interactable = other.gameObject.GetComponent<IFingertipInteractable>();
                     if (interactable != null)
 					{
-                        interactable.OnEnter(other, inputSource);
+                        interactable.OnEnter(fingertipCollider.transform.TransformPoint(fingertipCollider.center), other, inputSource);
 					}
                 }
             }
@@ -287,7 +294,7 @@ namespace KerbalVR {
                     var interactable = other.gameObject.GetComponent<IFingertipInteractable>();
                     if (interactable != null)
                     {
-                        interactable.OnStay(other, inputSource);
+                        interactable.OnStay(fingertipCollider.transform.TransformPoint(fingertipCollider.center), other, inputSource);
                     }
                 }
             }
@@ -298,7 +305,7 @@ namespace KerbalVR {
                     var interactable = other.gameObject.GetComponent<IFingertipInteractable>();
                     if (interactable != null)
                     {
-                        interactable.OnExit(other, inputSource);
+                        interactable.OnExit(fingertipCollider.transform.TransformPoint(fingertipCollider.center), other, inputSource);
                     }
                 }
             }

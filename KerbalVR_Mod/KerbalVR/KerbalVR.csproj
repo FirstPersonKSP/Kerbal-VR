@@ -18,7 +18,7 @@
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;UNITY_5_3_OR_NEWER; UNITY_2017_2_OR_NEWER;PROP_GIZMOS</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;UNITY_5_3_OR_NEWER; UNITY_2017_2_OR_NEWER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>

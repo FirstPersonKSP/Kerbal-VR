@@ -8,12 +8,18 @@ using Valve.VR;
 
 namespace KerbalVR.InternalModules
 {
-	class VRButton : InternalModule, IFingertipInteractable
+	class VRButton : InternalModule
 	{
 		[KSPField]
 		public string buttonTransformName = null;
 
+		[KSPField]
+		public Vector3 axis = Vector3.down;
 
+		[KSPField]
+		public float pressThreshold = 0.005f;
+
+		VRButtonInteractionListener interactionListener = null;
 
 #if PROP_GIZMOS
 		GameObject gizmo;
@@ -23,35 +29,83 @@ namespace KerbalVR.InternalModules
 		{
 			base.OnAwake();
 
-#if PROP_GIZMOS
-			if (gizmo == null)
+			var buttonTransform = internalProp.FindModelTransform(buttonTransformName);
+
+			if (buttonTransform != null && interactionListener == null)
 			{
-				var buttonTransform = internalProp.FindModelTransform(buttonTransformName);
+				interactionListener = buttonTransform.gameObject.AddComponent<VRButtonInteractionListener>();
+				interactionListener.buttonModule = this;
 
-				if (buttonTransform == null) return;
-
-				gizmo = Utils.CreateGizmo();
-				gizmo.transform.SetParent(buttonTransform, false);
-				Utils.SetLayer(gizmo, 20);
-
-				Utils.GetOrAddComponent<ColliderVisualizer>(buttonTransform.gameObject);
-			}
+#if PROP_GIZMOS
+				if (gizmo == null)
+				{
+					gizmo = Utils.CreateGizmo();
+					gizmo.transform.SetParent(transform, false);
+					Utils.SetLayer(gizmo, 20);
+				}
 #endif
+			}
 		}
 
-		public void OnEnter(Collider collider, SteamVR_Input_Sources inputSource)
+		class VRButtonInteractionListener : MonoBehaviour, IFingertipInteractable
 		{
-			
-		}
+			public VRButton buttonModule;
 
-		public void OnExit(Collider collider, SteamVR_Input_Sources inputSource)
-		{
-			
-		}
+			// when the fingertip initially makes contact, where is its center along the axis?
+			float initialContactOffset = 0.0f;
+			Vector3 initialLocalPosition; // the button's localPosition at rest
+			bool latched = false;
 
-		public void OnStay(Collider collider, SteamVR_Input_Sources inputSource)
-		{
-			
+			public void Awake()
+			{
+				initialLocalPosition = transform.localPosition;
+
+#if PROP_GIZMOS
+				Utils.GetOrAddComponent<ColliderVisualizer>(gameObject);
+#endif
+			}
+
+			float GetFingertipPosition(Vector3 fingertipCenter)
+			{
+				Vector3 localFingertipPosition = buttonModule.transform.InverseTransformPoint(fingertipCenter);
+				return Vector3.Dot(localFingertipPosition, buttonModule.axis);
+			}
+
+			public void OnEnter(Vector3 fingertipCenter, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+			{
+				initialContactOffset = GetFingertipPosition(fingertipCenter);
+			}
+
+			public void OnExit(Vector3 fingertipCenter, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+			{
+				transform.localPosition = initialLocalPosition;
+
+				if (latched)
+				{
+					buttonModule.internalProp.SendMessage("OnMouseUp");
+				}
+
+				latched = false;
+			}
+
+			public void OnStay(Vector3 fingertipCenter, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+			{
+				float currentFingerPosition = GetFingertipPosition(fingertipCenter);
+				float delta = Mathf.Max(0.0f, currentFingerPosition - initialContactOffset);
+
+				if (delta > buttonModule.pressThreshold)
+				{
+					delta = buttonModule.pressThreshold;
+
+					if (!latched)
+					{
+						latched = true;
+						gameObject.SendMessage("OnMouseDown");
+					}
+				}
+
+				transform.localPosition = initialLocalPosition + buttonModule.axis * delta;
+			}
 		}
 	}
 }
