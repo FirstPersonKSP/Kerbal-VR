@@ -18,7 +18,7 @@
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;UNITY_5_3_OR_NEWER; UNITY_2017_2_OR_NEWER</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;UNITY_5_3_OR_NEWER; UNITY_2017_2_OR_NEWER;PROP_GIZMOS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -109,6 +109,7 @@
     <Compile Include="InteractionSystem\KerbalVR_HeadUpDisplay.cs" />
     <Compile Include="InteractionSystem\KerbalVR_InteractableBehaviour.cs" />
     <Compile Include="InteractionSystem\KerbalVR_TeleportSystem.cs" />
+    <Compile Include="InternalModules\InternalCollider.cs" />
     <Compile Include="InternalModules\KerbalVR_Button.cs" />
     <Compile Include="InternalModules\KerbalVR_FlightStick.cs" />
     <Compile Include="InternalModules\KerbalVR_HandRail.cs" />
