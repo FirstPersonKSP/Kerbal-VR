@@ -56,6 +56,14 @@ namespace KerbalVR
 			{
 				// TODO: how does this work with PCR?
 
+				// Don't really know why, but sometimes the eye transform has a nonzero scale on it
+				// this messes with the camera projection and the size/movement of the hands.
+				// does this mess with our external view of the rocket...?
+				Transform eyeTransform = InternalCamera.Instance.transform.parent;
+				eyeTransform.localScale = Vector3.one;
+				InternalCamera.Instance.transform.localScale = Vector3.one;
+				KerbalVR.InteractionSystem.Instance.transform.localScale = Vector3.one;
+
 				Transform kerbalTransform = InternalCamera.Instance.transform.parent.parent;
 				
 				var meshRenderer = kerbalTransform.gameObject.GetComponentInChildren<SkinnedMeshRenderer>();

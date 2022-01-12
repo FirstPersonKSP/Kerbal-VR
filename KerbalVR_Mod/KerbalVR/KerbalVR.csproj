@@ -18,7 +18,7 @@
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;UNITY_5_3_OR_NEWER; UNITY_2017_2_OR_NEWER;PROP_GIZMOS</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;UNITY_5_3_OR_NEWER; UNITY_2017_2_OR_NEWER;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -36,6 +36,10 @@
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <Private>false</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program - IVA DEV 1.12.2\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="UnityEngine">

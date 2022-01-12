@@ -24,6 +24,9 @@ namespace KerbalVR.InternalModules
 
 		Quaternion grabbedOrientation; // the worldspace orientation of the hand at the moment the stick was grabbed
 
+		SpaceNavigator previousSpaceNavigator;
+		FakeSpaceNavigator spaceNavigator = new FakeSpaceNavigator();
+
 #if PROP_GIZMOS
 		GameObject gizmo;
 #endif
@@ -67,6 +70,7 @@ namespace KerbalVR.InternalModules
 			interactable.SkeletonPoser.Initialize();
 
 			interactable.OnGrab += OnGrab;
+			interactable.OnRelease += OnRelease;
 
 			FlightInputHandler.OnRawAxisInput += GetInput;
 
@@ -82,8 +86,14 @@ namespace KerbalVR.InternalModules
 #endif
 		}
 
-		private void GetInput(FlightCtrlState st)
+		// gets the input amount in each axis in a [-1,1] range
+		// x = forward/back
+		// y = twist
+		// z = left/right
+		private Vector3 GetInputAxes()
 		{
+			Vector3 result = Vector3.zero;
+
 			if (interactable.IsGrabbed)
 			{
 				Quaternion currentHandOrientation = Quaternion.Inverse(interactable.GrabbedHand.handObject.transform.rotation) * stickTransform.parent.rotation;
@@ -96,25 +106,63 @@ namespace KerbalVR.InternalModules
 				if (deltaAngles.y > 180) deltaAngles.y -= 360;
 				if (deltaAngles.z > 180) deltaAngles.z -= 360;
 
-				st.yaw = Mathf.InverseLerp(-deflectionAngle, deflectionAngle, deltaAngles.z) * 2.0f - 1.0f;
-				st.pitch = Mathf.InverseLerp(-deflectionAngle, deflectionAngle, deltaAngles.x) * 2.0f - 1.0f;
-				st.roll = Mathf.InverseLerp(twistAngle, -twistAngle, deltaAngles.y) * 2.0f - 1.0f;
+				result.x = Mathf.InverseLerp(-deflectionAngle, deflectionAngle, deltaAngles.x) * 2.0f - 1.0f;
+				result.y = Mathf.InverseLerp(twistAngle, -twistAngle, deltaAngles.y) * 2.0f - 1.0f;
+				result.z = Mathf.InverseLerp(-deflectionAngle, deflectionAngle, deltaAngles.z) * 2.0f - 1.0f;
+			}
+
+			return result;
+		}
+
+		private void GetInput(FlightCtrlState st)
+		{
+			if (interactable.IsGrabbed)
+			{
+				Vector3 inputAxes = GetInputAxes();
+				
+				st.pitch = inputAxes.x;
+				st.roll = inputAxes.y;
+				st.yaw = inputAxes.z;
 			}
 		}
 
 		private void OnDestroy()
 		{
-			FlightInputHandler.OnRawAxisInput -= GetInput;
+			// FlightInputHandler.OnRawAxisInput -= GetInput;
 		}
 
 		private void OnGrab(Hand hand)
 		{
 			grabbedOrientation = Quaternion.Inverse(hand.handObject.transform.rotation) * stickTransform.parent.rotation;
+
+			vessel.OnPreAutopilotUpdate += OnPreAutopilotUpdate;
+			vessel.OnPostAutopilotUpdate += OnPostAutopilotUpdate;
+		}
+
+		private void OnPreAutopilotUpdate(FlightCtrlState st)
+		{
+			// install our fake space navigator class so that SAS can understand when we want to inject inputs
+			FlightInputHandler.SPACENAV_USE_AS_FLIGHT_CONTROL = true;
+			GameSettings.SPACENAV_FLIGHT_SENS_ROT = 1.0f;
+			previousSpaceNavigator = SpaceNavigator.Instance;
+			SpaceNavigator.Instance = spaceNavigator;
+		}
+
+		private void OnPostAutopilotUpdate(FlightCtrlState st)
+		{
+			// remove the fake space navigator
+			FlightInputHandler.SPACENAV_USE_AS_FLIGHT_CONTROL = false;
+			SpaceNavigator.Instance = previousSpaceNavigator;
+		}
+
+		private void OnRelease(Hand hand)
+		{
+			vessel.OnPreAutopilotUpdate -= OnPreAutopilotUpdate;
+			vessel.OnPostAutopilotUpdate -= OnPostAutopilotUpdate;
 		}
 
 		public override void OnUpdate()
 		{
-			
 
 			if (stickTransform != null)
 			{
@@ -122,6 +170,25 @@ namespace KerbalVR.InternalModules
 					-FlightInputHandler.state.pitch * deflectionAngle,
 					FlightInputHandler.state.roll * twistAngle,
 					-FlightInputHandler.state.yaw * deflectionAngle);
+			}
+		}
+
+		class FakeSpaceNavigator : SpaceNavigator
+		{
+			public override void Dispose()
+			{
+			}
+
+			public override Quaternion GetRotation()
+			{
+				// a bit silly: this class isn't used to generate any input, only to tell SAS that we are trying to turn the ship.
+				// so all we have to do is return a non-zero rotation
+				return Quaternion.Euler(30, 30, 30);
+			}
+
+			public override Vector3 GetTranslation()
+			{
+				return Vector3.zero;
 			}
 		}
 	}
