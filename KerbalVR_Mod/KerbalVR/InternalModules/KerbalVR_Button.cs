@@ -29,7 +29,7 @@ namespace KerbalVR.InternalModules
 		{
 			base.OnAwake();
 
-			var buttonTransform = internalProp.FindModelTransform(buttonTransformName);
+			var buttonTransform = internalProp.transform.Find(buttonTransformName);
 
 			if (buttonTransform != null && interactionListener == null)
 			{
