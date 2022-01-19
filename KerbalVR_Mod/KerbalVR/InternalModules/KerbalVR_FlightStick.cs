@@ -14,10 +14,22 @@ namespace KerbalVR.InternalModules
 		public string stickTransformName = null;
 
 		[KSPField]
-		public float deflectionAngle = 30.0f;
+		public float tiltAngle = 30.0f;
 
 		[KSPField]
 		public float twistAngle = 30.0f;
+
+		[KSPField]
+		public float tiltDeadzoneAngle = 3.0f;
+
+		[KSPField]
+		public float twistDeadzoneAngle = 3.0f;
+
+		[KSPField]
+		public float tiltExponent = 3.0f;
+
+		[KSPField]
+		public float twistExponent = 3.0f;
 
 		InteractableBehaviour interactable;
 		Transform stickTransform = null;
@@ -86,6 +98,14 @@ namespace KerbalVR.InternalModules
 #endif
 		}
 
+		private static float ApplyDeadZone(float raw, float deadZoneFraction, float exponent)
+		{
+			float sign = Mathf.Sign(raw);
+			float deadZoned = Mathf.Max(0, Mathf.Abs(raw) - deadZoneFraction) * (1.0f / (1.0f - deadZoneFraction));
+
+			return sign * Mathf.Pow(deadZoned, exponent);
+		}
+
 		// gets the input amount in each axis in a [-1,1] range
 		// x = forward/back
 		// y = twist
@@ -106,9 +126,18 @@ namespace KerbalVR.InternalModules
 				if (deltaAngles.y > 180) deltaAngles.y -= 360;
 				if (deltaAngles.z > 180) deltaAngles.z -= 360;
 
-				result.x = Mathf.InverseLerp(-deflectionAngle, deflectionAngle, deltaAngles.x) * 2.0f - 1.0f;
-				result.y = Mathf.InverseLerp(twistAngle, -twistAngle, deltaAngles.y) * 2.0f - 1.0f;
-				result.z = Mathf.InverseLerp(-deflectionAngle, deflectionAngle, deltaAngles.z) * 2.0f - 1.0f;
+				Vector3 raw = new Vector3(
+					Mathf.InverseLerp(-tiltAngle, tiltAngle, deltaAngles.x) * 2.0f - 1.0f,
+					Mathf.InverseLerp(twistAngle, -twistAngle, deltaAngles.y) * 2.0f - 1.0f,
+					Mathf.InverseLerp(-tiltAngle, tiltAngle, deltaAngles.z) * 2.0f - 1.0f);
+
+				float twistDeadzoneFraction = twistDeadzoneAngle / twistAngle;
+				float tiltDeadzoneFraction = tiltDeadzoneAngle / tiltAngle;
+
+				result = new Vector3(
+					ApplyDeadZone(raw.x, tiltDeadzoneFraction, tiltExponent),
+					ApplyDeadZone(raw.y, twistDeadzoneFraction, twistExponent),
+					ApplyDeadZone(raw.z, tiltDeadzoneFraction, tiltExponent));
 			}
 
 			return result;
@@ -167,9 +196,9 @@ namespace KerbalVR.InternalModules
 			if (stickTransform != null)
 			{
 				stickTransform.localRotation = Quaternion.Euler(
-					-FlightInputHandler.state.pitch * deflectionAngle,
+					-FlightInputHandler.state.pitch * tiltAngle,
 					FlightInputHandler.state.roll * twistAngle,
-					-FlightInputHandler.state.yaw * deflectionAngle);
+					-FlightInputHandler.state.yaw * tiltAngle);
 			}
 		}
 
