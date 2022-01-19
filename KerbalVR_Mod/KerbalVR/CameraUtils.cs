@@ -67,12 +67,14 @@ namespace KerbalVR
 			to.useOcclusionCulling = from.useOcclusionCulling;
 		}
 
-		static public void AddVRCamera(Camera parent, bool disablePositionTracking, bool dontDestroyOnLoad)
+		static public GameObject AddVRCamera(Camera parent, bool disablePositionTracking, bool dontDestroyOnLoad)
 		{
 			string childName = parent.name + "VR";
-			if (parent.gameObject.GetChild(childName) != null)
+			var childObject = parent.gameObject.GetChild(childName);
+
+			if (childObject != null)
 			{
-				return;
+				return childObject;
 			}
 
 			var go = new GameObject(childName);
@@ -98,6 +100,8 @@ namespace KerbalVR
 
 			parent.enabled = false;
 			// Destroy(parent);
+
+			return go;
 		}
 	}
 }
