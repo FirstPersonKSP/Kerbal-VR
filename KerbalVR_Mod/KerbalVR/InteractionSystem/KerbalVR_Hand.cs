@@ -42,6 +42,12 @@ namespace KerbalVR {
 		{
             get { return handObject.transform.TransformPoint(GripOffset); }
 		}
+
+        public Vector3 FingertipPosition
+		{
+            get { return fingertipInteraction.FingertipCenter; }
+		}
+
         protected SkinnedMeshRenderer handRenderer;
         protected SteamVR_Behaviour_Skeleton handSkeleton;
 
@@ -118,6 +124,7 @@ namespace KerbalVR {
             Transform fingertipTransform = handObject.transform.Find(fingertipTransformPath);
             fingertipInteraction = fingertipTransform.gameObject.AddComponent<FingertipCollider>();
             fingertipInteraction.inputSource = handType;
+            fingertipInteraction.hand = this;
 
             // set up actions
             actionGrab = SteamVR_Input.GetBooleanAction("default", "GrabGrip");
@@ -253,6 +260,12 @@ namespace KerbalVR {
 
 #region Properties
             public SteamVR_Input_Sources inputSource;
+            public Hand hand;
+
+            public Vector3 FingertipCenter
+            {
+                get { return fingertipCollider.transform.TransformPoint(fingertipCollider.center); }
+            }
 #endregion
 
             #region Private Members
@@ -269,8 +282,8 @@ namespace KerbalVR {
 
 
 #if FINGER_GIZMOS
-                var handGizmo = Utils.CreateGizmo();
-                handGizmo.transform.SetParent(transform, false);
+                //var handGizmo = Utils.CreateGizmo();
+                //handGizmo.transform.SetParent(transform, false);
                 gameObject.AddComponent<ColliderVisualizer>();
 #endif
             }
@@ -282,7 +295,7 @@ namespace KerbalVR {
                     var interactable = other.gameObject.GetComponent<IFingertipInteractable>();
                     if (interactable != null)
 					{
-                        interactable.OnEnter(fingertipCollider.transform.TransformPoint(fingertipCollider.center), other, inputSource);
+                        interactable.OnEnter(hand, other, inputSource);
 					}
                 }
             }
@@ -294,7 +307,7 @@ namespace KerbalVR {
                     var interactable = other.gameObject.GetComponent<IFingertipInteractable>();
                     if (interactable != null)
                     {
-                        interactable.OnStay(fingertipCollider.transform.TransformPoint(fingertipCollider.center), other, inputSource);
+                        interactable.OnStay(hand, other, inputSource);
                     }
                 }
             }
@@ -305,7 +318,7 @@ namespace KerbalVR {
                     var interactable = other.gameObject.GetComponent<IFingertipInteractable>();
                     if (interactable != null)
                     {
-                        interactable.OnExit(fingertipCollider.transform.TransformPoint(fingertipCollider.center), other, inputSource);
+                        interactable.OnExit(hand, other, inputSource);
                     }
                 }
             }

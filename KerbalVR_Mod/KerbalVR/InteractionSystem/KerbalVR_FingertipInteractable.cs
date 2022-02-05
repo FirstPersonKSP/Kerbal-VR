@@ -10,8 +10,8 @@ namespace KerbalVR
 {
 	interface IFingertipInteractable
 	{
-		void OnEnter(Vector3 fingertipCenter, Collider buttonCollider, SteamVR_Input_Sources inputSource);
-		void OnStay(Vector3 fingertipCenter, Collider buttonCollider, SteamVR_Input_Sources inputSource);
-		void OnExit(Vector3 fingertipCenter, Collider buttonCollider, SteamVR_Input_Sources inputSource);
+		void OnEnter(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource);
+		void OnStay(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource);
+		void OnExit(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource);
 	}
 }

@@ -71,13 +71,13 @@ namespace KerbalVR.InternalModules
 				return Vector3.Dot(localFingertipPosition, buttonModule.axis);
 			}
 
-			public void OnEnter(Vector3 fingertipCenter, Collider buttonCollider, SteamVR_Input_Sources inputSource)
-			{
-				initialContactOffset = GetFingertipPosition(fingertipCenter);
+			public void OnEnter(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+            {
+				initialContactOffset = GetFingertipPosition(hand.FingertipPosition);
 			}
 
-			public void OnExit(Vector3 fingertipCenter, Collider buttonCollider, SteamVR_Input_Sources inputSource)
-			{
+			public void OnExit(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+            {
 				transform.localPosition = initialLocalPosition;
 
 				if (latched)
@@ -88,9 +88,9 @@ namespace KerbalVR.InternalModules
 				latched = false;
 			}
 
-			public void OnStay(Vector3 fingertipCenter, Collider buttonCollider, SteamVR_Input_Sources inputSource)
-			{
-				float currentFingerPosition = GetFingertipPosition(fingertipCenter);
+			public void OnStay(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+            {
+				float currentFingerPosition = GetFingertipPosition(hand.FingertipPosition);
 				float delta = Mathf.Max(0.0f, currentFingerPosition - initialContactOffset);
 
 				if (delta > buttonModule.pressThreshold)

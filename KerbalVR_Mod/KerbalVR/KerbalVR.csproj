@@ -9,16 +9,17 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>KerbalVR</RootNamespace>
     <AssemblyName>KerbalVR</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;UNITY_5_3_OR_NEWER; UNITY_2017_2_OR_NEWER;</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;UNITY_5_3_OR_NEWER; UNITY_2017_2_OR_NEWER;PROP_GIZMOS;FINGER_GIZMOS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -120,6 +121,7 @@
     <Compile Include="InternalModules\KerbalVR_Switch.cs" />
     <Compile Include="InternalModules\KerbalVR_Throttle.cs" />
     <Compile Include="InternalModules\KerbalVR_TouchDisplay.cs" />
+    <Compile Include="IVAAdaptors\IVASwitch.cs" />
     <Compile Include="KerbalVR_AssetLoader.cs" />
     <Compile Include="KerbalVR_Core.cs" />
     <Compile Include="KerbalVR_Globals.cs" />
@@ -128,6 +130,7 @@
     <Compile Include="KerbalVR_Scene.cs" />
     <Compile Include="KerbalVR_Types.cs" />
     <Compile Include="KerbalVR_Utils.cs" />
+    <Compile Include="RPMWrapper.cs" />
     <Compile Include="SkeletonPoses\KerbalVR_FallbackRelaxedPose.cs" />
     <Compile Include="SkeletonPoses\KerbalVR_HandleRailGrabPose.cs" />
     <Compile Include="SteamVR_Input\ActionSetClasses\SteamVR_Input_ActionSet_default.cs" />
@@ -147,6 +150,7 @@
       <Name>SteamVR</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>del /f /q $(SolutionDir)GameData\$(ProjectName)\Plugins\*

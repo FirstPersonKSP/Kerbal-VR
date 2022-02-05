@@ -49,8 +49,8 @@ namespace KerbalVR
 
 
         #region Properties
-        public GameObject LeftHand { get; private set; }
-        public GameObject RightHand { get; private set; }
+        public Hand LeftHand { get; private set; }
+        public Hand RightHand { get; private set; }
         //public GameObject HeadUpDisplay { get; private set; }
         #endregion
 
@@ -59,7 +59,6 @@ namespace KerbalVR
         // hand game objects
         protected GameObject glovePrefabL;
         protected GameObject glovePrefabR;
-        protected KerbalVR.Hand handScriptL, handScriptR;
 
         // head up display
         //protected KerbalVR.HeadUpDisplay hud;
@@ -106,28 +105,28 @@ namespace KerbalVR
             teleportAction = SteamVR_Input.GetBooleanAction("EVA", "Teleport");
 
             // set up the hand objects
-            LeftHand = new GameObject("KVR_HandL");
-            LeftHand.transform.SetParent(transform, false);
-            DontDestroyOnLoad(LeftHand);
-            handScriptL = LeftHand.AddComponent<KerbalVR.Hand>();
-            handScriptL.handPrefab = glovePrefabL;
-            handScriptL.handType = SteamVR_Input_Sources.LeftHand;
-            handScriptL.handActionPose = handActionPose;
+            var lhGameObject = new GameObject("KVR_HandL");
+            lhGameObject.transform.SetParent(transform, false);
+            DontDestroyOnLoad(lhGameObject);
+            LeftHand = lhGameObject.AddComponent<KerbalVR.Hand>();
+            LeftHand.handPrefab = glovePrefabL;
+            LeftHand.handType = SteamVR_Input_Sources.LeftHand;
+            LeftHand.handActionPose = handActionPose;
 
-            RightHand = new GameObject("KVR_HandR");
-            RightHand.transform.SetParent(transform, false);
-            DontDestroyOnLoad(RightHand);
-            handScriptR = RightHand.AddComponent<KerbalVR.Hand>();
-            handScriptR.handPrefab = glovePrefabR;
-            handScriptR.handType = SteamVR_Input_Sources.RightHand;
-            handScriptR.handActionPose = handActionPose;
+            var rhGameObject = new GameObject("KVR_HandR");
+            rhGameObject.transform.SetParent(transform, false);
+            DontDestroyOnLoad(rhGameObject);
+            RightHand = rhGameObject.AddComponent<KerbalVR.Hand>();
+            RightHand.handPrefab = glovePrefabR;
+            RightHand.handType = SteamVR_Input_Sources.RightHand;
+            RightHand.handActionPose = handActionPose;
 
-            handScriptR.otherHand = LeftHand;
-            handScriptL.otherHand = RightHand;
+            RightHand.otherHand = LeftHand.gameObject;
+            LeftHand.otherHand = RightHand.gameObject;
 
             // can init the skeleton behavior now
-            handScriptL.Initialize();
-            handScriptR.Initialize();
+            LeftHand.Initialize();
+            RightHand.Initialize();
 
             // init the teleport system
             teleportSystemGameObject = new GameObject("KVR_TeleportSystem");
