@@ -101,6 +101,12 @@ namespace KerbalVR.InternalModules
 			return Mathf.Atan2(y, x) * Mathf.Rad2Deg;
 		}
 
+		public void Awake()
+        {
+			m_currentState = switchModule.m_ivaSwitch.CurrentState;
+			SetAngle(m_currentState ? switchModule.maxAngle : switchModule.minAngle);
+        }
+
 		public void Update()
 		{
 			if (m_isMoving)
