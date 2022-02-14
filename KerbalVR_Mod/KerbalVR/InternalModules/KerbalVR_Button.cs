@@ -20,6 +20,7 @@ namespace KerbalVR.InternalModules
 		public float pressThreshold = 0.004f;
 
 		VRButtonInteractionListener interactionListener = null;
+		VRCover cover = null;
 
 #if PROP_GIZMOS
 		GameObject gizmo;
@@ -45,6 +46,8 @@ namespace KerbalVR.InternalModules
 				}
 #endif
 			}
+
+			cover = gameObject.GetComponent<VRCover>();
 		}
 
 		class VRButtonInteractionListener : MonoBehaviour, IFingertipInteractable
@@ -55,6 +58,7 @@ namespace KerbalVR.InternalModules
 			float initialContactOffset = 0.0f;
 			Vector3 initialLocalPosition; // the button's localPosition at rest
 			bool latched = false;
+			bool latchedCover = false;
 
 			public void Awake()
 			{
@@ -74,10 +78,14 @@ namespace KerbalVR.InternalModules
 			public void OnEnter(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
             {
 				initialContactOffset = GetFingertipPosition(hand.FingertipPosition);
+
+				latchedCover = buttonModule.cover != null && !buttonModule.cover.IsOpen;
 			}
 
 			public void OnExit(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
             {
+				if (latchedCover) return;
+
 				transform.localPosition = initialLocalPosition;
 
 				if (latched)
@@ -90,6 +98,8 @@ namespace KerbalVR.InternalModules
 
 			public void OnStay(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
             {
+				if (latchedCover) return;
+
 				float currentFingerPosition = GetFingertipPosition(hand.FingertipPosition);
 				float delta = Mathf.Max(0.0f, currentFingerPosition - initialContactOffset);
 
