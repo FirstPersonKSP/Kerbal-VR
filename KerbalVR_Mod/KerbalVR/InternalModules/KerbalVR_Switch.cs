@@ -140,6 +140,8 @@ namespace KerbalVR.InternalModules
 				m_hand = hand;
 				m_contactedAngle = GetFingertipAngle(m_hand.FingertipPosition);
 				m_isMoving = true;
+
+				enabled = true;
 			}
 		}
 

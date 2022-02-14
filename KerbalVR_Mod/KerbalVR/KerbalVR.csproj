@@ -116,6 +116,7 @@
     <Compile Include="InteractionSystem\KerbalVR_TeleportSystem.cs" />
     <Compile Include="InternalModules\InternalCollider.cs" />
     <Compile Include="InternalModules\KerbalVR_Button.cs" />
+    <Compile Include="InternalModules\KerbalVR_Cover.cs" />
     <Compile Include="InternalModules\KerbalVR_FlightStick.cs" />
     <Compile Include="InternalModules\KerbalVR_HandRail.cs" />
     <Compile Include="InternalModules\KerbalVR_Switch.cs" />
