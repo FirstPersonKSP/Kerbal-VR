@@ -67,30 +67,34 @@ namespace KerbalVR.InternalModules
 
 				if (childTransform == null) return;
 
-				switch (shapeType)
+				collider = childTransform.GetComponent<Collider>();
+				if (collider == null)
 				{
-					case "Box":
-						var boxCollider = childTransform.gameObject.AddComponent<BoxCollider>();
-						boxCollider.center = center;
-						boxCollider.size = boxDimensions;
-						collider = boxCollider;
-						break;
-					case "Sphere":
-						var sphereCollider = childTransform.gameObject.AddComponent<SphereCollider>();
-						sphereCollider.center = center;
-						sphereCollider.radius = radius;
-						collider = sphereCollider;
-						break;
-					case "Capsule":
-						var capsuleCollider = childTransform.gameObject.AddComponent<CapsuleCollider>();
-						capsuleCollider.center = center;
-						capsuleCollider.height = height;
-						capsuleCollider.radius = radius;
-						collider = capsuleCollider;
-						break;
-					default:
-						Utils.LogError($"Unrecognized primitive type {shapeType} - must be Box, Sphere, or Capsule");
-						return;
+					switch (shapeType)
+					{
+						case "Box":
+							var boxCollider = childTransform.gameObject.AddComponent<BoxCollider>();
+							boxCollider.center = center;
+							boxCollider.size = boxDimensions;
+							collider = boxCollider;
+							break;
+						case "Sphere":
+							var sphereCollider = childTransform.gameObject.AddComponent<SphereCollider>();
+							sphereCollider.center = center;
+							sphereCollider.radius = radius;
+							collider = sphereCollider;
+							break;
+						case "Capsule":
+							var capsuleCollider = childTransform.gameObject.AddComponent<CapsuleCollider>();
+							capsuleCollider.center = center;
+							capsuleCollider.height = height;
+							capsuleCollider.radius = radius;
+							collider = capsuleCollider;
+							break;
+						default:
+							Utils.LogError($"Unrecognized primitive type {shapeType} - must be Box, Sphere, or Capsule");
+							return;
+					}
 				}
 
 				collider.isTrigger = true;

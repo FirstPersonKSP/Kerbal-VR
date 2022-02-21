@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using Valve.VR;
+using Valve.VR.InteractionSystem;
 
 namespace KerbalVR.InternalModules
 {
@@ -19,9 +20,6 @@ namespace KerbalVR.InternalModules
 
 		[KSPField]
 		public Vector3 zeroVector = Vector3.up;
-
-		[KSPField]
-		public Vector3 switchVector = Vector3.up;
 
 		[KSPField]
 		public float minAngle = -40;
@@ -46,10 +44,10 @@ namespace KerbalVR.InternalModules
 
 			if (switchTransform != null && interactionListener == null)
 			{
-				interactionListener = switchTransform.gameObject.AddComponent<VRSwitchInteractionListener>();
+				interactionListener = Util.FindOrAddComponent<VRSwitchInteractionListener>(switchTransform.gameObject);
 				interactionListener.switchModule = this;
 
-				currentAngle = minAngle;
+				currentAngle = maxAngle;
 
 #if PROP_GIZMOS
 				if (arrow == null)
@@ -68,6 +66,8 @@ namespace KerbalVR.InternalModules
 				}
 #endif
 			}
+
+			interactionListener.enabled = true;
 		}
 
 		public void Start()
@@ -84,8 +84,6 @@ namespace KerbalVR.InternalModules
 		float m_contactedAngle;
 		bool m_isMoving = false;
 
-		bool m_currentState = false;
-
 		float GetFingertipAngle(Vector3 fingertipCenter)
 		{
 			Vector3 vec = fingertipCenter - transform.position;
@@ -100,12 +98,6 @@ namespace KerbalVR.InternalModules
 
 			return Mathf.Atan2(y, x) * Mathf.Rad2Deg;
 		}
-
-		public void Awake()
-        {
-			m_currentState = switchModule.m_ivaSwitch.CurrentState;
-			SetAngle(m_currentState ? switchModule.maxAngle : switchModule.minAngle);
-        }
 
 		public void Update()
 		{
@@ -124,12 +116,16 @@ namespace KerbalVR.InternalModules
                 {
 					m_isMoving = false;
 
-					bool newState = clampedAngle == switchModule.maxAngle;
+					bool newState = clampedAngle == switchModule.minAngle;
 
 					switchModule.m_ivaSwitch.SetState(newState);
                 }
 
 				SetAngle(clampedAngle);
+			}
+			else
+            {
+				SetAngle(switchModule.m_ivaSwitch.CurrentState ? switchModule.minAngle : switchModule.maxAngle);
 			}
 		}
 
