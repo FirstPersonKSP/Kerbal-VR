@@ -122,6 +122,8 @@ namespace KerbalVR.InternalModules
                 }
 
 				SetAngle(clampedAngle);
+
+				m_contactedAngle = newAngle;
 			}
 			else
             {
