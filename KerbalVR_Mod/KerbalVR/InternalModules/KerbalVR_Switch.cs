@@ -28,6 +28,7 @@ namespace KerbalVR.InternalModules
 		public float maxAngle = 40;
 
 		VRSwitchInteractionListener interactionListener = null;
+		VRCover cover = null;
 		internal float currentAngle = 0;
 
 		internal IVASwitch m_ivaSwitch;
@@ -68,95 +69,97 @@ namespace KerbalVR.InternalModules
 			}
 
 			interactionListener.enabled = true;
+
+			cover = gameObject.GetComponent<VRCover>();
 		}
 
 		public void Start()
         {
 			m_ivaSwitch = IVASwitch.ConstructSwitch(gameObject);
         }
-	}
 
-	class VRSwitchInteractionListener : MonoBehaviour, IFingertipInteractable
-	{
-		public VRSwitch switchModule;
-
-		Hand m_hand;
-		float m_contactedAngle;
-		bool m_isMoving = false;
-
-		float GetFingertipAngle(Vector3 fingertipCenter)
+		class VRSwitchInteractionListener : MonoBehaviour, IFingertipInteractable
 		{
-			Vector3 vec = fingertipCenter - transform.position;
-			vec = transform.parent.InverseTransformDirection(vec);
-			vec -= vec * Vector3.Dot(vec, switchModule.rotationAxis);
-			vec = Vector3.Normalize(vec);
+			public VRSwitch switchModule;
 
-			Vector3 yaxis = Vector3.Cross(switchModule.rotationAxis, switchModule.zeroVector);
+			Hand m_hand;
+			float m_contactedAngle;
+			bool m_isMoving = false;
 
-			float x = Vector3.Dot(vec, switchModule.zeroVector);
-			float y = Vector3.Dot(vec, yaxis);
-
-			return Mathf.Atan2(y, x) * Mathf.Rad2Deg;
-		}
-
-		public void Update()
-		{
-			if (m_isMoving)
+			float GetFingertipAngle(Vector3 fingertipCenter)
 			{
-				float newAngle = GetFingertipAngle(m_hand.FingertipPosition);
-				float delta = newAngle - m_contactedAngle;
+				Vector3 vec = fingertipCenter - transform.position;
+				vec = transform.parent.InverseTransformDirection(vec);
+				vec -= vec * Vector3.Dot(vec, switchModule.rotationAxis);
+				vec = Vector3.Normalize(vec);
 
-				if (delta > 180) delta -= 360;
-				if (delta < -180) delta += 360;
+				Vector3 yaxis = Vector3.Cross(switchModule.rotationAxis, switchModule.zeroVector);
 
-				float angle = switchModule.currentAngle + delta;
-				float clampedAngle = Mathf.Clamp(angle, switchModule.minAngle, switchModule.maxAngle);
+				float x = Vector3.Dot(vec, switchModule.zeroVector);
+				float y = Vector3.Dot(vec, yaxis);
 
-				if (angle != clampedAngle)
-                {
-					m_isMoving = false;
-
-					bool newState = clampedAngle == switchModule.minAngle;
-
-					switchModule.m_ivaSwitch.SetState(newState);
-                }
-
-				SetAngle(clampedAngle);
-
-				m_contactedAngle = newAngle;
+				return Mathf.Atan2(y, x) * Mathf.Rad2Deg;
 			}
-			else
-            {
-				SetAngle(switchModule.m_ivaSwitch.CurrentState ? switchModule.minAngle : switchModule.maxAngle);
-			}
-		}
 
-		public void OnEnter(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
-        {
-			if (!m_isMoving)
+			public void Update()
 			{
-				m_hand = hand;
-				m_contactedAngle = GetFingertipAngle(m_hand.FingertipPosition);
-				m_isMoving = true;
+				if (m_isMoving)
+				{
+					float newAngle = GetFingertipAngle(m_hand.FingertipPosition);
+					float delta = newAngle - m_contactedAngle;
 
-				enabled = true;
+					if (delta > 180) delta -= 360;
+					if (delta < -180) delta += 360;
+
+					float angle = switchModule.currentAngle + delta;
+					float clampedAngle = Mathf.Clamp(angle, switchModule.minAngle, switchModule.maxAngle);
+
+					if (angle != clampedAngle)
+					{
+						m_isMoving = false;
+
+						bool newState = clampedAngle == switchModule.minAngle;
+
+						switchModule.m_ivaSwitch.SetState(newState);
+					}
+
+					SetAngle(clampedAngle);
+
+					m_contactedAngle = newAngle;
+				}
+				else
+				{
+					SetAngle(switchModule.m_ivaSwitch.CurrentState ? switchModule.minAngle : switchModule.maxAngle);
+				}
 			}
-		}
 
-		public void OnExit(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
-        {
+			public void OnEnter(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+			{
+				if (!m_isMoving && (!switchModule.cover || switchModule.cover.IsOpen))
+				{
+					m_hand = hand;
+					m_contactedAngle = GetFingertipAngle(m_hand.FingertipPosition);
+					m_isMoving = true;
+
+					enabled = true;
+				}
+			}
+
+			public void OnExit(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+			{
 			
-		}
+			}
 
-		public void OnStay(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
-        {
+			public void OnStay(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+			{
 
-		}
+			}
 
-		void SetAngle(float angle)
-		{
-			switchModule.currentAngle = angle;
-			transform.localRotation = Quaternion.AngleAxis(switchModule.currentAngle, switchModule.rotationAxis);
+			void SetAngle(float angle)
+			{
+				switchModule.currentAngle = angle;
+				transform.localRotation = Quaternion.AngleAxis(switchModule.currentAngle, switchModule.rotationAxis);
+			}
 		}
 	}
 }
