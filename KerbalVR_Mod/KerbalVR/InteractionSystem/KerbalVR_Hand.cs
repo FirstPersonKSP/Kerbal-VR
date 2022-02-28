@@ -37,7 +37,7 @@ namespace KerbalVR {
         #region Private Members
         // hand game objects
         public GameObject handObject;
-        static readonly Vector3 GripOffset = new Vector3(0, 0, -0.1f);
+        static internal readonly Vector3 GripOffset = new Vector3(0, 0, -0.1f);
         public Vector3 GripPosition
 		{
             get { return handObject.transform.TransformPoint(GripOffset); }
@@ -58,10 +58,13 @@ namespace KerbalVR {
         // keep track of held objects
         protected HandCollider handCollider;
         protected InteractableBehaviour heldObject;
-        protected SteamVR_Action_Boolean actionGrab;
 
         // interacting with mouse-clickable objects
         protected FingertipCollider fingertipInteraction;
+
+        // interacting with pinchable objects
+        protected PinchCollider pinchCollider;
+        
         #endregion
 
 
@@ -127,19 +130,17 @@ namespace KerbalVR {
             fingertipInteraction.hand = this;
 
             // set up actions
-            actionGrab = SteamVR_Input.GetBooleanAction("default", "GrabGrip");
+            var actionGrab = SteamVR_Input.GetBooleanAction("default", "GrabGrip");
             actionGrab[handType].onChange += OnChangeGrab;
+
+            // set up pinch behavior
+            string pinchTransformPath = renderModelParentPath + "/Root/wrist_r/finger_thumb_0_r/finger_thumb_1_r/finger_thumb_2_r/finger_thumb_r_end";
+            Transform pinchTransform = handObject.transform.Find(pinchTransformPath);
+            pinchCollider = pinchTransform.gameObject.AddComponent<PinchCollider>();
+            pinchCollider.Initialize(this);
 
             // attach these objects to the interaction system
             handObject.transform.SetParent(transform, false);
-
-            // debugging stuff
-#if HAND_GIZMOS
-            var handGizmo = Utils.CreateGizmo();
-            handGizmo.transform.SetParent(handObject.transform, false);
-            handObject.AddComponent<ColliderVisualizer>();
-#endif
-
         }
 
         /// <summary>
@@ -249,120 +250,6 @@ namespace KerbalVR {
             if (renderLayerHands.IsChanged()) {
                 Utils.SetLayer(this.gameObject, renderLayerHands.Value);
                 Utils.SetLayer(handObject, renderLayerHands.Value);
-            }
-        }
-
-
-        /// <summary>
-        /// A helper class to collect objects that collide with the index fingertip.
-        /// </summary>
-        protected class FingertipCollider : MonoBehaviour {
-
-#region Properties
-            public SteamVR_Input_Sources inputSource;
-            public Hand hand;
-
-            public Vector3 FingertipCenter
-            {
-                get { return fingertipCollider.transform.TransformPoint(fingertipCollider.center); }
-            }
-#endregion
-
-            #region Private Members
-            protected SphereCollider fingertipCollider;
-            protected Rigidbody fingertipRigidbody;
-#endregion
-
-            protected void Awake() {
-                fingertipRigidbody = this.gameObject.AddComponent<Rigidbody>();
-                fingertipRigidbody.isKinematic = true;
-                fingertipCollider = this.gameObject.AddComponent<SphereCollider>();
-                fingertipCollider.isTrigger = true;
-                fingertipCollider.radius = 0.005f;
-
-
-#if FINGER_GIZMOS
-                //var handGizmo = Utils.CreateGizmo();
-                //handGizmo.transform.SetParent(transform, false);
-                gameObject.AddComponent<ColliderVisualizer>();
-#endif
-            }
-
-            protected void OnTriggerEnter(Collider other) {
-                // only interact with layer 20 (Internal Space) objects
-                if (other.gameObject.layer == 20)
-                {
-                    var interactable = other.gameObject.GetComponent<IFingertipInteractable>();
-                    if (interactable != null)
-					{
-                        interactable.OnEnter(hand, other, inputSource);
-					}
-                }
-            }
-
-            protected void OnTriggerStay(Collider other)
-            {
-                if (other.gameObject.layer == 20)
-				{
-                    var interactable = other.gameObject.GetComponent<IFingertipInteractable>();
-                    if (interactable != null)
-                    {
-                        interactable.OnStay(hand, other, inputSource);
-                    }
-                }
-            }
-
-            protected void OnTriggerExit(Collider other) {
-                if (other.gameObject.layer == 20)
-                {
-                    var interactable = other.gameObject.GetComponent<IFingertipInteractable>();
-                    if (interactable != null)
-                    {
-                        interactable.OnExit(hand, other, inputSource);
-                    }
-                }
-            }
-        }
-
-        protected class HandCollider : MonoBehaviour
-		{
-            public InteractableBehaviour HoveredObject { get; private set; }
-
-            protected SphereCollider handCollider;
-            protected Rigidbody handRigidbody;
-
-			protected void Awake()
-			{
-                // add interactable collider
-                handCollider = this.gameObject.AddComponent<SphereCollider>();
-                handCollider.isTrigger = true;
-                handCollider.center = Hand.GripOffset;
-                handCollider.radius = 0.08f;
-
-                handRigidbody = this.gameObject.AddComponent<Rigidbody>();
-                handRigidbody.useGravity = false;
-                handRigidbody.isKinematic = true;
-            }
-
-			protected void OnTriggerEnter(Collider other)
-            {
-                InteractableBehaviour interactable = other.gameObject.GetComponent<InteractableBehaviour>();
-                if (interactable != null)
-                {
-                    HoveredObject = interactable;
-                }
-            }
-
-			protected void OnTriggerExit(Collider other)
-            {
-                if (HoveredObject != null)
-                {
-                    InteractableBehaviour interactable = other.gameObject.GetComponent<InteractableBehaviour>();
-                    if (interactable == HoveredObject)
-                    {
-                        HoveredObject = null;
-                    }
-                }
             }
         }
     }

@@ -35,6 +35,10 @@ namespace Valve.VR
         
         private static SteamVR_Action_Boolean p_default_SnapTurnRight;
         
+        private static SteamVR_Action_Boolean p_default_PinchIndex;
+        
+        private static SteamVR_Action_Boolean p_default_PinchThumb;
+        
         private static SteamVR_Action_Vibration p_default_Haptic;
         
         private static SteamVR_Action_Vector2 p_editor_Move;
@@ -121,6 +125,22 @@ namespace Valve.VR
             }
         }
         
+        public static SteamVR_Action_Boolean default_PinchIndex
+        {
+            get
+            {
+                return SteamVR_Actions.p_default_PinchIndex.GetCopy<SteamVR_Action_Boolean>();
+            }
+        }
+        
+        public static SteamVR_Action_Boolean default_PinchThumb
+        {
+            get
+            {
+                return SteamVR_Actions.p_default_PinchThumb.GetCopy<SteamVR_Action_Boolean>();
+            }
+        }
+        
         public static SteamVR_Action_Vibration default_Haptic
         {
             get
@@ -189,6 +209,8 @@ namespace Valve.VR
                     SteamVR_Actions.default_HeadsetOnHead,
                     SteamVR_Actions.default_SnapTurnLeft,
                     SteamVR_Actions.default_SnapTurnRight,
+                    SteamVR_Actions.default_PinchIndex,
+                    SteamVR_Actions.default_PinchThumb,
                     SteamVR_Actions.default_Haptic,
                     SteamVR_Actions.editor_Move,
                     SteamVR_Actions.flight_FlightStick,
@@ -206,6 +228,8 @@ namespace Valve.VR
                     SteamVR_Actions.default_HeadsetOnHead,
                     SteamVR_Actions.default_SnapTurnLeft,
                     SteamVR_Actions.default_SnapTurnRight,
+                    SteamVR_Actions.default_PinchIndex,
+                    SteamVR_Actions.default_PinchThumb,
                     SteamVR_Actions.editor_Move,
                     SteamVR_Actions.flight_FlightStick,
                     SteamVR_Actions.flight_YawStick,
@@ -224,6 +248,8 @@ namespace Valve.VR
                     SteamVR_Actions.default_HeadsetOnHead,
                     SteamVR_Actions.default_SnapTurnLeft,
                     SteamVR_Actions.default_SnapTurnRight,
+                    SteamVR_Actions.default_PinchIndex,
+                    SteamVR_Actions.default_PinchThumb,
                     SteamVR_Actions.flight_InteractClick,
                     SteamVR_Actions.eVA_Teleport};
             Valve.VR.SteamVR_Input.actionsSingle = new Valve.VR.SteamVR_Action_Single[] {
@@ -244,6 +270,8 @@ namespace Valve.VR
                     SteamVR_Actions.default_HeadsetOnHead,
                     SteamVR_Actions.default_SnapTurnLeft,
                     SteamVR_Actions.default_SnapTurnRight,
+                    SteamVR_Actions.default_PinchIndex,
+                    SteamVR_Actions.default_PinchThumb,
                     SteamVR_Actions.editor_Move,
                     SteamVR_Actions.flight_FlightStick,
                     SteamVR_Actions.flight_YawStick,
@@ -263,6 +291,8 @@ namespace Valve.VR
             SteamVR_Actions.p_default_HeadsetOnHead = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/default/in/HeadsetOnHead")));
             SteamVR_Actions.p_default_SnapTurnLeft = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/default/in/SnapTurnLeft")));
             SteamVR_Actions.p_default_SnapTurnRight = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/default/in/SnapTurnRight")));
+            SteamVR_Actions.p_default_PinchIndex = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/default/in/PinchIndex")));
+            SteamVR_Actions.p_default_PinchThumb = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/default/in/PinchThumb")));
             SteamVR_Actions.p_default_Haptic = ((SteamVR_Action_Vibration)(SteamVR_Action.Create<SteamVR_Action_Vibration>("/actions/default/out/Haptic")));
             SteamVR_Actions.p_editor_Move = ((SteamVR_Action_Vector2)(SteamVR_Action.Create<SteamVR_Action_Vector2>("/actions/editor/in/Move")));
             SteamVR_Actions.p_flight_FlightStick = ((SteamVR_Action_Vector2)(SteamVR_Action.Create<SteamVR_Action_Vector2>("/actions/flight/in/FlightStick")));

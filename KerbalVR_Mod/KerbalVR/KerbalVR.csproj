@@ -19,7 +19,7 @@
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;UNITY_5_3_OR_NEWER; UNITY_2017_2_OR_NEWER;PROP_GIZMOS;FINGER_GIZMOS</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;UNITY_5_3_OR_NEWER; UNITY_2017_2_OR_NEWER;PINCH_GIZMOS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -109,16 +109,21 @@
     <Compile Include="CameraUtils.cs" />
     <Compile Include="Flight.cs" />
     <Compile Include="Components\KerbalVR_AvionicsComputer.cs" />
+    <Compile Include="InteractionSystem\KerbalVR_FingertipCollider.cs" />
     <Compile Include="InteractionSystem\KerbalVR_FingertipInteractable.cs" />
     <Compile Include="InteractionSystem\KerbalVR_Hand.cs" />
+    <Compile Include="InteractionSystem\KerbalVR_HandCollider.cs" />
     <Compile Include="InteractionSystem\KerbalVR_HeadUpDisplay.cs" />
     <Compile Include="InteractionSystem\KerbalVR_InteractableBehaviour.cs" />
+    <Compile Include="InteractionSystem\KerbalVR_PinchCollider.cs" />
+    <Compile Include="InteractionSystem\KerbalVR_PinchInteractable.cs" />
     <Compile Include="InteractionSystem\KerbalVR_TeleportSystem.cs" />
     <Compile Include="InternalModules\InternalCollider.cs" />
     <Compile Include="InternalModules\KerbalVR_Button.cs" />
     <Compile Include="InternalModules\KerbalVR_Cover.cs" />
     <Compile Include="InternalModules\KerbalVR_FlightStick.cs" />
     <Compile Include="InternalModules\KerbalVR_HandRail.cs" />
+    <Compile Include="InternalModules\KerbalVR_Knob.cs" />
     <Compile Include="InternalModules\KerbalVR_Switch.cs" />
     <Compile Include="InternalModules\KerbalVR_Throttle.cs" />
     <Compile Include="InternalModules\KerbalVR_TouchDisplay.cs" />

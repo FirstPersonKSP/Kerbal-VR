@@ -89,6 +89,22 @@ namespace Valve.VR
             }
         }
         
+        public virtual SteamVR_Action_Boolean PinchIndex
+        {
+            get
+            {
+                return SteamVR_Actions.default_PinchIndex;
+            }
+        }
+        
+        public virtual SteamVR_Action_Boolean PinchThumb
+        {
+            get
+            {
+                return SteamVR_Actions.default_PinchThumb;
+            }
+        }
+        
         public virtual SteamVR_Action_Vibration Haptic
         {
             get
