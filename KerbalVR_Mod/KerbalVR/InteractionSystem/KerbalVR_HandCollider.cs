@@ -24,8 +24,8 @@ namespace KerbalVR
             // debugging stuff
 #if HAND_GIZMOS
             var handGizmo = Utils.CreateGizmo();
-            handGizmo.transform.SetParent(handObject.transform, false);
-            handObject.AddComponent<ColliderVisualizer>();
+            handGizmo.transform.SetParent(transform, false);
+            gameObject.AddComponent<ColliderVisualizer>();
 #endif
         }
 

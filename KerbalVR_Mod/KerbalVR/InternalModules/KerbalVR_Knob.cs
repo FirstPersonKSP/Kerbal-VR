@@ -12,7 +12,19 @@ namespace KerbalVR.InternalModules
         [KSPField]
         public string knobTransformName = null;
 
+        [KSPField]
+        public Vector3 rotationAxis = Vector3.up;
+
+        [KSPField]
+        public Vector3 pointerAxis = Vector3.right;
+
         VRKnobInteractionListener interactionListener;
+        internal float currentAngle = 0;
+
+#if PROP_GIZMOS
+        GameObject gizmo;
+        GameObject arrow;
+#endif
 
         public override void OnAwake()
         {
@@ -24,6 +36,23 @@ namespace KerbalVR.InternalModules
             {
                 interactionListener = Utils.GetOrAddComponent<VRKnobInteractionListener>(knobTransform.gameObject);
                 interactionListener.knobModule = this;
+
+#if PROP_GIZMOS
+                if (arrow == null)
+                {
+                    arrow = Utils.CreateArrow(Color.cyan, 0.2f);
+                    arrow.transform.SetParent(knobTransform.parent, false);
+                    arrow.transform.localRotation = Quaternion.LookRotation(rotationAxis);
+                    Utils.SetLayer(arrow, 20);
+                }
+
+                if (gizmo == null)
+                {
+                    gizmo = Utils.CreateGizmo();
+                    gizmo.transform.SetParent(knobTransform, false);
+                    Utils.SetLayer(gizmo, 20);
+                }
+#endif
             }
         }
     }
@@ -36,7 +65,7 @@ namespace KerbalVR.InternalModules
 
         public void OnHold(Hand hand)
         {
-            
+            SetAngle(knobModule.currentAngle + 0.5f);
         }
 
         public void OnPinch(Hand hand)
@@ -46,7 +75,13 @@ namespace KerbalVR.InternalModules
 
         public void OnRelease(Hand hand)
         {
-            
+            SetAngle(0);
+        }
+
+        void SetAngle(float angle)
+        {
+            knobModule.currentAngle = angle;
+            transform.localRotation = Quaternion.AngleAxis(knobModule.currentAngle, knobModule.rotationAxis);
         }
     }
 }
