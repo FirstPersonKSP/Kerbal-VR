@@ -14,6 +14,9 @@ namespace KerbalVR
         protected SphereCollider collider;
         protected Rigidbody rigidBody;
 
+        IPinchInteractable hoveredInteractable;
+        IPinchInteractable heldInteractable;
+
         internal void Initialize(Hand hand)
         {
             this.hand = hand;
@@ -42,7 +45,33 @@ namespace KerbalVR
 
         private void OnChangePinch(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource, bool newState)
         {
-            
+            bool isPinching = pinchIndex.state && pinchThumb.state;
+
+            if (isPinching && hoveredInteractable != null)
+            {
+                heldInteractable = hoveredInteractable;
+            }
+            else if (!isPinching && heldInteractable != null)
+            {
+                heldInteractable = null;
+            }
         }
+
+        protected void OnTriggerEnter(Collider other)
+        {
+            if (hoveredInteractable == null && other.gameObject.layer == 20)
+            {
+                hoveredInteractable = other.gameObject.GetComponent<IPinchInteractable>();
+            }
+        }
+
+        protected void OnTriggerExit(Collider other)
+        {
+            if (hoveredInteractable != null && hoveredInteractable.GameObject == other.gameObject)
+            {
+                hoveredInteractable = null;
+            }
+        }
+
     }
 }

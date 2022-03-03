@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace KerbalVR
 {
-    interface IPinchInteractable
+    public interface IPinchInteractable
     {
+
+        GameObject GameObject { get; }
     }
 }

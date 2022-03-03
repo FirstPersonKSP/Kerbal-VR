@@ -34,7 +34,7 @@ namespace KerbalVR.InternalModules
 
 			if (buttonTransform != null && interactionListener == null)
 			{
-				interactionListener = buttonTransform.gameObject.AddComponent<VRButtonInteractionListener>();
+				interactionListener = Utils.GetOrAddComponent<VRButtonInteractionListener>(buttonTransform.gameObject);
 				interactionListener.buttonModule = this;
 
 #if PROP_GIZMOS
