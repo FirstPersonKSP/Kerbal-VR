@@ -33,5 +33,20 @@ namespace KerbalVR.InternalModules
         public VRKnob knobModule;
 
         public GameObject GameObject => gameObject;
+
+        public void OnHold(Hand hand)
+        {
+            
+        }
+
+        public void OnPinch(Hand hand)
+        {
+            
+        }
+
+        public void OnRelease(Hand hand)
+        {
+            
+        }
     }
 }

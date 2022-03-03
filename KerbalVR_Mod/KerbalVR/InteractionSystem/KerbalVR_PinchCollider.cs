@@ -43,6 +43,14 @@ namespace KerbalVR
 #endif
         }
 
+        private void Update()
+        {
+            if (heldInteractable != null)
+            {
+                heldInteractable.OnHold(hand);
+            }
+        }
+
         private void OnChangePinch(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource, bool newState)
         {
             bool isPinching = pinchIndex.state && pinchThumb.state;
@@ -50,9 +58,11 @@ namespace KerbalVR
             if (isPinching && hoveredInteractable != null)
             {
                 heldInteractable = hoveredInteractable;
+                heldInteractable.OnPinch(hand);
             }
             else if (!isPinching && heldInteractable != null)
             {
+                heldInteractable.OnRelease(hand);
                 heldInteractable = null;
             }
         }
