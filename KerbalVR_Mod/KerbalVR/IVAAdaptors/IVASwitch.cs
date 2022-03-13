@@ -30,8 +30,12 @@ namespace KerbalVR.IVAAdaptors
         static RPMSwitch()
         {
             x_jsiActionGroupSwitchType = AssemblyLoader.GetClassByName(typeof(InternalModule), "JSIActionGroupSwitch");
-            x_currentStateField = x_jsiActionGroupSwitchType.GetField("currentState", BindingFlags.Instance | BindingFlags.NonPublic);
-            x_clickMethod = x_jsiActionGroupSwitchType.GetMethod("Click", BindingFlags.Instance | BindingFlags.Public);
+
+            if (x_jsiActionGroupSwitchType != null)
+            {
+                x_currentStateField = x_jsiActionGroupSwitchType.GetField("currentState", BindingFlags.Instance | BindingFlags.NonPublic);
+                x_clickMethod = x_jsiActionGroupSwitchType.GetMethod("Click", BindingFlags.Instance | BindingFlags.Public);
+            }
         }
         
         static public RPMSwitch TryConstruct(GameObject gameObject)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KerbalVR.IVAAdaptors;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,6 +21,8 @@ namespace KerbalVR.InternalModules
 
         VRKnobInteractionListener interactionListener;
         internal float currentAngle = 0;
+
+        internal IVAKnob m_ivaKnob;
 
 #if PROP_GIZMOS
         GameObject gizmo;
@@ -55,6 +58,11 @@ namespace KerbalVR.InternalModules
 #endif
             }
         }
+
+        public void Start()
+        {
+            m_ivaKnob = IVAKnob.ConstructKnob(gameObject);
+        }
     }
 
     class VRKnobInteractionListener : MonoBehaviour, IPinchInteractable
@@ -89,7 +97,7 @@ namespace KerbalVR.InternalModules
 
         public void OnRelease(Hand hand)
         {
-            SetAngle(0);
+            // SetAngle(0);
         }
 
         void SetAngle(float angle)
