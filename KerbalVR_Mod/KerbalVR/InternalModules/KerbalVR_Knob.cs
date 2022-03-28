@@ -19,6 +19,9 @@ namespace KerbalVR.InternalModules
         [KSPField]
         public Vector3 pointerAxis = Vector3.right;
 
+        [KSPField]
+        public int stepCount = 2;
+
         VRKnobInteractionListener interactionListener;
         internal float currentAngle = 0;
 
@@ -74,8 +77,6 @@ namespace KerbalVR.InternalModules
 
         public void OnHold(Hand hand)
         {
-            // SetAngle(knobModule.currentAngle + 0.5f);
-
             float newAngle = GetGrabbedAngle(hand);
             float delta = newAngle - m_grabbedAngle;
 
@@ -85,7 +86,7 @@ namespace KerbalVR.InternalModules
             float angle = knobModule.currentAngle + delta;
             angle = Mathf.Clamp(angle, knobModule.m_ivaKnob.MinRotation, knobModule.m_ivaKnob.MaxRotation);
 
-            // todo: clamping, change state, etc.
+            // todo: change state, etc.
 
             SetAngle(angle);
             m_grabbedAngle = newAngle;
@@ -94,11 +95,21 @@ namespace KerbalVR.InternalModules
         public void OnPinch(Hand hand)
         {
             m_grabbedAngle = GetGrabbedAngle(hand);
+            knobModule.m_ivaKnob.SetUpdateEnabled(false);
         }
 
         public void OnRelease(Hand hand)
         {
             // SetAngle(0);
+            // knobModule.m_ivaKnob.SetUpdateEnabled(true);
+
+            float interp = Mathf.InverseLerp(knobModule.m_ivaKnob.MinRotation, knobModule.m_ivaKnob.MaxRotation, knobModule.currentAngle);
+            float stepF = interp * (knobModule.stepCount - 1);
+            int stepIndex = Mathf.RoundToInt(stepF);
+
+            float angle = Mathf.LerpAngle(knobModule.m_ivaKnob.MinRotation, knobModule.m_ivaKnob.MaxRotation, stepIndex / (knobModule.stepCount - 1.0f));
+
+            SetAngle(angle);
         }
 
         void SetAngle(float angle)

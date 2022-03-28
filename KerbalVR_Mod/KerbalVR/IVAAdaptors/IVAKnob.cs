@@ -15,13 +15,12 @@ namespace KerbalVR.IVAAdaptors
 
         public abstract float MinRotation { get; protected set; }
         public abstract float MaxRotation { get; protected set; }
-
-        public abstract float DesiredValue { get; protected set; }
+        public abstract void SetUpdateEnabled(bool enabled);
     }
 
     internal class RPMKnob : IVAKnob
     {
-        #region static members
+#region static members
         static readonly Type x_jsiVariableAnimatorType;
         static readonly FieldInfo x_useNewModeField;
         static readonly FieldInfo x_variableSetsField;
@@ -74,25 +73,24 @@ namespace KerbalVR.IVAAdaptors
             return null;
         }
 
-        #endregion
+#endregion
 
         Component m_jsiVariableAnimator;
         object m_variableAnimationSet;
 
-        Vector3 m_vectorStart;
-        Vector3 m_vectorEnd;
-
         public override float MinRotation { get; protected set; }
 
         public override float MaxRotation { get; protected set; }
-        public override float DesiredValue { get; protected set; }
+
+        public override void SetUpdateEnabled(bool enabled)
+        {
+            // hack: setting useNewMode to true on the JSIVariableAnimator will prevent it from updating on its own
+            x_useNewModeField.SetValue(m_jsiVariableAnimator, !enabled);
+        }
 
         public RPMKnob(Component knobComponent)
         {
             m_jsiVariableAnimator = knobComponent;
-
-            // hack: setting useNewMode to true on the JSIVariableAnimator will prevent it from updating on its own
-            x_useNewModeField.SetValue(m_jsiVariableAnimator, true);
 
             var variableSets = x_variableSetsField.GetValue(m_jsiVariableAnimator) as IList;
             if (variableSets != null && variableSets.Count > 0)
@@ -101,12 +99,12 @@ namespace KerbalVR.IVAAdaptors
 
                 // note: VariableAnimationSet uses vectorStart/vectorEnd or rotationStart / rotationEnd depending on whether longPath is true
                 // but I think longPath is true for all the props we care about
-                m_vectorStart = (Vector3)x_vectorStartField.GetValue(m_variableAnimationSet);
-                m_vectorEnd = (Vector3)x_vectorEndField.GetValue(m_variableAnimationSet);
+                Vector3 vectorStart = (Vector3)x_vectorStartField.GetValue(m_variableAnimationSet);
+                Vector3 vectorEnd = (Vector3)x_vectorEndField.GetValue(m_variableAnimationSet);
 
                 // NOTE: this assumes the rotation axis is 'up'
-                MinRotation = m_vectorStart.y;
-                MaxRotation = m_vectorEnd.y;
+                MinRotation = vectorStart.y;
+                MaxRotation = vectorEnd.y;
             }
         }
     }
