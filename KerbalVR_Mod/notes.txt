@@ -77,3 +77,36 @@ mk1 lander can:
 	same as mk1pod
 	joystick: rotation/pilot seat/seat/Stick002
 	throttle: rotation/pilot seat/seat/Cylinder007
+
+--------------------------------------------
+
+rotary switches:
+
+VRKnob internal module
+	stepCount
+
+JSIActionGroupSwitch // used for 2 step switches or switches without left/right buttons e.g. SAS Mode; activates on Click
+	switchSound
+	PLUGINACTION
+		actionMethod // function to call when clicked
+		stateMethod  // function that reports the current state
+
+JSINumericInput // only used for 3 or more steps
+	perPodPersistenceName // variable name to 
+	stepSize
+	minValue
+	maxValue
+	USERINPUTSET
+		increment amount
+		switchSound
+
+JSIVariableAnimator
+	VARIABLESET
+		localRotationStart
+		localRotationEnd
+		scale // maps numeric value range to rotation
+		variableName // the variable to consume
+
+Proposal:
+VRKnob figures out which step you selected and calls a function on the RPMKnob (via IVAKnob) that figures out the right thing to do
+-do we need custom function handlers for all the ones that use JSIActionGroupSwitch?

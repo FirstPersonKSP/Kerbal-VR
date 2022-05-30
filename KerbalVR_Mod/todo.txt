@@ -30,7 +30,7 @@ polish
 
 Implement twist knobs
 
-Implement flickable switches
+DONE: Implement flickable switches
 
 RCS translation controls
 

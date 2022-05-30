@@ -8,6 +8,9 @@ using UnityEngine;
 
 namespace KerbalVR.InternalModules
 {
+    /// <summary>
+    /// The InternalModule for a knob that can be manipulated in VR
+    /// </summary>
     class VRKnob : InternalModule
     {
         [KSPField]
@@ -24,6 +27,7 @@ namespace KerbalVR.InternalModules
 
         VRKnobInteractionListener interactionListener;
         internal float currentAngle = 0;
+        internal int lastStep = 0;
 
         internal IVAKnob m_ivaKnob;
 
@@ -68,6 +72,9 @@ namespace KerbalVR.InternalModules
         }
     }
 
+    /// <summary>
+    /// The behavior class that gets attached to the movable knob itself and reacts to VR interactions
+    /// </summary>
     class VRKnobInteractionListener : MonoBehaviour, IPinchInteractable
     {
         public VRKnob knobModule;
@@ -90,6 +97,8 @@ namespace KerbalVR.InternalModules
 
             SetAngle(angle);
             m_grabbedAngle = newAngle;
+
+            CheckForStepChange();
         }
 
         public void OnPinch(Hand hand)
@@ -98,16 +107,31 @@ namespace KerbalVR.InternalModules
             knobModule.m_ivaKnob.SetUpdateEnabled(false);
         }
 
+        // reads from knobModule.currentAngle; returns rotation fraction
+        float CheckForStepChange()
+        {
+            float interp = Mathf.InverseLerp(knobModule.m_ivaKnob.MinRotation, knobModule.m_ivaKnob.MaxRotation, knobModule.currentAngle);
+            float stepF = interp * (knobModule.stepCount - 1);
+            int stepIndex = Mathf.RoundToInt(stepF);
+            float rotationFraction = stepIndex / (knobModule.stepCount - 1.0f);
+
+            if (knobModule.lastStep != stepIndex)
+            {
+                knobModule.lastStep = stepIndex;
+                knobModule.m_ivaKnob.SetRotationFraction(rotationFraction);
+            }
+
+            return rotationFraction;
+        }
+
         public void OnRelease(Hand hand)
         {
             // SetAngle(0);
             // knobModule.m_ivaKnob.SetUpdateEnabled(true);
 
-            float interp = Mathf.InverseLerp(knobModule.m_ivaKnob.MinRotation, knobModule.m_ivaKnob.MaxRotation, knobModule.currentAngle);
-            float stepF = interp * (knobModule.stepCount - 1);
-            int stepIndex = Mathf.RoundToInt(stepF);
+            float rotationFraction = CheckForStepChange();
 
-            float angle = Mathf.LerpAngle(knobModule.m_ivaKnob.MinRotation, knobModule.m_ivaKnob.MaxRotation, stepIndex / (knobModule.stepCount - 1.0f));
+            float angle = Mathf.LerpAngle(knobModule.m_ivaKnob.MinRotation, knobModule.m_ivaKnob.MaxRotation, rotationFraction);
 
             SetAngle(angle);
         }

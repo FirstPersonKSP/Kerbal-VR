@@ -6,7 +6,10 @@ using UnityEngine;
 
 namespace KerbalVR.IVAAdaptors
 {
-    internal abstract class IVAKnob
+    /// <summary>
+    /// Represents the interface between the VR mod and the IVA mod (RPM or MAS).
+    /// </summary>
+    public abstract class IVAKnob
     {
         public static IVAKnob ConstructKnob(GameObject gameObject)
         {
@@ -16,6 +19,7 @@ namespace KerbalVR.IVAAdaptors
         public abstract float MinRotation { get; protected set; }
         public abstract float MaxRotation { get; protected set; }
         public abstract void SetUpdateEnabled(bool enabled);
+        public abstract void SetRotationFraction(float fraction); 
     }
 
     internal class RPMKnob : IVAKnob
@@ -30,9 +34,19 @@ namespace KerbalVR.IVAAdaptors
         static readonly FieldInfo x_vectorStartField;
         static readonly FieldInfo x_vectorEndField;
 
-        static readonly Type x_variableOrNumberRangeType;
+        static readonly Type x_variableOrNumberType;
         static readonly MethodInfo x_inverseLerpMethod;
+        static readonly MethodInfo x_variableOrNumberAsFloatMethod;
 
+        static readonly Type x_jsiNumericInputType;
+        static readonly FieldInfo x_perPodPersistenceNameField;
+        static readonly FieldInfo x_perPodPersistenceIsGlobalField;
+        static readonly FieldInfo x_rpmCompField;
+        static readonly FieldInfo x_minRangeField;
+        static readonly FieldInfo x_maxRangeField;
+
+        static readonly Type x_rasterPropMonitorComputerType;
+        static readonly MethodInfo x_rpmCompSetPersistentVariableMethod;
 
         static RPMKnob()
         {
@@ -53,11 +67,29 @@ namespace KerbalVR.IVAAdaptors
                 x_vectorEndField = x_variableAnimationSetType.GetField("vectorEnd", BindingFlags.Instance | BindingFlags.NonPublic);
             }
 
-            x_variableOrNumberRangeType = x_jsiVariableAnimatorType.Assembly.GetTypes().FirstOrDefault(type => type.FullName == "JSI.VariableOrNumber");
+            x_variableOrNumberType = x_jsiVariableAnimatorType.Assembly.GetTypes().FirstOrDefault(type => type.FullName == "JSI.VariableOrNumber");
 
-            if (x_variableOrNumberRangeType != null)
+            if (x_variableOrNumberType != null)
             {
-                x_inverseLerpMethod = x_variableOrNumberRangeType.GetMethod("InverseLerp", BindingFlags.Instance);
+                x_inverseLerpMethod = x_variableOrNumberType.GetMethod("InverseLerp", BindingFlags.Instance | BindingFlags.Public);
+                x_variableOrNumberAsFloatMethod = x_variableOrNumberType.GetMethod("AsFloat", BindingFlags.Instance | BindingFlags.Public);
+            }
+
+            x_jsiNumericInputType = x_jsiVariableAnimatorType.Assembly.GetTypes().FirstOrDefault(type => type.FullName == "JSI.JSINumericInput");
+
+            if (x_jsiNumericInputType != null)
+            {
+                x_perPodPersistenceNameField = x_jsiNumericInputType.GetField("perPodPersistenceName", BindingFlags.Instance | BindingFlags.Public);
+                x_perPodPersistenceIsGlobalField = x_jsiNumericInputType.GetField("perPodPersistenceIsGlobal", BindingFlags.Instance | BindingFlags.Public);
+                x_rpmCompField = x_jsiNumericInputType.GetField("rpmComp", BindingFlags.Instance | BindingFlags.NonPublic);
+                x_minRangeField = x_jsiNumericInputType.GetField("minRange", BindingFlags.Instance | BindingFlags.NonPublic);
+                x_maxRangeField = x_jsiNumericInputType.GetField("maxRange", BindingFlags.Instance | BindingFlags.NonPublic);
+            }
+
+            x_rasterPropMonitorComputerType = x_jsiVariableAnimatorType.Assembly.GetTypes().FirstOrDefault(type => type.FullName == "JSI.RasterPropMonitorComputer");
+            if (x_rasterPropMonitorComputerType != null)
+            {
+                x_rpmCompSetPersistentVariableMethod = x_rasterPropMonitorComputerType.GetMethod("SetPersistentVariable", BindingFlags.Instance | BindingFlags.NonPublic);
             }
         }
 
@@ -77,6 +109,11 @@ namespace KerbalVR.IVAAdaptors
 
         Component m_jsiVariableAnimator;
         object m_variableAnimationSet;
+        object m_jsiNumericInput;
+
+        object m_rpmComp;
+        string m_perPodPersistenceName;
+        bool m_perPodPersistenceIsGlobal;
 
         public override float MinRotation { get; protected set; }
 
@@ -86,6 +123,23 @@ namespace KerbalVR.IVAAdaptors
         {
             // hack: setting useNewMode to true on the JSIVariableAnimator will prevent it from updating on its own
             x_useNewModeField.SetValue(m_jsiVariableAnimator, !enabled);
+        }
+
+        static float GetValueFromVariableOrNumberField(object obj, FieldInfo variableOrNumberField)
+        {
+            object variableOrNumber = variableOrNumberField.GetValue(obj);
+            var result = x_variableOrNumberAsFloatMethod.Invoke(variableOrNumber, null);
+            return (float)result;
+        }
+
+        public override void SetRotationFraction(float fraction)
+        {
+            float minValue = GetValueFromVariableOrNumberField(m_jsiNumericInput, x_minRangeField);
+            float maxValue = GetValueFromVariableOrNumberField(m_jsiNumericInput, x_maxRangeField);
+
+            var val = Mathf.Lerp(minValue, maxValue, fraction);
+
+            x_rpmCompSetPersistentVariableMethod.Invoke(m_rpmComp, new object[] { m_perPodPersistenceName, val, m_perPodPersistenceIsGlobal });
         }
 
         public RPMKnob(Component knobComponent)
@@ -102,9 +156,18 @@ namespace KerbalVR.IVAAdaptors
                 Vector3 vectorStart = (Vector3)x_vectorStartField.GetValue(m_variableAnimationSet);
                 Vector3 vectorEnd = (Vector3)x_vectorEndField.GetValue(m_variableAnimationSet);
 
-                // NOTE: this assumes the rotation axis is 'up'
+                // NOTE: this assumes the rotation axis is 'up' - which it is for all switches that I'm aware of
                 MinRotation = vectorStart.y;
                 MaxRotation = vectorEnd.y;
+            }
+
+            m_jsiNumericInput = knobComponent.gameObject.GetComponent(x_jsiNumericInputType);
+
+            if (m_jsiNumericInput != null)
+            {
+                m_rpmComp = x_rpmCompField.GetValue(m_jsiNumericInput);
+                m_perPodPersistenceName = x_perPodPersistenceNameField.GetValue(m_jsiNumericInput) as string;
+                m_perPodPersistenceIsGlobal = (bool)x_perPodPersistenceIsGlobalField.GetValue(m_jsiNumericInput);
             }
         }
     }
