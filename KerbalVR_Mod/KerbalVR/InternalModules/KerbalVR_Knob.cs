@@ -25,6 +25,9 @@ namespace KerbalVR.InternalModules
         [KSPField]
         public int stepCount = 2;
 
+        [KSPField]
+        public string customRotationHandler = String.Empty;
+
         VRKnobInteractionListener interactionListener;
         internal float currentAngle = 0;
         internal int lastStep = 0;
@@ -118,7 +121,7 @@ namespace KerbalVR.InternalModules
             if (knobModule.lastStep != stepIndex)
             {
                 knobModule.lastStep = stepIndex;
-                knobModule.m_ivaKnob.SetRotationFraction(rotationFraction);
+                knobModule.m_ivaKnob.SetRotationFraction(knobModule.customRotationHandler, rotationFraction);
             }
 
             return rotationFraction;

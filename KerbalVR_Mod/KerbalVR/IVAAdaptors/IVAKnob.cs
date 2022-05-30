@@ -19,7 +19,7 @@ namespace KerbalVR.IVAAdaptors
         public abstract float MinRotation { get; protected set; }
         public abstract float MaxRotation { get; protected set; }
         public abstract void SetUpdateEnabled(bool enabled);
-        public abstract void SetRotationFraction(float fraction); 
+        public abstract void SetRotationFraction(string customRotationFunction, float fraction); 
     }
 
     internal class RPMKnob : IVAKnob
@@ -132,14 +132,43 @@ namespace KerbalVR.IVAAdaptors
             return (float)result;
         }
 
-        public override void SetRotationFraction(float fraction)
+        FlightGlobals.SpeedDisplayModes SpeedDisplayModeFromRotationFraction(float fraction)
         {
-            float minValue = GetValueFromVariableOrNumberField(m_jsiNumericInput, x_minRangeField);
-            float maxValue = GetValueFromVariableOrNumberField(m_jsiNumericInput, x_maxRangeField);
+            int step = Mathf.RoundToInt(fraction * 2);
+            switch (step)
+            {
+                case 0: return FlightGlobals.SpeedDisplayModes.Orbit;
+                case 1: return FlightGlobals.SpeedDisplayModes.Surface;
+                case 2: return FlightGlobals.SpeedDisplayModes.Target;
+            }
 
-            var val = Mathf.Lerp(minValue, maxValue, fraction);
+            throw new ArgumentException("Invalid fraction");
+        }
 
-            x_rpmCompSetPersistentVariableMethod.Invoke(m_rpmComp, new object[] { m_perPodPersistenceName, val, m_perPodPersistenceIsGlobal });
+        public override void SetRotationFraction(string customRotationFunction, float fraction)
+        {
+            if (!string.IsNullOrEmpty(customRotationFunction))
+            {
+                //var im = m_jsiVariableAnimator as InternalModule;
+                //var vessel = im.vessel;
+
+                // TODO: build a registry for these
+                switch (customRotationFunction)
+                {
+                    case "SpeedDisplayMode":
+                        FlightGlobals.SetSpeedMode(SpeedDisplayModeFromRotationFraction(fraction));
+                        break;
+                }
+            }
+            else
+            {
+                float minValue = GetValueFromVariableOrNumberField(m_jsiNumericInput, x_minRangeField);
+                float maxValue = GetValueFromVariableOrNumberField(m_jsiNumericInput, x_maxRangeField);
+
+                var val = Mathf.Lerp(minValue, maxValue, fraction);
+
+                x_rpmCompSetPersistentVariableMethod.Invoke(m_rpmComp, new object[] { m_perPodPersistenceName, val, m_perPodPersistenceIsGlobal });
+            }
         }
 
         public RPMKnob(Component knobComponent)
