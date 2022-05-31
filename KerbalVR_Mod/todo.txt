@@ -28,7 +28,7 @@ make sure recovery works
 polish
 =============================================
 
-Implement twist knobs
+DONE: Implement twist knobs
 
 DONE: Implement flickable switches
 
