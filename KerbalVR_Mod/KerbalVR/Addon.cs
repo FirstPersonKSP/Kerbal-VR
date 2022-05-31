@@ -8,11 +8,14 @@ namespace KerbalVR
 	[KSPAddon(KSPAddon.Startup.Instantly, true)]
 	public class FirstPersonKerbalAddon : MonoBehaviour
 	{
+		bool m_wasEnabled;
+
 		public void Awake()
 		{
 			Utils.Log("Addon Awake");
 
 			// for whatever reason, enabling VR mode during loading makes it super slow
+			m_wasEnabled = XRSettings.enabled;
 			XRSettings.enabled = false;
 
 			Valve.VR.SteamVR_Settings.instance.trackingSpace = Valve.VR.ETrackingUniverseOrigin.TrackingUniverseSeated;
@@ -32,19 +35,22 @@ namespace KerbalVR
 		{
 			Utils.Log($"OnLevelWasLoaded: {gameScene}");
 
-			if (gameScene == GameScenes.PSYSTEM)
+			if (m_wasEnabled)
 			{
-				PSystemManager.Instance.OnPSystemReady.Add(OnPSystemReady);
-			}
+				if (gameScene == GameScenes.PSYSTEM)
+				{
+					PSystemManager.Instance.OnPSystemReady.Add(OnPSystemReady);
+				}
 
-			if (gameScene == GameScenes.MAINMENU)
-			{
-				KerbalVR.Core.InitSteamVRInput();
+				if (gameScene == GameScenes.MAINMENU)
+				{
+					KerbalVR.Core.InitSteamVRInput();
 
-				XRSettings.enabled = true;
-				Valve.VR.SteamVR.enabled = true;
+					XRSettings.enabled = true;
+					Valve.VR.SteamVR.enabled = true;
 
-				KerbalVR.Core.InitSystems();
+					KerbalVR.Core.InitSystems();
+				}
 			}
 		}
 		private void OnPSystemReady()
