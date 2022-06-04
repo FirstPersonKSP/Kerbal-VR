@@ -57,6 +57,12 @@ namespace KerbalVR.InternalModules
 				stickTransform = transform.parent.Find("model").GetChild(0).Find(stickTransformName);
 			}
 
+			if (stickTransform == null)
+            {
+				Utils.LogError($"Unable to find transform named {stickTransformName} in iva {this.internalModel.name} prop {this.internalProp.name}");
+				return;
+            }
+
 			var anchorTransform = new GameObject("VRFlightStickAnchor").transform;
 			anchorTransform.localPosition = stickTransform.localPosition;
 			anchorTransform.localRotation = stickTransform.localRotation;
