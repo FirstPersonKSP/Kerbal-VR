@@ -203,8 +203,7 @@ namespace KerbalVR {
             if (isRendering) {
                 // get device indices for each hand, then set the transform
                 bool isConnected = handActionPose.GetDeviceIsConnected(handType);
-                uint deviceIndex = handActionPose.GetDeviceIndex(handType);
-                if (isConnected && deviceIndex < OpenVR.k_unMaxTrackedDeviceCount) {
+                if (isConnected) {
 #if false
                     // keep this object (Hand script) always tracking the device
                     SteamVR_Utils.RigidTransform handTransform = new SteamVR_Utils.RigidTransform(KerbalVR.Core.GamePoses[deviceIndex].mDeviceToAbsoluteTracking);
