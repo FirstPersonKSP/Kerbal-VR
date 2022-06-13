@@ -11,7 +11,10 @@ namespace KerbalVR.InternalModules
     class VRCover : InternalModule
     {
         [KSPField]
-        public string coverTransformName = null;
+        public string coverTransformName = "";
+
+        [KSPField]
+        public string hingeTransformName = "";
 
         [KSPField]
         public Vector3 rotationAxis = Vector3.right;
@@ -27,10 +30,21 @@ namespace KerbalVR.InternalModules
 
         VRCoverInteractionListener interactionListener = null;
         internal float currentAngle = 0;
+        internal Transform hingeTransform = null;
 
         public bool IsOpen
         {
             get { return currentAngle == minAngle; }
+        }
+
+        static Transform FirstAncestorWithName(Transform transform, string name)
+        {
+            while (transform != null && transform.name != name)
+            {
+                transform = transform.parent;
+            }
+
+            return transform;
         }
 
         public override void OnAwake()
@@ -46,6 +60,19 @@ namespace KerbalVR.InternalModules
 
                 currentAngle = maxAngle;
             }
+
+            if (hingeTransform == null && coverTransform != null)
+            {
+                if (hingeTransformName != "")
+                {
+                    hingeTransform = FirstAncestorWithName(coverTransform, hingeTransformName);
+                }
+
+                if (hingeTransform == null)
+                {
+                    hingeTransform = coverTransform;
+                }
+            }
         }
     }
 
@@ -55,14 +82,10 @@ namespace KerbalVR.InternalModules
 
         float m_contactedAngle;
 
-        // the pushbutton cover's collider is on a child of the transform that actually forms the hinge
-        // In the future we may want to data-drive this
-        Transform HingeTransform {  get { return transform.parent; } }
-
         float GetFingertipAngle(Vector3 fingertipCenter)
         {
-            Vector3 vec = fingertipCenter - HingeTransform.position;
-            vec = HingeTransform.parent.InverseTransformDirection(vec);
+            Vector3 vec = fingertipCenter - coverModule.hingeTransform.position;
+            vec = coverModule.hingeTransform.parent.InverseTransformDirection(vec);
             vec -= vec * Vector3.Dot(vec, coverModule.rotationAxis);
             vec = Vector3.Normalize(vec);
 
@@ -114,7 +137,7 @@ namespace KerbalVR.InternalModules
         void SetAngle(float angle)
         {
             coverModule.currentAngle = angle;
-            HingeTransform.localRotation = Quaternion.AngleAxis(coverModule.currentAngle, coverModule.rotationAxis);
+            coverModule.hingeTransform.localRotation = Quaternion.AngleAxis(coverModule.currentAngle, coverModule.rotationAxis);
         }
     }
 }
