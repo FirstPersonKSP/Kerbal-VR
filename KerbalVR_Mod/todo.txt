@@ -24,6 +24,25 @@ better staging button
 
 make sure recovery works
 
+=============================
+
+new mk1 IVA
+
+NEED TO FIX NOW
+
+WAIT UNTIL LATER
+
+camera point is too low
+action group buttons need to be bigger
+abort switch didn't work
+stage lock was flaky
+comms radio too small
+thrust limit interpolation goes the short way
+did thrust limit actually work?
+warp buttons are floating off the panel
+internal light button doesn't work
+
+
 =============================================
 polish
 =============================================
