@@ -11,7 +11,7 @@ namespace KerbalVR.InternalModules
 	class VRButton : InternalModule
 	{
 		[KSPField]
-		public string buttonTransformName = null;
+		public string buttonTransformName = String.Empty;
 
 		[KSPField]
 		public Vector3 axis = Vector3.down;
@@ -26,11 +26,26 @@ namespace KerbalVR.InternalModules
 		GameObject gizmo;
 #endif
 
-		public override void OnAwake()
-		{
-			base.OnAwake();
+		Transform FindChildTransform(string nameOrPath)
+        {
+			Transform result = null;
+			if (internalProp.hasModel && nameOrPath.Contains('/'))
+            {
+				result = internalProp.transform.Find("model").Find(nameOrPath);
+            }
 
-			var buttonTransform = internalProp.FindModelTransform(buttonTransformName);
+			if (result == null)
+            {
+				result = internalProp.FindModelTransform(nameOrPath);
+            }
+
+			return result;
+        }
+
+		//public override void OnAwake()
+		private void Start()
+		{
+ 			var buttonTransform = FindChildTransform(buttonTransformName);
 
 			if (buttonTransform != null && interactionListener == null)
 			{
@@ -71,7 +86,7 @@ namespace KerbalVR.InternalModules
 
 			float GetFingertipPosition(Vector3 fingertipCenter)
 			{
-				Vector3 localFingertipPosition = buttonModule.transform.InverseTransformPoint(fingertipCenter);
+				Vector3 localFingertipPosition = transform.InverseTransformPoint(fingertipCenter);
 				return Vector3.Dot(localFingertipPosition, buttonModule.axis);
 			}
 
