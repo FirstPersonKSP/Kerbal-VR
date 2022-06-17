@@ -1506,7 +1506,7 @@ namespace Valve.VR
         {
 #if KERBALVR
             string modRoot = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
-            string streamingAssets_SteamVR = Path.Combine(Path.Combine(modRoot, "Assets"), "Input");
+            string streamingAssets_SteamVR = Path.Combine(modRoot, "Input");
 #else
             string streamingAssets = Application.streamingAssetsPath;
             if (Directory.Exists(streamingAssets) == false)
