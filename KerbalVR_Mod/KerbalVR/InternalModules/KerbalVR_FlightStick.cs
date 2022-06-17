@@ -43,25 +43,9 @@ namespace KerbalVR.InternalModules
 		GameObject gizmo;
 #endif
 
-		public override void OnAwake()
+		private void Start()
 		{
-			if (HighLogic.LoadedScene == GameScenes.LOADING) return;
-
-			if (stickTransform != null) return;
-			// first, assume the transform is relative to this prop
-			stickTransform = transform.Find(stickTransformName);
-
-			// otherwise, try to find one in the entire IVA
-			if (stickTransform == null)
-			{
-				stickTransform = transform.parent.Find("model").GetChild(0).Find(stickTransformName);
-			}
-
-			if (stickTransform == null)
-            {
-				Utils.LogError($"Unable to find transform named {stickTransformName} in iva {this.internalModel.name} prop {this.internalProp.name}");
-				return;
-            }
+			stickTransform = this.FindTransform(stickTransformName);
 
 			var anchorTransform = new GameObject("VRFlightStickAnchor").transform;
 			anchorTransform.localPosition = stickTransform.localPosition;

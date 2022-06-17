@@ -26,26 +26,9 @@ namespace KerbalVR.InternalModules
 		GameObject gizmo;
 #endif
 
-		Transform FindChildTransform(string nameOrPath)
-        {
-			Transform result = null;
-			if (internalProp.hasModel && nameOrPath.Contains('/'))
-            {
-				result = internalProp.transform.Find("model").Find(nameOrPath);
-            }
-
-			if (result == null)
-            {
-				result = internalProp.FindModelTransform(nameOrPath);
-            }
-
-			return result;
-        }
-
-		//public override void OnAwake()
 		private void Start()
 		{
- 			var buttonTransform = FindChildTransform(buttonTransformName);
+ 			var buttonTransform = this.FindTransform(buttonTransformName);
 
 			if (buttonTransform != null && interactionListener == null)
 			{
