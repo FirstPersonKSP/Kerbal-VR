@@ -37,10 +37,8 @@ namespace KerbalVR.InternalModules
 		GameObject gizmo;
 		GameObject arrow;
 #endif
-		public override void OnAwake()
+		private void Start()
 		{
-			base.OnAwake();
-
 			var switchTransform = internalProp.FindModelTransform(switchTransformName);
 
 			if (switchTransform != null && interactionListener == null)
@@ -71,12 +69,9 @@ namespace KerbalVR.InternalModules
 			interactionListener.enabled = true;
 
 			cover = gameObject.GetComponent<VRCover>();
-		}
 
-		public void Start()
-        {
 			m_ivaSwitch = IVASwitch.ConstructSwitch(gameObject);
-        }
+		}
 
 		class VRSwitchInteractionListener : MonoBehaviour, IFingertipInteractable
 		{

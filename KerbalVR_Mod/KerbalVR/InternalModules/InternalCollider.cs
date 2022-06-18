@@ -98,6 +98,7 @@ namespace KerbalVR.InternalModules
 				}
 
 				collider.isTrigger = true;
+				collider.gameObject.layer = 20; // might want to data-drive this eventually
 
 #if PROP_GIZMOS
 				Utils.GetOrAddComponent<ColliderVisualizer>(collider.gameObject);
