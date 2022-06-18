@@ -1,0 +1,52 @@
+{
+    "spec_version": "v1.18",
+    "identifier": "KerbalVR-Dependencies",
+    "name": "KerbalVR Dependencies",
+    "abstract": "",
+    "author": [
+        "JonnyOThan"
+    ],
+    "version": "2022.06.18.04.20.19",
+    "ksp_version_min": "1.12.3",
+    "license": [
+        "unknown"
+    ],
+    "depends": [
+        {
+            "name": "ASETAvionics"
+        },
+        {
+            "name": "ASETProps"
+        },
+        {
+            "name": "RasterPropMonitor-Core"
+        },
+        {
+            "name": "RasterPropMonitor"
+        },
+        {
+            "name": "ModuleManager"
+        },
+        {
+            "name": "KSAIVAUpgrade"
+        },
+        {
+            "name": "QuickStart"
+        }
+    ],
+    "recommends": [
+        {
+            "name": "VesselView-UI-RasterPropMonitor"
+        }
+    ],
+    "suggests": [
+        {
+            "name": "Reviva"
+        },
+        {
+            "name": "DE-IVAExtension"
+        }
+    ],
+    "kind": "metapackage",
+    "release_date": "2022-06-18T12:20:19.2682623-04:00"
+}
