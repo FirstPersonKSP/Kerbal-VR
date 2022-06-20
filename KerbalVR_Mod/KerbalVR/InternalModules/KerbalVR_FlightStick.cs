@@ -90,7 +90,7 @@ namespace KerbalVR.InternalModules
 #endif
 		}
 
-		private static float ApplyDeadZone(float raw, float deadZoneFraction, float exponent)
+		public static float ApplyDeadZone(float raw, float deadZoneFraction, float exponent)
 		{
 			float sign = Mathf.Sign(raw);
 			float deadZoned = Mathf.Max(0, Mathf.Abs(raw) - deadZoneFraction) * (1.0f / (1.0f - deadZoneFraction));
