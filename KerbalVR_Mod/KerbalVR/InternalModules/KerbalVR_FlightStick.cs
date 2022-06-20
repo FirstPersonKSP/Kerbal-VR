@@ -11,7 +11,7 @@ namespace KerbalVR.InternalModules
 	class VRFlightStick : InternalModule
 	{
 		[KSPField]
-		public string stickTransformName = null;
+		public string stickTransformName = String.Empty;
 
 		[KSPField]
 		public float tiltAngle = 30.0f;
@@ -46,6 +46,8 @@ namespace KerbalVR.InternalModules
 		private void Start()
 		{
 			stickTransform = this.FindTransform(stickTransformName);
+
+			if (stickTransform == null) { return; }
 
 			var anchorTransform = new GameObject("VRFlightStickAnchor").transform;
 			anchorTransform.localPosition = stickTransform.localPosition;
@@ -185,6 +187,7 @@ namespace KerbalVR.InternalModules
 
 			if (stickTransform != null)
 			{
+				// TODO: invert the deadzone and exponent logic
 				stickTransform.localRotation = Quaternion.Euler(
 					-FlightInputHandler.state.pitch * tiltAngle,
 					FlightInputHandler.state.roll * twistAngle,
