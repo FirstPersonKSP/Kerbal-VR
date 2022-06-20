@@ -69,7 +69,8 @@ namespace KerbalVR
 
 		static public GameObject AddVRCamera(Camera parent, bool disablePositionTracking, bool dontDestroyOnLoad)
 		{
-			string childName = parent.name + "VR";
+			string childName = parent.name;
+			parent.name += "(Stock)";
 			var childObject = parent.gameObject.GetChild(childName);
 
 			if (childObject != null)
