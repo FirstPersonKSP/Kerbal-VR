@@ -47,6 +47,7 @@ namespace KerbalVR.IVAAdaptors
 
 		static readonly Type x_rasterPropMonitorComputerType;
 		static readonly MethodInfo x_rpmCompSetPersistentVariableMethod;
+		static readonly MethodInfo x_rpmCompGetInternalMethodMethod;
 
 		static RPMKnob()
 		{
@@ -90,6 +91,7 @@ namespace KerbalVR.IVAAdaptors
 			if (x_rasterPropMonitorComputerType != null)
 			{
 				x_rpmCompSetPersistentVariableMethod = x_rasterPropMonitorComputerType.GetMethod("SetPersistentVariable", BindingFlags.Instance | BindingFlags.NonPublic);
+				x_rpmCompGetInternalMethodMethod = x_rasterPropMonitorComputerType.GetMethod("GetInternalMethod", BindingFlags.Instance | BindingFlags.Public);
 			}
 		}
 
@@ -158,6 +160,14 @@ namespace KerbalVR.IVAAdaptors
 					case "SpeedDisplayMode":
 						FlightGlobals.SetSpeedMode(SpeedDisplayModeFromRotationFraction(fraction));
 						break;
+					case "ThrustLimit":
+						var del = x_rpmCompGetInternalMethodMethod.Invoke(m_rpmComp, new object[] { "JSIInternalRPMButtons:SetThrottleLimit", typeof(Action<double>)}) as Delegate;
+						if (del != null)
+						{
+							((Action<double>)del).Invoke(fraction * 100.0f);
+						}
+						break;
+
 				}
 			}
 			else

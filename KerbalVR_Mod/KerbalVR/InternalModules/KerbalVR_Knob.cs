@@ -114,14 +114,23 @@ namespace KerbalVR.InternalModules
         float CheckForStepChange()
         {
             float interp = Mathf.InverseLerp(knobModule.m_ivaKnob.MinRotation, knobModule.m_ivaKnob.MaxRotation, knobModule.currentAngle);
-            float stepF = interp * (knobModule.stepCount - 1);
-            int stepIndex = Mathf.RoundToInt(stepF);
-            float rotationFraction = stepIndex / (knobModule.stepCount - 1.0f);
+            float rotationFraction = interp;
 
-            if (knobModule.lastStep != stepIndex)
+            if (knobModule.stepCount == 0)
             {
-                knobModule.lastStep = stepIndex;
-                knobModule.m_ivaKnob.SetRotationFraction(knobModule.customRotationHandler, rotationFraction);
+                knobModule.m_ivaKnob.SetRotationFraction(knobModule.customRotationHandler, interp);
+            }
+            else
+            {
+                float stepF = interp * (knobModule.stepCount - 1);
+                int stepIndex = Mathf.RoundToInt(stepF);
+                rotationFraction = stepIndex / (knobModule.stepCount - 1.0f);
+
+                if (knobModule.lastStep != stepIndex)
+                {
+                    knobModule.lastStep = stepIndex;
+                    knobModule.m_ivaKnob.SetRotationFraction(knobModule.customRotationHandler, rotationFraction);
+                }
             }
 
             return rotationFraction;
@@ -134,7 +143,7 @@ namespace KerbalVR.InternalModules
 
             float rotationFraction = CheckForStepChange();
 
-            float angle = Mathf.LerpAngle(knobModule.m_ivaKnob.MinRotation, knobModule.m_ivaKnob.MaxRotation, rotationFraction);
+            float angle = Mathf.Lerp(knobModule.m_ivaKnob.MinRotation, knobModule.m_ivaKnob.MaxRotation, rotationFraction);
 
             SetAngle(angle);
         }
