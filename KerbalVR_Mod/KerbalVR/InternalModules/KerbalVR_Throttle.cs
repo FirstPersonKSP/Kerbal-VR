@@ -27,7 +27,7 @@ namespace KerbalVR.InternalModules
 			{
 				base.OnAwake();
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 				// Utils.LogError(e);
 			}

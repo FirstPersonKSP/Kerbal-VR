@@ -19,7 +19,7 @@ namespace KerbalVR.InternalModules
 		// but we'll eventually want to have this module also (optionally) drive the transform of the stick itself
 
 		[KSPField]
-		public Vector3 movementBounds;
+		public Vector3 movementBounds = Vector3.zero;
 
 		[KSPField]
 		public Vector3 deadzoneFractionVector = new Vector3(0.1f, 0.1f, 0.1f);

@@ -16,13 +16,13 @@ namespace KerbalVR.InternalModules
 		public Vector3 center = Vector3.zero;
 
 		[KSPField]
-		public float height; // Note: only used for Capsule primitives
+		public float height = 0.0f; // Note: only used for Capsule primitives
 
 		[KSPField]
-		public float radius; // Note: only used for Capsule, Sphere primitives
+		public float radius = 0.0f; // Note: only used for Capsule, Sphere primitives
 
 		[KSPField]
-		public Vector3 boxDimensions; // Note: only used for Box primitives
+		public Vector3 boxDimensions = Vector3.zero; // Note: only used for Box primitives
 
 		[KSPField]
 		public string parentTransformName = "";
@@ -31,7 +31,7 @@ namespace KerbalVR.InternalModules
 		public string colliderTransformName = "";
 
 		[KSPField]
-		public Vector3 localRotation; // if a new transform is being created, this is its local rotation
+		public Vector3 localRotation = Vector3.zero; // if a new transform is being created, this is its local rotation
 
 		Collider collider;
 
