@@ -47,6 +47,10 @@ namespace KerbalVR
         }
         #endregion
 
+        private void OnDestroy()
+        {
+            Utils.LogError("Interaction System being destroyed");
+        }
 
         #region Properties
         public Hand LeftHand { get; private set; }
@@ -66,12 +70,7 @@ namespace KerbalVR
         // device behaviors and actions
         protected bool isHandsInitialized = false;
         protected SteamVR_Action_Pose handActionPose;
-        protected SteamVR_Action_Boolean teleportAction;
         protected SteamVR_Action_Boolean headsetOnAction;
-
-        // teleport system
-        protected GameObject teleportSystemGameObject;
-        protected TeleportSystem teleportSystem;
         #endregion
 
 
@@ -84,17 +83,6 @@ namespace KerbalVR
             if (!isHandsInitialized) {
                 return;
             }
-
-            // position the teleport system
-            if (HighLogic.LoadedScene == GameScenes.MAINMENU) {
-                teleportSystem.downwardsVector = Vector3.down;
-            }
-            else if (HighLogic.LoadedScene == GameScenes.FLIGHT && FlightGlobals.ActiveVessel != null) {
-                // assign the teleport system's down vector to point towards gravity
-                CelestialBody mainBody = FlightGlobals.ActiveVessel.mainBody;
-                Vector2d latLon = mainBody.GetLatitudeAndLongitude(teleportSystemGameObject.transform.position);
-                teleportSystem.downwardsVector = -mainBody.GetSurfaceNVector(latLon.x, latLon.y);
-            }
         }
 
         protected void InitializeHandScripts() {
@@ -102,7 +90,6 @@ namespace KerbalVR
             handActionPose = SteamVR_Input.GetPoseAction("default", "Pose");
             headsetOnAction = SteamVR_Input.GetBooleanAction("default", "HeadsetOnHead");
             headsetOnAction.onChange += OnChangeHeadsetOnAction;
-            teleportAction = SteamVR_Input.GetBooleanAction("EVA", "Teleport");
 
             // set up the hand objects
             var lhGameObject = new GameObject("KVR_HandL");
@@ -127,13 +114,6 @@ namespace KerbalVR
             // can init the skeleton behavior now
             LeftHand.Initialize();
             RightHand.Initialize();
-
-            // init the teleport system
-            teleportSystemGameObject = new GameObject("KVR_TeleportSystem");
-            teleportSystem = teleportSystemGameObject.AddComponent<TeleportSystem>();
-            teleportSystem.handOriginLeft = LeftHand.transform;
-            teleportSystem.handOriginRight = RightHand.transform;
-            DontDestroyOnLoad(teleportSystemGameObject);
 
             // init the head up display
             //HeadUpDisplay = new GameObject("KVR_HeadUpDisplay");
