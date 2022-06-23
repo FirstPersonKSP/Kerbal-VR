@@ -17,11 +17,51 @@ namespace Valve.VR
     public class SteamVR_Input_ActionSet_EVA : Valve.VR.SteamVR_ActionSet
     {
         
-        public virtual SteamVR_Action_Boolean Teleport
+        public virtual SteamVR_Action_Vector2 MoveStick
         {
             get
             {
-                return SteamVR_Actions.eVA_Teleport;
+                return SteamVR_Actions.eVA_MoveStick;
+            }
+        }
+        
+        public virtual SteamVR_Action_Vector2 LookStick
+        {
+            get
+            {
+                return SteamVR_Actions.eVA_LookStick;
+            }
+        }
+        
+        public virtual SteamVR_Action_Boolean Jump
+        {
+            get
+            {
+                return SteamVR_Actions.eVA_Jump;
+            }
+        }
+        
+        public virtual SteamVR_Action_Boolean ToggleRCS
+        {
+            get
+            {
+                return SteamVR_Actions.eVA_ToggleRCS;
+            }
+        }
+        
+        public virtual SteamVR_Action_Single RCSUp
+        {
+            get
+            {
+                return SteamVR_Actions.eVA_RCSUp;
+            }
+        }
+        
+        public virtual SteamVR_Action_Single RCSDown
+        {
+            get
+            {
+                return SteamVR_Actions.eVA_RCSDown;
             }
         }
     }

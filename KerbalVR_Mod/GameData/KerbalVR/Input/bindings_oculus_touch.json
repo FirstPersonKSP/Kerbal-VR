@@ -76,40 +76,6 @@
             },
             {
                "inputs" : {
-                  "east" : {
-                     "output" : "/actions/default/in/snapturnright"
-                  },
-                  "west" : {
-                     "output" : "/actions/default/in/snapturnleft"
-                  }
-               },
-               "mode" : "dpad",
-               "parameters" : {
-                  "deadzone_pct" : "85",
-                  "overlap_pct" : "0",
-                  "sub_mode" : "touch"
-               },
-               "path" : "/user/hand/left/input/joystick"
-            },
-            {
-               "inputs" : {
-                  "east" : {
-                     "output" : "/actions/default/in/snapturnright"
-                  },
-                  "west" : {
-                     "output" : "/actions/default/in/snapturnleft"
-                  }
-               },
-               "mode" : "dpad",
-               "parameters" : {
-                  "deadzone_pct" : "85",
-                  "overlap_pct" : "0",
-                  "sub_mode" : "touch"
-               },
-               "path" : "/user/hand/right/input/joystick"
-            },
-            {
-               "inputs" : {
                   "click" : {
                      "output" : "/actions/default/in/grabgrip"
                   }
@@ -211,8 +177,26 @@
          "sources" : [
             {
                "inputs" : {
-                  "click" : {
-                     "output" : "/actions/eva/in/teleport"
+                  "position" : {
+                     "output" : "/actions/eva/in/movestick"
+                  }
+               },
+               "mode" : "joystick",
+               "path" : "/user/hand/left/input/joystick"
+            },
+            {
+               "inputs" : {
+                  "position" : {
+                     "output" : "/actions/eva/in/lookstick"
+                  }
+               },
+               "mode" : "joystick",
+               "path" : "/user/hand/right/input/joystick"
+            },
+            {
+               "inputs" : {
+                  "pull" : {
+                     "output" : "/actions/eva/in/rcsdown"
                   }
                },
                "mode" : "trigger",
@@ -220,12 +204,30 @@
             },
             {
                "inputs" : {
-                  "click" : {
-                     "output" : "/actions/eva/in/teleport"
+                  "pull" : {
+                     "output" : "/actions/eva/in/rcsup"
                   }
                },
                "mode" : "trigger",
                "path" : "/user/hand/right/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/eva/in/jump"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/a"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/eva/in/togglercs"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/x"
             }
          ]
       },
@@ -235,44 +237,6 @@
          "poses" : [],
          "skeleton" : [],
          "sources" : [
-            {
-               "inputs" : {
-                  "position" : {
-                     "output" : "/actions/flight/in/flightstick"
-                  }
-               },
-               "mode" : "joystick",
-               "parameters" : {
-                  "deadzone_pct" : "10",
-                  "invert" : "y"
-               },
-               "path" : "/user/hand/right/input/joystick"
-            },
-            {
-               "inputs" : {
-                  "position" : {
-                     "output" : "/actions/flight/in/yawstick"
-                  }
-               },
-               "mode" : "joystick",
-               "parameters" : {
-                  "deadzone_pct" : "10"
-               },
-               "path" : "/user/hand/left/input/joystick"
-            },
-            {
-               "inputs" : {
-                  "value" : {
-                     "output" : "/actions/flight/in/throttlestick"
-                  }
-               },
-               "mode" : "scalar_constant",
-               "parameters" : {
-                  "on/x" : "0",
-                  "on/y" : "1"
-               },
-               "path" : "/user/hand/left/input/trigger"
-            },
             {
                "inputs" : {
                   "click" : {
