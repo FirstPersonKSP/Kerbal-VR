@@ -3,7 +3,7 @@ import re, os, shutil
 # copy the output files to the KerbalVR_Mod folder
 input_files_path = os.path.join('..', 'KerbalVR_Unity', 'AssetBundles')
 output_files = [f for f in os.listdir(input_files_path) if os.path.isfile(os.path.join(input_files_path, f)) and f.endswith('.ksp')]
-output_path = os.path.join('..', 'KerbalVR_Mod', 'GameData', 'KerbalVR', 'Assets', 'AssetBundles')
+output_path = os.path.join('..', 'KerbalVR_Mod', 'GameData', 'KerbalVR', 'AssetBundles')
 
 for filename in output_files:
     output_filename = re.sub(r'\.ksp$', '.dat', filename)
