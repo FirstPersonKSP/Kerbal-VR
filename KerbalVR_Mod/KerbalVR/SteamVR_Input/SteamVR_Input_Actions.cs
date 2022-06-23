@@ -53,6 +53,8 @@ namespace Valve.VR
         
         private static SteamVR_Action_Single p_eVA_RCSDown;
         
+        private static SteamVR_Action_Boolean p_eVA_ToggleLight;
+        
         public static SteamVR_Action_Boolean default_InteractUI
         {
             get
@@ -197,6 +199,14 @@ namespace Valve.VR
             }
         }
         
+        public static SteamVR_Action_Boolean eVA_ToggleLight
+        {
+            get
+            {
+                return SteamVR_Actions.p_eVA_ToggleLight.GetCopy<SteamVR_Action_Boolean>();
+            }
+        }
+        
         private static void InitializeActionArrays()
         {
             Valve.VR.SteamVR_Input.actions = new Valve.VR.SteamVR_Action[] {
@@ -217,7 +227,8 @@ namespace Valve.VR
                     SteamVR_Actions.eVA_Jump,
                     SteamVR_Actions.eVA_ToggleRCS,
                     SteamVR_Actions.eVA_RCSUp,
-                    SteamVR_Actions.eVA_RCSDown};
+                    SteamVR_Actions.eVA_RCSDown,
+                    SteamVR_Actions.eVA_ToggleLight};
             Valve.VR.SteamVR_Input.actionsIn = new Valve.VR.ISteamVR_Action_In[] {
                     SteamVR_Actions.default_InteractUI,
                     SteamVR_Actions.default_GrabGrip,
@@ -235,7 +246,8 @@ namespace Valve.VR
                     SteamVR_Actions.eVA_Jump,
                     SteamVR_Actions.eVA_ToggleRCS,
                     SteamVR_Actions.eVA_RCSUp,
-                    SteamVR_Actions.eVA_RCSDown};
+                    SteamVR_Actions.eVA_RCSDown,
+                    SteamVR_Actions.eVA_ToggleLight};
             Valve.VR.SteamVR_Input.actionsOut = new Valve.VR.ISteamVR_Action_Out[] {
                     SteamVR_Actions.default_Haptic};
             Valve.VR.SteamVR_Input.actionsVibration = new Valve.VR.SteamVR_Action_Vibration[] {
@@ -250,7 +262,8 @@ namespace Valve.VR
                     SteamVR_Actions.default_PinchThumb,
                     SteamVR_Actions.flight_InteractClick,
                     SteamVR_Actions.eVA_Jump,
-                    SteamVR_Actions.eVA_ToggleRCS};
+                    SteamVR_Actions.eVA_ToggleRCS,
+                    SteamVR_Actions.eVA_ToggleLight};
             Valve.VR.SteamVR_Input.actionsSingle = new Valve.VR.SteamVR_Action_Single[] {
                     SteamVR_Actions.default_Squeeze,
                     SteamVR_Actions.eVA_RCSUp,
@@ -277,7 +290,8 @@ namespace Valve.VR
                     SteamVR_Actions.eVA_Jump,
                     SteamVR_Actions.eVA_ToggleRCS,
                     SteamVR_Actions.eVA_RCSUp,
-                    SteamVR_Actions.eVA_RCSDown};
+                    SteamVR_Actions.eVA_RCSDown,
+                    SteamVR_Actions.eVA_ToggleLight};
         }
         
         private static void PreInitActions()
@@ -300,6 +314,7 @@ namespace Valve.VR
             SteamVR_Actions.p_eVA_ToggleRCS = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/EVA/in/ToggleRCS")));
             SteamVR_Actions.p_eVA_RCSUp = ((SteamVR_Action_Single)(SteamVR_Action.Create<SteamVR_Action_Single>("/actions/EVA/in/RCSUp")));
             SteamVR_Actions.p_eVA_RCSDown = ((SteamVR_Action_Single)(SteamVR_Action.Create<SteamVR_Action_Single>("/actions/EVA/in/RCSDown")));
+            SteamVR_Actions.p_eVA_ToggleLight = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/EVA/in/ToggleLight")));
         }
     }
 }

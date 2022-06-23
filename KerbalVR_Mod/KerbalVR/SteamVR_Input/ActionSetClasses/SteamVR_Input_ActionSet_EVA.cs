@@ -64,5 +64,13 @@ namespace Valve.VR
                 return SteamVR_Actions.eVA_RCSDown;
             }
         }
+        
+        public virtual SteamVR_Action_Boolean ToggleLight
+        {
+            get
+            {
+                return SteamVR_Actions.eVA_ToggleLight;
+            }
+        }
     }
 }

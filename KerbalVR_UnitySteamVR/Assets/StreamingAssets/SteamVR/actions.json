@@ -81,6 +81,11 @@
       "name": "/actions/EVA/in/RCSDown",
       "type": "vector1",
       "requirement": "mandatory"
+    },
+    {
+      "name": "/actions/EVA/in/ToggleLight",
+      "type": "boolean",
+      "requirement": "mandatory"
     }
   ],
   "action_sets": [
