@@ -72,5 +72,13 @@ namespace Valve.VR
                 return SteamVR_Actions.eVA_ToggleLight;
             }
         }
+        
+        public virtual SteamVR_Action_Boolean Sprint
+        {
+            get
+            {
+                return SteamVR_Actions.eVA_Sprint;
+            }
+        }
     }
 }

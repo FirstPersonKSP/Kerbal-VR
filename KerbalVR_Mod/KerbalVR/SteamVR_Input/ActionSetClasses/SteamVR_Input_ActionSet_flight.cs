@@ -17,11 +17,11 @@ namespace Valve.VR
     public class SteamVR_Input_ActionSet_flight : Valve.VR.SteamVR_ActionSet
     {
         
-        public virtual SteamVR_Action_Boolean InteractClick
+        public virtual SteamVR_Action_Boolean ToggleRollYaw
         {
             get
             {
-                return SteamVR_Actions.flight_InteractClick;
+                return SteamVR_Actions.flight_ToggleRollYaw;
             }
         }
     }

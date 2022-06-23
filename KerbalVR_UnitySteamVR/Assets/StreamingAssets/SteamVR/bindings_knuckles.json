@@ -124,11 +124,6 @@
                "path" : "/user/hand/left/input/trigger"
             },
             {
-               "inputs" : {},
-               "mode" : "none",
-               "path" : "/user/hand/left/input/pinch"
-            },
-            {
                "inputs" : {
                   "click" : {
                      "output" : "/actions/default/in/pinchindex"
@@ -242,6 +237,18 @@
                },
                "mode" : "button",
                "path" : "/user/hand/left/input/b"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/eva/in/sprint"
+                  }
+               },
+               "mode" : "button",
+               "parameters" : {
+                  "force_input" : ""
+               },
+               "path" : "/user/hand/left/input/thumbstick"
             }
          ]
       },
@@ -250,7 +257,20 @@
          "haptics" : [],
          "poses" : [],
          "skeleton" : [],
-         "sources" : []
+         "sources" : [
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/flight/in/togglerollyaw"
+                  }
+               },
+               "mode" : "button",
+               "parameters" : {
+                  "force_input" : "click"
+               },
+               "path" : "/user/hand/right/input/thumbstick"
+            }
+         ]
       },
       "/actions/platformer" : {
          "chords" : [],

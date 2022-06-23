@@ -237,6 +237,15 @@
                },
                "mode" : "button",
                "path" : "/user/hand/left/input/y"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/eva/in/sprint"
+                  }
+               },
+               "mode" : "joystick",
+               "path" : "/user/hand/left/input/joystick"
             }
          ]
       },
@@ -249,20 +258,11 @@
             {
                "inputs" : {
                   "click" : {
-                     "output" : "/actions/flight/in/interactclick"
+                     "output" : "/actions/flight/in/togglerollyaw"
                   }
                },
                "mode" : "button",
-               "path" : "/user/hand/right/input/b"
-            },
-            {
-               "inputs" : {
-                  "click" : {
-                     "output" : "/actions/flight/in/interactclick"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/left/input/y"
+               "path" : "/user/hand/right/input/joystick"
             }
          ]
       },

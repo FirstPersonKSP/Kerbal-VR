@@ -49,7 +49,7 @@
       "type": "vector2"
     },
     {
-      "name": "/actions/flight/in/InteractClick",
+      "name": "/actions/flight/in/ToggleRollYaw",
       "type": "boolean"
     },
     {
@@ -86,6 +86,10 @@
       "name": "/actions/EVA/in/ToggleLight",
       "type": "boolean",
       "requirement": "mandatory"
+    },
+    {
+      "name": "/actions/EVA/in/Sprint",
+      "type": "boolean"
     }
   ],
   "action_sets": [
@@ -165,8 +169,7 @@
       "/actions/default/in/Pose": "Pose",
       "/actions/default/in/SkeletonLeftHand": "Skeleton (Left)",
       "/actions/default/in/SkeletonRightHand": "Skeleton (Right)",
-      "/actions/default/out/Haptic": "Haptic",
-      "/actions/flight/in/InteractClick": "Interaction Click"
+      "/actions/default/out/Haptic": "Haptic"
     }
   ]
 }
