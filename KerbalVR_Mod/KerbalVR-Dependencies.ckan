@@ -30,9 +30,15 @@
         {
             "name": "KSAIVAUpgrade"
         },
-        {
-            "name": "QuickStart"
-        }
+      {
+        "name": "QuickStart"
+      },
+      {
+        "name": "Harmony2"
+      },
+      {
+        "name": "ThroughTheEyesOfaKerbal"
+      }
     ],
     "recommends": [
         {

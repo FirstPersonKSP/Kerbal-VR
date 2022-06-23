@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Krafs.Publicizer.1.0.2\build\Krafs.Publicizer.props" Condition="Exists('..\packages\Krafs.Publicizer.1.0.2\build\Krafs.Publicizer.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -13,6 +14,8 @@
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -35,6 +38,10 @@
     <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\GameData\000_Harmony\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Assembly-CSharp">
       <Private>false</Private>
     </Reference>
@@ -43,6 +50,10 @@
       <Private>false</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="ThroughTheEyes">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\KSP IVA DEV\GameData\ThroughTheEyes\Plugins\ThroughTheEyes.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="UnityEngine">
       <Private>false</Private>
     </Reference>
@@ -105,6 +116,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Publicize Include="ThroughTheEyes" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Addon.cs" />
     <Compile Include="CameraUtils.cs" />
     <Compile Include="Flight.cs" />
@@ -159,10 +173,20 @@
       <Name>SteamVR</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>del /f /q $(SolutionDir)GameData\$(ProjectName)\Plugins\*
 xcopy /Y $(TargetDir) $(SolutionDir)GameData\$(ProjectName)\Plugins\</PostBuildEvent>
   </PropertyGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Krafs.Publicizer.1.0.2\build\Krafs.Publicizer.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Krafs.Publicizer.1.0.2\build\Krafs.Publicizer.props'))" />
+    <Error Condition="!Exists('..\packages\Krafs.Publicizer.1.0.2\build\Krafs.Publicizer.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Krafs.Publicizer.1.0.2\build\Krafs.Publicizer.targets'))" />
+  </Target>
+  <Import Project="..\packages\Krafs.Publicizer.1.0.2\build\Krafs.Publicizer.targets" Condition="Exists('..\packages\Krafs.Publicizer.1.0.2\build\Krafs.Publicizer.targets')" />
 </Project>

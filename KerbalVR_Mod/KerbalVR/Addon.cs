@@ -1,5 +1,7 @@
-﻿using System;
+﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.XR;
 
@@ -13,6 +15,9 @@ namespace KerbalVR
 		public void Awake()
 		{
 			Utils.Log("Addon Awake");
+
+			var harmony = new Harmony("KerbalVR");
+			harmony.PatchAll(Assembly.GetExecutingAssembly());
 
 			// for whatever reason, enabling VR mode during loading makes it super slow
 			m_wasEnabled = XRSettings.enabled;

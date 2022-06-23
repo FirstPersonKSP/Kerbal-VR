@@ -43,18 +43,25 @@ namespace KerbalVR
             SteamVR_Actions.PreInitialize();
             SteamVR_Input.IdentifyActionsFile();
             SteamVR_Input.Initialize();
-            ActivateActionSet("default");
+            SetActionSetActive("default", true);
             //ActivateActionSet("editor");
-            ActivateActionSet("flight");
+            SetActionSetActive("flight", true);
             //ActivateActionSet("EVA");
         }
 
-        static void ActivateActionSet(string actionSetName)
+        public static void SetActionSetActive(string actionSetName, bool active)
         {
             SteamVR_ActionSet actionSet = SteamVR_Input.GetActionSet(actionSetName, false, true);
             if (actionSet != null)
             {
-                actionSet.Activate(SteamVR_Input_Sources.Any);
+                if (active)
+                {
+                    actionSet.Activate(SteamVR_Input_Sources.Any);
+                }
+                else
+				{
+                    actionSet.Deactivate(SteamVR_Input_Sources.Any);
+				}
             }
             else
             {
