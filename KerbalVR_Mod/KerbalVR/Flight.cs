@@ -227,31 +227,72 @@ namespace KerbalVR
 			}
 		}
 
+		public void FPStateFloating_PreOnFixedUpdate(KerbalEVA kerbalEVA)
+		{
+			if (kerbalEVA.vessel.situation == Vessel.Situations.SPLASHED || 
+				kerbalEVA.vessel.situation == Vessel.Situations.LANDED ||
+				!kerbalEVA.JetpackDeployed)
+			{
+				return;
+			}
+
+			// ----- rotation
+
+			Vector2 lookStickInput = m_lookStickAction.GetAxis(SteamVR_Input_Sources.Any);
+
+			// TODO: roll/yaw swapping
+			float yaw = lookStickInput.x; // rotation around up
+			float pitch = lookStickInput.y; // rotation around right
+			float roll = 0; // rotation around forward
+
+			Vector3 cmdRot =
+				yaw * kerbalEVA.transform.up +
+				pitch * kerbalEVA.transform.right +
+				roll * kerbalEVA.transform.forward;
+
+			if (cmdRot != Vector3.zero)
+			{
+				FirstPerson.ReflectedMembers.eva_cmdRot.SetValue(kerbalEVA, cmdRot);
+				FirstPerson.FirstPersonEVA.instance.state.rotationpid_previouserror = Vector3.zero;
+				FirstPerson.FirstPersonEVA.instance.state.rotationpid_integral = Vector3.zero;
+			}
+
+			// ----- translation
+
+			Vector2 moveStickInput = m_moveStickAction.GetAxis(SteamVR_Input_Sources.Any);
+			float verticalInput = m_rcsUpAction.GetAxis(SteamVR_Input_Sources.Any) - m_rcsDownAction.GetAxis(SteamVR_Input_Sources.Any);
+
+			// TODO: deadzone/exponent? builtin response seems OK
+
+			Vector3 tgtRpos =
+				moveStickInput.y * kerbalEVA.transform.forward +
+				moveStickInput.x * kerbalEVA.transform.right;
+
+			Vector3 packTgtRpos = tgtRpos + verticalInput * kerbalEVA.transform.up;
+
+			packTgtRpos.Normalize();
+
+			FirstPerson.ReflectedMembers.eva_packTgtRPos.SetValue(kerbalEVA, packTgtRpos);
+
+		}
+
 		private void ToggleLight_OnStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
 		{
-			var kerbalEVA = FlightGlobals.ActiveVessel.evaController;
-			kerbalEVA.ToggleLamp();
+			FlightGlobals.ActiveVessel.evaController.ToggleLamp();
 		}
 
 		private void ToggleRCS_OnStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
 		{
-			var kerbalEVA = FlightGlobals.ActiveVessel.evaController;
-			kerbalEVA.ToggleJetpack();
+			FlightGlobals.ActiveVessel.evaController.ToggleJetpack();
 		}
 	}
 
-	[HarmonyPatch(typeof(KerbalEVA))]
-	[HarmonyPatch("HandleMovementInput")]
+	[HarmonyPatch(typeof(KerbalEVA), "HandleMovementInput")]
 	class KerbalEVAPatch
 	{
 		
 		static void Prefix(KerbalEVA __instance)
 		{
-			//if (!kerbalEVA.VesselUnderControl || (!kerbalEVA.SurfaceOrSplashed() && kerbalEVA.JetpackDeployed && EVAConstructionModeController.MovementRestricted))
-			//{
-			//	return;
-			//}
-
 			FirstPersonKerbalFlight.Instance.HandleMovementInput_Prefix(__instance);
 		}
 
@@ -260,4 +301,14 @@ namespace KerbalVR
 			FirstPersonKerbalFlight.Instance.HandleMovementInput_Postfix(__instance);
 		}
 	}
+
+	[HarmonyPatch(typeof(FirstPerson.FPStateFloating), "evtHook_PreOnFixedUpdate")]
+	class FPStateFloatingPatch
+	{
+		static void Postfix(FirstPerson.FPStateFloating __instance, KerbalEVA eva)
+		{
+			FirstPersonKerbalFlight.Instance.FPStateFloating_PreOnFixedUpdate(eva);
+		}
+	}
+
 }
