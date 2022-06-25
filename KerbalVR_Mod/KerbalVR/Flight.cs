@@ -16,6 +16,20 @@ namespace KerbalVR
 
 		Transform m_lastKerbalTransform = null;
 
+		static readonly float EVA_PRECISION_MODE_SCALE = 0.5f;
+		static float EVA_FLOATING_ROTATION_SCALE = 0.25f;
+
+		bool m_jetpackPrecisionMode = true;
+		bool JetpackPrecisionMode
+		{
+			get { return m_jetpackPrecisionMode; }
+			set
+			{
+				m_jetpackPrecisionMode = value;
+				FirstPerson.FirstPersonEVA.instance.state.eva_throttle = m_jetpackPrecisionMode ? EVA_PRECISION_MODE_SCALE : 1.0f;
+			}
+		}
+
 		SteamVR_Action_Vector2 m_moveStickAction;
 		SteamVR_Action_Vector2 m_lookStickAction;
 		SteamVR_Action_Single m_rcsUpAction;
@@ -23,6 +37,7 @@ namespace KerbalVR
 		SteamVR_Action_Boolean m_toggleRCSAction;
 		SteamVR_Action_Boolean m_toggleLightAction;
 		SteamVR_Action_Boolean m_jumpAction;
+		SteamVR_Action_Boolean m_sprintAction;
 
 		public void Awake()
 		{
@@ -41,9 +56,11 @@ namespace KerbalVR
 			m_toggleRCSAction = SteamVR_Input.GetBooleanAction("ToggleRCS");
 			m_toggleLightAction = SteamVR_Input.GetBooleanAction("ToggleLight");
 			m_jumpAction = SteamVR_Input.GetBooleanAction("Jump");
+			m_sprintAction = SteamVR_Input.GetBooleanAction("Sprint");
 
 			m_toggleRCSAction.onStateDown += ToggleRCS_OnStateDown;
 			m_toggleLightAction.onStateDown += ToggleLight_OnStateDown;
+			m_sprintAction.onStateDown += Sprint_OnStateDown;
 		}
 
 		private void OnVesselChange(Vessel data)
@@ -69,6 +86,7 @@ namespace KerbalVR
 
 			m_toggleRCSAction.onStateDown -= ToggleRCS_OnStateDown;
 			m_toggleLightAction.onStateDown -= ToggleLight_OnStateDown;
+			m_sprintAction.onStateDown -= Sprint_OnStateDown;
 
 			Instance = null;
 		}
@@ -176,7 +194,8 @@ namespace KerbalVR
 			FirstPerson.FirstPersonEVA.instance.fpStateFloating.evt_OnEnterFirstPerson(kerbalEVA);
 
 			kerbalEVA.On_jump_start.OnCheckCondition = (KFSMState currentState) => m_jumpAction.state && !kerbalEVA.PartPlacementMode && !EVAConstructionModeController.MovementRestricted;
-			
+
+			JetpackPrecisionMode = true;
 		}
 
 		public void HandleMovementInput_Prefix(KerbalEVA kerbalEVA)
@@ -227,7 +246,7 @@ namespace KerbalVR
 			}
 		}
 
-		public void FPStateFloating_PreOnFixedUpdate(KerbalEVA kerbalEVA)
+		public void FPStateFloating_PreOnFixedUpdate_Postfix(KerbalEVA kerbalEVA)
 		{
 			if (kerbalEVA.vessel.situation == Vessel.Situations.SPLASHED || 
 				kerbalEVA.vessel.situation == Vessel.Situations.LANDED ||
@@ -249,6 +268,14 @@ namespace KerbalVR
 				yaw * kerbalEVA.transform.up +
 				pitch * kerbalEVA.transform.right +
 				roll * kerbalEVA.transform.forward;
+
+			// we want rotation strength to be the same regardless of precision mode, so scale this up to make it consistent
+			if (m_jetpackPrecisionMode)
+			{
+				cmdRot /= EVA_PRECISION_MODE_SCALE;
+			}
+
+			cmdRot *= EVA_FLOATING_ROTATION_SCALE;
 
 			if (cmdRot != Vector3.zero)
 			{
@@ -285,6 +312,23 @@ namespace KerbalVR
 		{
 			FlightGlobals.ActiveVessel.evaController.ToggleJetpack();
 		}
+		private void Sprint_OnStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
+		{
+			KerbalEVA kerbalEVA = FlightGlobals.ActiveVessel.evaController;
+
+			if (!kerbalEVA) return;
+
+			if (kerbalEVA.vessel.situation == Vessel.Situations.SPLASHED ||
+				kerbalEVA.vessel.situation == Vessel.Situations.LANDED ||
+				!kerbalEVA.JetpackDeployed)
+			{
+				// TODO: actual sprint support
+				return;
+			}
+
+			// maybe this should be a separate action?
+			JetpackPrecisionMode = !JetpackPrecisionMode;
+		}
 	}
 
 	[HarmonyPatch(typeof(KerbalEVA), "HandleMovementInput")]
@@ -307,7 +351,7 @@ namespace KerbalVR
 	{
 		static void Postfix(FirstPerson.FPStateFloating __instance, KerbalEVA eva)
 		{
-			FirstPersonKerbalFlight.Instance.FPStateFloating_PreOnFixedUpdate(eva);
+			FirstPersonKerbalFlight.Instance.FPStateFloating_PreOnFixedUpdate_Postfix(eva);
 		}
 	}
 
