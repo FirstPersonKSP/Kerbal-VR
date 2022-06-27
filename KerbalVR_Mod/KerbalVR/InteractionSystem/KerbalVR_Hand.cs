@@ -56,6 +56,7 @@ namespace KerbalVR {
         protected Types.ShiftRegister<int> renderLayerHands = new Types.ShiftRegister<int>(2);
 
         // keep track of held objects
+        protected GameObject handColliderObject;
         protected HandCollider handCollider;
         protected InteractableBehaviour heldObject;
 
@@ -120,7 +121,10 @@ namespace KerbalVR {
             var pose = handObject.AddComponent<SteamVR_Behaviour_Pose>();
             pose.inputSource = handType;
 
-            handCollider = handObject.AddComponent<HandCollider>();
+            // create a child object for the colider so that it can be on a different layer
+            handColliderObject = new GameObject();
+            handColliderObject.transform.SetParent(handObject.transform, false);
+            handCollider = handColliderObject.AddComponent<HandCollider>();
 
             // add fingertip collider for "mouse clicks"
             string fingertipTransformPath = renderModelParentPath + "/Root/wrist_r/finger_index_meta_r/finger_index_0_r/finger_index_1_r/finger_index_2_r/finger_index_r_end";
@@ -249,6 +253,8 @@ namespace KerbalVR {
             if (renderLayerHands.IsChanged()) {
                 Utils.SetLayer(this.gameObject, renderLayerHands.Value);
                 Utils.SetLayer(handObject, renderLayerHands.Value);
+
+                handColliderObject.layer = renderLayerHands.Value == 20 ? 20 : 3;
             }
         }
     }

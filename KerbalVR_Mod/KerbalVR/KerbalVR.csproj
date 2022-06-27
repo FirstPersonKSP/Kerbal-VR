@@ -149,6 +149,7 @@
     <Compile Include="KerbalVR_Core.cs" />
     <Compile Include="KerbalVR_Globals.cs" />
     <Compile Include="KerbalVR_InteractionSystem.cs" />
+    <Compile Include="KerbalVR_Ladder.cs" />
     <Compile Include="KerbalVR_MathUtils.cs" />
     <Compile Include="KerbalVR_Scene.cs" />
     <Compile Include="KerbalVR_Types.cs" />
