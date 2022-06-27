@@ -1,6 +1,9 @@
-﻿using System;
+﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -105,4 +108,36 @@ namespace KerbalVR
 			return go;
 		}
 	}
+
+	[HarmonyPatch(typeof(FXCamera), "LateUpdate")]
+	[HarmonyPatch(typeof(FXDepthCamera), "LateUpdate")]
+	class FXCameraPatch
+	{
+		private static MethodInfo set_fieldOfView = AccessTools.DeclaredPropertySetter(typeof(Camera), "fieldOfView");
+		private static FieldInfo FlightCamera_FieldOfView = AccessTools.Field(typeof(FlightCamera), nameof(FlightCamera.FieldOfView));
+
+		static void SetCameraFOV(Camera camera, float fov)
+		{
+			if (!camera.stereoEnabled)
+			{
+				camera.fieldOfView = fov;
+			}
+		}
+
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+		{
+			foreach (var instruction in instructions)
+			{
+				if (instruction.opcode == OpCodes.Callvirt && ReferenceEquals(instruction.operand, set_fieldOfView))
+				{
+					instruction.opcode = OpCodes.Call;
+					instruction.operand = AccessTools.Method(typeof(FXCameraPatch), nameof(SetCameraFOV));
+				}
+				
+				yield return instruction;
+			}
+		}
+	}
+
+
 }
