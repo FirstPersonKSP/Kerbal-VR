@@ -192,6 +192,7 @@ namespace KerbalVR
 			// force ThroughTheEyes to run its modifications on the kerbal's FSM.  These should be safe to run more than once
 			FirstPerson.FirstPersonEVA.instance.fpStateWalkRun.evt_OnEnterFirstPerson(kerbalEVA);
 			FirstPerson.FirstPersonEVA.instance.fpStateFloating.evt_OnEnterFirstPerson(kerbalEVA);
+			FirstPerson.FirstPersonEVA.instance.fpCameraManager.nearPlaneDistance = 0.02f;
 
 			kerbalEVA.On_jump_start.OnCheckCondition = (KFSMState currentState) => m_jumpAction.state && !kerbalEVA.PartPlacementMode && !EVAConstructionModeController.MovementRestricted;
 
