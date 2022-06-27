@@ -30,6 +30,8 @@ namespace KerbalVR
 			}
 		}
 
+		bool m_isSprinting = false;
+
 		SteamVR_Action_Vector2 m_moveStickAction;
 		SteamVR_Action_Vector2 m_lookStickAction;
 		SteamVR_Action_Single m_rcsUpAction;
@@ -196,7 +198,11 @@ namespace KerbalVR
 
 			kerbalEVA.On_jump_start.OnCheckCondition = (KFSMState currentState) => m_jumpAction.state && !kerbalEVA.PartPlacementMode && !EVAConstructionModeController.MovementRestricted;
 
+			kerbalEVA.On_startRun.OnCheckCondition = (KFSMState currentState) => m_isSprinting;
+			kerbalEVA.On_endRun.OnCheckCondition = (KFSMState currentState) => !m_isSprinting;
+
 			JetpackPrecisionMode = true;
+			m_isSprinting = false;
 		}
 
 		public void HandleMovementInput_Prefix(KerbalEVA kerbalEVA)
@@ -209,7 +215,15 @@ namespace KerbalVR
 
 			// TODO: deadzone/exponent? builtin response seems OK
 
-			// TODO: sprint?
+			if (m_sprintAction.state && moveStickInput.y > 0.5f)
+			{
+				m_isSprinting = true;
+			}
+
+			if (m_isSprinting && moveStickInput.y < 0.5f || kerbalEVA.JetpackDeployed)
+			{
+				m_isSprinting = false;
+			}
 
 			Vector3 tgtRpos =
 				moveStickInput.y * kerbalEVA.transform.forward +
