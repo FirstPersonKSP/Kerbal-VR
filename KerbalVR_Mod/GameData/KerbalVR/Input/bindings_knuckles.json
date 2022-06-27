@@ -213,6 +213,9 @@
             },
             {
                "inputs" : {
+                  "click" : {
+                     "output" : "/actions/eva/in/swaprollyaw"
+                  },
                   "position" : {
                      "output" : "/actions/eva/in/lookstick"
                   }

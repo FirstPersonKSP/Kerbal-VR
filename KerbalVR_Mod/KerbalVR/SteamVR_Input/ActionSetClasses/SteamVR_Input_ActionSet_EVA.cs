@@ -80,5 +80,13 @@ namespace Valve.VR
                 return SteamVR_Actions.eVA_Sprint;
             }
         }
+        
+        public virtual SteamVR_Action_Boolean SwapRollYaw
+        {
+            get
+            {
+                return SteamVR_Actions.eVA_SwapRollYaw;
+            }
+        }
     }
 }

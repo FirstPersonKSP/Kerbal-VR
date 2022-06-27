@@ -31,6 +31,7 @@ namespace KerbalVR
 		}
 
 		bool m_isSprinting = false;
+		bool m_lookStickIsRoll = false;
 
 		SteamVR_Action_Vector2 m_moveStickAction;
 		SteamVR_Action_Vector2 m_lookStickAction;
@@ -40,6 +41,7 @@ namespace KerbalVR
 		SteamVR_Action_Boolean m_toggleLightAction;
 		SteamVR_Action_Boolean m_jumpAction;
 		SteamVR_Action_Boolean m_sprintAction;
+		SteamVR_Action_Boolean m_swapRollYawAction;
 
 		public void Awake()
 		{
@@ -59,10 +61,12 @@ namespace KerbalVR
 			m_toggleLightAction = SteamVR_Input.GetBooleanAction("ToggleLight");
 			m_jumpAction = SteamVR_Input.GetBooleanAction("Jump");
 			m_sprintAction = SteamVR_Input.GetBooleanAction("Sprint");
+			m_swapRollYawAction = SteamVR_Input.GetBooleanAction("SwapRollYaw");
 
 			m_toggleRCSAction.onStateDown += ToggleRCS_OnStateDown;
 			m_toggleLightAction.onStateDown += ToggleLight_OnStateDown;
 			m_sprintAction.onStateDown += Sprint_OnStateDown;
+			m_swapRollYawAction.onStateDown += SwapRollYaw_OnStateDown;
 		}
 
 		private void OnVesselChange(Vessel data)
@@ -89,6 +93,7 @@ namespace KerbalVR
 			m_toggleRCSAction.onStateDown -= ToggleRCS_OnStateDown;
 			m_toggleLightAction.onStateDown -= ToggleLight_OnStateDown;
 			m_sprintAction.onStateDown -= Sprint_OnStateDown;
+			m_swapRollYawAction.onStateDown -= SwapRollYaw_OnStateDown;
 
 			Instance = null;
 		}
@@ -274,10 +279,9 @@ namespace KerbalVR
 
 			Vector2 lookStickInput = m_lookStickAction.GetAxis(SteamVR_Input_Sources.Any);
 
-			// TODO: roll/yaw swapping
-			float yaw = lookStickInput.x; // rotation around up
+			float yaw = m_lookStickIsRoll ? 0.0f : lookStickInput.x; // rotation around up
 			float pitch = lookStickInput.y; // rotation around right
-			float roll = 0; // rotation around forward
+			float roll = m_lookStickIsRoll ? -lookStickInput.x : 0.0f; // rotation around forward
 
 			Vector3 cmdRot =
 				yaw * kerbalEVA.transform.up +
@@ -343,6 +347,11 @@ namespace KerbalVR
 
 			// maybe this should be a separate action?
 			JetpackPrecisionMode = !JetpackPrecisionMode;
+		}
+
+		private void SwapRollYaw_OnStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
+		{
+			m_lookStickIsRoll = !m_lookStickIsRoll;
 		}
 	}
 

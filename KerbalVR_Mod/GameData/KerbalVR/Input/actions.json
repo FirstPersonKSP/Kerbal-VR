@@ -90,6 +90,10 @@
     {
       "name": "/actions/EVA/in/Sprint",
       "type": "boolean"
+    },
+    {
+      "name": "/actions/EVA/in/SwapRollYaw",
+      "type": "boolean"
     }
   ],
   "action_sets": [
