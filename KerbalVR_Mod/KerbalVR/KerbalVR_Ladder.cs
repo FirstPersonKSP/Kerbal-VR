@@ -5,13 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using Valve.VR;
 
 namespace KerbalVR
 {
 	public class VRLadder : PartModule
 	{
 		Transform m_ladderTransform;
-		InteractableBehaviour m_interactableBehavior;
+		InteractableBehaviour m_interactableBehaviour;
 
 		void Start()
 		{
@@ -23,10 +24,14 @@ namespace KerbalVR
 				{
 					// TODO: support more than one ladder per part (requires other refactoring)
 					m_ladderTransform = collider.transform;
-					m_interactableBehavior = Utils.GetOrAddComponent<InteractableBehaviour>(m_ladderTransform.gameObject);
+					m_interactableBehaviour = Utils.GetOrAddComponent<InteractableBehaviour>(m_ladderTransform.gameObject);
 
-					m_interactableBehavior.OnGrab += OnGrab;
-					m_interactableBehavior.OnRelease += OnRelease;
+					m_interactableBehaviour.SkeletonPoser = Utils.GetOrAddComponent<SteamVR_Skeleton_Poser>(m_ladderTransform.gameObject);
+					m_interactableBehaviour.SkeletonPoser.skeletonMainPose = SkeletonPose_HandleRailGrabPose.GetInstance();
+					m_interactableBehaviour.SkeletonPoser.Initialize();
+
+					m_interactableBehaviour.OnGrab += OnGrab;
+					m_interactableBehaviour.OnRelease += OnRelease;
 					break;
 				}
 			}
