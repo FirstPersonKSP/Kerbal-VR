@@ -379,4 +379,17 @@ namespace KerbalVR
 		}
 	}
 
+	[HarmonyPatch(typeof(InternalSeat), nameof(InternalSeat.DespawnCrew))]
+	class InternalSeatPatch
+	{
+		static void Prefix(InternalSeat __instance)
+		{
+			if (__instance.kerbalRef != null && CameraManager.Instance.IVACameraActiveKerbal == __instance.kerbalRef)
+			{
+				KerbalVR.InteractionSystem.Instance.transform.SetParent(null, false);
+				GameObject.DontDestroyOnLoad(KerbalVR.InteractionSystem.Instance);
+			}
+		}
+	}
+
 }

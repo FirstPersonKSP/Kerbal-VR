@@ -26,10 +26,21 @@ namespace KerbalVR
 			Valve.VR.SteamVR_Settings.instance.trackingSpace = Valve.VR.ETrackingUniverseOrigin.TrackingUniverseSeated;
 
 			GameEvents.onLevelWasLoaded.Add(OnLevelWasLoaded);
+			GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
 
 			DontDestroyOnLoad(this);
 		}
-		
+
+		private void OnGameSceneLoadRequested(GameScenes data)
+		{
+			if (InteractionSystem.Instance != null)
+			{
+				InteractionSystem.Instance.transform.SetParent(null, false);
+				GameObject.DontDestroyOnLoad(InteractionSystem.Instance);
+			}
+
+		}
+
 		public void OnDestroy()
 		{
 			GameEvents.onLevelWasLoaded.Remove(OnLevelWasLoaded);
