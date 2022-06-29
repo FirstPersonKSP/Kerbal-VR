@@ -49,8 +49,11 @@ namespace KerbalVR.InternalModules
 			Vector3 direction = m_grabbedHand.GripPosition - m_hatchTransform.position;
 			Vector3 relativePosition = initialRotation.Inverse() * direction;
 			relativePosition =  m_hatchTransform.parent.transform.InverseTransformVector(relativePosition);
-			Vector3 forward = rotationAxis == Vector3.down ? Vector3.forward : Vector3.down;
-			Vector3 right = Vector3.Cross(forward, rotationAxis);
+
+			bool rotationAxisIsParellelToUp = Mathf.Approximately(Vector3.Magnitude(Vector3.Cross(rotationAxis, Vector3.up)), 0.0f);
+			Vector3 forward = rotationAxisIsParellelToUp ? Vector3.forward : Vector3.down;
+			Vector3 right = Vector3.Normalize(Vector3.Cross(forward, rotationAxis));
+			forward = Vector3.Normalize(Vector3.Cross(right, rotationAxis));
 
 			float f = Vector3.Dot(forward, relativePosition);
 			float r = Vector3.Dot(right, relativePosition);
