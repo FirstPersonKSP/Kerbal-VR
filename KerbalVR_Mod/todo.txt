@@ -20,9 +20,9 @@ DONE: Implement MFD button presses
 	DONE: detect taps
 	DONE: add VRButton InternalModule
 		
-better staging button
+DONE: better staging button
 
-make sure recovery works
+DONE: make sure recovery works
 
 =============================
 
@@ -33,14 +33,7 @@ NEED TO FIX NOW
 WAIT UNTIL LATER
 
 camera point is too low
-action group buttons need to be bigger
-abort switch didn't work
 stage lock was flaky
-comms radio too small
-thrust limit interpolation goes the short way
-did thrust limit actually work?
-warp buttons are floating off the panel
-internal light button doesn't work
 
 
 =============================================
@@ -51,21 +44,19 @@ DONE: Implement twist knobs
 
 DONE: Implement flickable switches
 
-RCS translation controls
-
-Hook up thumbsticks when grabbing flightstick/rcs knob
+DONE: RCS translation controls
 
 =============================================
 EVA stuff
 =============================================
 
-ThroughTheEyes integration? or roll our own?
+DONE: ThroughTheEyes integration? or roll our own?
 
-Hatch interactions
+DONE: Hatch interactions
 
-How to move on the surface?
+DONE: How to move on the surface?
 
-Jetpack hookup
+DONE: Jetpack hookup
 
 EVA Part interactions (PAW in 3d? YES)
 
