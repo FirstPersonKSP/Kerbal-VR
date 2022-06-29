@@ -138,6 +138,7 @@
     <Compile Include="InternalModules\KerbalVR_Cover.cs" />
     <Compile Include="InternalModules\KerbalVR_FlightStick.cs" />
     <Compile Include="InternalModules\KerbalVR_HandRail.cs" />
+    <Compile Include="InternalModules\KerbalVR_InternalHatch.cs" />
     <Compile Include="InternalModules\KerbalVR_Knob.cs" />
     <Compile Include="InternalModules\KerbalVR_Switch.cs" />
     <Compile Include="InternalModules\KerbalVR_Throttle.cs" />
