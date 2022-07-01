@@ -2,8 +2,10 @@ This work "KerbalVR ASET Props", is a derivative of "ASET Props" by Alexustas, u
 
 The following directories are covered under this license:
 
-KerbalVR\Assets\Props\Misc\HandRail
-KerbalVR\Assets\Props\WarpControl
+KerbalVR\Props\Misc\HandRail
+KerbalVR\Props\WarpControl
+KerbalVR\Props\ASET_Internal_EVA_Hatch
+KerbalVR\Props\SwitchPush
 
 ----
 
