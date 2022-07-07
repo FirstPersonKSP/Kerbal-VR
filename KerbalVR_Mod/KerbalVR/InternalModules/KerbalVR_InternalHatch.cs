@@ -22,17 +22,14 @@ namespace KerbalVR.InternalModules
 		[KSPField]
 		public float maxRotation = 450.0f;
 
-		Quaternion m_initialRotation;
-		Transform m_hatchTransform;
 		InteractableBehaviour m_interactableBehaviour;
 		Hand m_grabbedHand;
-		float m_currentRotation; // accumulated rotation
-		Vector3 m_previousGrabDirection;
+		RotationUtil m_rotationUtil;
 
 		void Start()
 		{
-			m_hatchTransform = this.FindTransform(hatchTransformName);
-			var collider = m_hatchTransform.GetComponentInChildren<Collider>();
+			m_rotationUtil = new RotationUtil(this.FindTransform(hatchTransformName), rotationAxis, 0.0f, maxRotation);
+			var collider = m_rotationUtil.Transform.GetComponentInChildren<Collider>();
 			m_interactableBehaviour = Utils.GetOrAddComponent<InteractableBehaviour>(collider.gameObject);
 
 			m_interactableBehaviour.SkeletonPoser = Utils.GetOrAddComponent<SteamVR_Skeleton_Poser>(collider.gameObject);
@@ -41,18 +38,6 @@ namespace KerbalVR.InternalModules
 
 			m_interactableBehaviour.OnGrab += OnGrab;
 			m_interactableBehaviour.OnRelease += OnRelease;
-
-			m_initialRotation = m_hatchTransform.localRotation;
-		}
-
-		Vector3 GetCurrentGrabDirection()
-		{
-			Vector3 direction = m_grabbedHand.GripPosition - m_hatchTransform.position;
-			direction = m_hatchTransform.InverseTransformDirection(direction);
-
-			direction = Vector3.ProjectOnPlane(direction, rotationAxis);
-
-			return direction;
 		}
 
 		IEnumerator GoEVA()
@@ -90,38 +75,30 @@ namespace KerbalVR.InternalModules
 		{
 			while (m_grabbedHand)
 			{
-				Vector3 newGrabDirection = GetCurrentGrabDirection();
-				float deltaAngle = Vector3.SignedAngle(m_previousGrabDirection, newGrabDirection, rotationAxis);
-				
-				m_currentRotation = Mathf.Clamp(m_currentRotation + deltaAngle, 0.0f, maxRotation);
-				m_hatchTransform.localRotation = m_initialRotation * Quaternion.AngleAxis(m_currentRotation, rotationAxis);
+				m_rotationUtil.Update(m_grabbedHand.GripPosition);
 
-				m_previousGrabDirection = GetCurrentGrabDirection();
-
-				if (m_currentRotation == maxRotation)
+				if (m_rotationUtil.IsAtMax())
 				{
 					yield return StartCoroutine(GoEVA());
-					yield break;
+					break;
 				}
 
 				yield return null;
 			}
 
 			// TODO: interpolate back to neutral
-			m_hatchTransform.localRotation = m_initialRotation;
+			m_rotationUtil.Reset();
 		}
 
 		private void OnRelease(Hand hand)
 		{
 			m_grabbedHand = null;
-			m_currentRotation = 0.0f; // TODO: interpolate back
-			m_hatchTransform.localRotation = m_initialRotation;
 		}
 
 		private void OnGrab(Hand hand)
 		{
 			m_grabbedHand = hand;
-			m_previousGrabDirection = GetCurrentGrabDirection();
+			m_rotationUtil.Grabbed(m_grabbedHand.GripPosition);
 			StartCoroutine(UpdateHatchTransform());
 		}
 	}

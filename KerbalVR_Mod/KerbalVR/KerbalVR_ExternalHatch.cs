@@ -21,28 +21,29 @@ namespace KerbalVR
 		[KSPField]
 		public float maxRotation = 175.0f;
 
-		Transform m_hatchTransform;
 		InteractableBehaviour m_interactableBehaviour;
 		Hand m_grabbedHand;
-		float m_grabbedAngle;
+		RotationUtil m_rotationUtil;
 
 		void Start()
 		{
-
+			Transform hatchTransform = null;
 			var firstSlashIndex = hatchTransformName.IndexOf('/');
 			if (firstSlashIndex > 0)
 			{
 				var root = hatchTransformName.Substring(0, firstSlashIndex);
 				var rootTransform = part.FindModelTransform(root);
 				var rest = hatchTransformName.Substring(firstSlashIndex + 1);
-				m_hatchTransform = rootTransform.Find(rest);
+				hatchTransform = rootTransform.Find(rest);
 			}
 			else
 			{
-				m_hatchTransform = part.FindModelTransform(hatchTransformName);
+				hatchTransform = part.FindModelTransform(hatchTransformName);
 			}
 
-			var collider = m_hatchTransform.GetComponentInChildren<Collider>();
+			m_rotationUtil = new RotationUtil(hatchTransform, rotationAxis, 0.0f, maxRotation);
+
+			var collider = m_rotationUtil.Transform.GetComponentInChildren<Collider>();
 			m_interactableBehaviour = Utils.GetOrAddComponent<InteractableBehaviour>(collider.gameObject);
 
 			m_interactableBehaviour.SkeletonPoser = Utils.GetOrAddComponent<SteamVR_Skeleton_Poser>(collider.gameObject);
@@ -53,27 +54,13 @@ namespace KerbalVR
 			m_interactableBehaviour.OnRelease += OnRelease;
 		}
 
-		float GetCurrentAngle()
-		{
-			Vector3 relativePosition = m_hatchTransform.parent.transform.InverseTransformPoint(m_grabbedHand.GripPosition);
-			Vector3 forward = rotationAxis == Vector3.down ? Vector3.forward : Vector3.up;
-			Vector3 right = Vector3.Cross(forward, rotationAxis);
-
-			float f = Vector3.Dot(forward, relativePosition);
-			float r = -Vector3.Dot(right, relativePosition);
-
-			return Mathf.Atan2(r, f) * Mathf.Rad2Deg;
-		}
-
 		public IEnumerator UpdateHatchTransform()
 		{
 			while (m_grabbedHand)
 			{
-				float newAngle = GetCurrentAngle();
-				float rotation = Mathf.Clamp(newAngle - m_grabbedAngle, 0.0f, maxRotation);
-				m_hatchTransform.localRotation = Quaternion.AngleAxis(rotation, rotationAxis);
+				m_rotationUtil.Update(m_grabbedHand.GripPosition);
 
-				if (rotation == maxRotation)
+				if (m_rotationUtil.IsAtMax())
 				{
 					var kerbalEVA = FlightGlobals.ActiveVessel.evaController;
 					var protoCrewMember = kerbalEVA.part.protoModuleCrew[0];
@@ -82,14 +69,15 @@ namespace KerbalVR
 					yield return null; // we have to wait a frame so the kerbal gets set up
 
 					CameraManager.Instance.SetCameraIVA(protoCrewMember.KerbalRef, false);
+					m_rotationUtil.Reset();
 					yield break;
 				}
 
 				yield return null;
 			}
-			
+
 			// TODO: interpolate back to neutral
-			m_hatchTransform.localRotation = Quaternion.identity;
+			m_rotationUtil.Reset();
 		}
 
 		private void OnRelease(Hand hand)
@@ -100,7 +88,7 @@ namespace KerbalVR
 		private void OnGrab(Hand hand)
 		{
 			m_grabbedHand = hand;
-			m_grabbedAngle = GetCurrentAngle();
+			m_rotationUtil.Grabbed(m_grabbedHand.GripPosition);
 			StartCoroutine(UpdateHatchTransform());
 		}
 	}
