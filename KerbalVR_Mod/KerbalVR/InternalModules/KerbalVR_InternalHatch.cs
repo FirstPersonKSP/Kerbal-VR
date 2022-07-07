@@ -20,13 +20,14 @@ namespace KerbalVR.InternalModules
 		public Vector3 rotationAxis = Vector3.down;
 
 		[KSPField]
-		public float maxRotation = 175.0f;
+		public float maxRotation = 450.0f;
 
-		Quaternion initialRotation;
+		Quaternion m_initialRotation;
 		Transform m_hatchTransform;
 		InteractableBehaviour m_interactableBehaviour;
 		Hand m_grabbedHand;
-		float m_grabbedAngle;
+		float m_currentRotation; // accumulated rotation
+		Vector3 m_previousGrabDirection;
 
 		void Start()
 		{
@@ -41,24 +42,17 @@ namespace KerbalVR.InternalModules
 			m_interactableBehaviour.OnGrab += OnGrab;
 			m_interactableBehaviour.OnRelease += OnRelease;
 
-			initialRotation = m_hatchTransform.localRotation;
+			m_initialRotation = m_hatchTransform.localRotation;
 		}
 
-		float GetCurrentAngle()
+		Vector3 GetCurrentGrabDirection()
 		{
 			Vector3 direction = m_grabbedHand.GripPosition - m_hatchTransform.position;
-			Vector3 relativePosition = initialRotation.Inverse() * direction;
-			relativePosition =  m_hatchTransform.parent.transform.InverseTransformVector(relativePosition);
+			direction = m_hatchTransform.InverseTransformDirection(direction);
 
-			bool rotationAxisIsParellelToUp = Mathf.Approximately(Vector3.Magnitude(Vector3.Cross(rotationAxis, Vector3.up)), 0.0f);
-			Vector3 forward = rotationAxisIsParellelToUp ? Vector3.forward : Vector3.down;
-			Vector3 right = Vector3.Normalize(Vector3.Cross(forward, rotationAxis));
-			forward = Vector3.Normalize(Vector3.Cross(right, rotationAxis));
+			direction = Vector3.ProjectOnPlane(direction, rotationAxis);
 
-			float f = Vector3.Dot(forward, relativePosition);
-			float r = Vector3.Dot(right, relativePosition);
-
-			return Mathf.Atan2(r, f) * Mathf.Rad2Deg;
+			return direction;
 		}
 
 		IEnumerator GoEVA()
@@ -96,11 +90,15 @@ namespace KerbalVR.InternalModules
 		{
 			while (m_grabbedHand)
 			{
-				float newAngle = GetCurrentAngle();
-				float rotation = Mathf.Clamp(newAngle - m_grabbedAngle, 0.0f, maxRotation);
-				m_hatchTransform.localRotation = Quaternion.AngleAxis(rotation, rotationAxis) * initialRotation;
+				Vector3 newGrabDirection = GetCurrentGrabDirection();
+				float deltaAngle = Vector3.SignedAngle(m_previousGrabDirection, newGrabDirection, rotationAxis);
+				
+				m_currentRotation = Mathf.Clamp(m_currentRotation + deltaAngle, 0.0f, maxRotation);
+				m_hatchTransform.localRotation = m_initialRotation * Quaternion.AngleAxis(m_currentRotation, rotationAxis);
 
-				if (rotation == maxRotation)
+				m_previousGrabDirection = GetCurrentGrabDirection();
+
+				if (m_currentRotation == maxRotation)
 				{
 					yield return StartCoroutine(GoEVA());
 					yield break;
@@ -110,18 +108,20 @@ namespace KerbalVR.InternalModules
 			}
 
 			// TODO: interpolate back to neutral
-			m_hatchTransform.localRotation = initialRotation;
+			m_hatchTransform.localRotation = m_initialRotation;
 		}
 
 		private void OnRelease(Hand hand)
 		{
 			m_grabbedHand = null;
+			m_currentRotation = 0.0f; // TODO: interpolate back
+			m_hatchTransform.localRotation = m_initialRotation;
 		}
 
 		private void OnGrab(Hand hand)
 		{
 			m_grabbedHand = hand;
-			m_grabbedAngle = GetCurrentAngle();
+			m_previousGrabDirection = GetCurrentGrabDirection();
 			StartCoroutine(UpdateHatchTransform());
 		}
 	}
