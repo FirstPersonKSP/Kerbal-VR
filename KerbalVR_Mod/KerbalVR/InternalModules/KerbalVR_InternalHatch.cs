@@ -61,7 +61,7 @@ namespace KerbalVR.InternalModules
 			return Mathf.Atan2(r, f) * Mathf.Rad2Deg;
 		}
 
-		void GoEVA()
+		IEnumerator GoEVA()
 		{
 			float acLevel = ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.AstronautComplex);
 			bool evaUnlocked = GameVariables.Instance.UnlockedEVA(acLevel);
@@ -71,8 +71,24 @@ namespace KerbalVR.InternalModules
 
 			if (kerbal != null && evaPossible && HighLogic.CurrentGame.Parameters.Flight.CanEVA)
 			{
-				FlightEVA.SpawnEVA(kerbal);
+				var kerbalEVA = FlightEVA.SpawnEVA(kerbal);
 				CameraManager.Instance.SetCameraFlight();
+
+				yield return null;
+
+				// wait for kerbal to be ready
+				while (FlightGlobals.ActiveVessel == null || FlightGlobals.ActiveVessel.packed ||
+					FlightGlobals.ActiveVessel.evaController != gameObject.GetComponent<KerbalEVA>())
+				{
+					yield return null;
+				}
+
+				yield return null;
+
+				var fpCameraManager = FirstPerson.FirstPersonEVA.instance.fpCameraManager;
+				fpCameraManager.isFirstPerson = false;
+				fpCameraManager.saveCameraState(FlightCamera.fetch);
+				fpCameraManager.CheckAndSetFirstPerson(FlightGlobals.ActiveVessel);
 			}
 		}
 
@@ -86,7 +102,7 @@ namespace KerbalVR.InternalModules
 
 				if (rotation == maxRotation)
 				{
-					GoEVA();
+					yield return StartCoroutine(GoEVA());
 					yield break;
 				}
 

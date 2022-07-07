@@ -131,12 +131,14 @@ namespace KerbalVR
 
 			if (mode == CameraManager.CameraMode.IVA)
 			{
-				ResetVRPosition();
+				// no longer resetting position between camera swaps because the camera changes orientation between iva/eva
+				// e.g. you turn 180 to reach a hatch behind you; you don't want that becoming the new base position
+				//ResetVRPosition();
 				FixIVACamera();
 			}
 			else if (isEVA)
 			{
-				ResetVRPosition();
+				//ResetVRPosition();
 				FixEVACamera();
 			}
 		}
@@ -235,6 +237,8 @@ namespace KerbalVR
 				moveStickInput.x * kerbalEVA.transform.right;
 
 			Vector3 packTgtRpos = tgtRpos + verticalInput * kerbalEVA.transform.up;
+
+			if (FirstPerson.ReflectedMembers.eva_tgtRpos == null) return;
 
 			FirstPerson.ReflectedMembers.eva_tgtRpos.SetValue(kerbalEVA, tgtRpos);
 			FirstPerson.ReflectedMembers.eva_packTgtRPos.SetValue(kerbalEVA, packTgtRpos);

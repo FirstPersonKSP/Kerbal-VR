@@ -76,7 +76,12 @@ namespace KerbalVR
 				if (rotation == maxRotation)
 				{
 					var kerbalEVA = FlightGlobals.ActiveVessel.evaController;
+					var protoCrewMember = kerbalEVA.part.protoModuleCrew[0];
 					kerbalEVA.BoardPart(part);
+					
+					yield return null; // we have to wait a frame so the kerbal gets set up
+
+					CameraManager.Instance.SetCameraIVA(protoCrewMember.KerbalRef, false);
 					yield break;
 				}
 
