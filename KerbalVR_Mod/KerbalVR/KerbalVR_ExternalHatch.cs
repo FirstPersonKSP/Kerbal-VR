@@ -28,7 +28,20 @@ namespace KerbalVR
 
 		void Start()
 		{
-			m_hatchTransform = part.FindModelTransform(hatchTransformName);
+
+			var firstSlashIndex = hatchTransformName.IndexOf('/');
+			if (firstSlashIndex > 0)
+			{
+				var root = hatchTransformName.Substring(0, firstSlashIndex);
+				var rootTransform = part.FindModelTransform(root);
+				var rest = hatchTransformName.Substring(firstSlashIndex + 1);
+				m_hatchTransform = rootTransform.Find(rest);
+			}
+			else
+			{
+				m_hatchTransform = part.FindModelTransform(hatchTransformName);
+			}
+
 			var collider = m_hatchTransform.GetComponentInChildren<Collider>();
 			m_interactableBehaviour = Utils.GetOrAddComponent<InteractableBehaviour>(collider.gameObject);
 
