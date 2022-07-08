@@ -41,9 +41,12 @@
       }
     ],
     "recommends": [
-        {
-            "name": "VesselView-UI-RasterPropMonitor"
-        }
+      {
+        "name": "VesselView-UI-RasterPropMonitor"
+      },
+      {
+        "name": "RocketSoundEnhancement-Config-Default"
+      }
     ],
     "suggests": [
         {
