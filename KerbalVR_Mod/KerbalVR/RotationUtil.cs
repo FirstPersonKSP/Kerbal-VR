@@ -21,7 +21,7 @@ namespace KerbalVR
 
 		public RotationUtil(Transform transform, Vector3 rotationAxis, float minRotation, float maxRotation) : this()
 		{
-			m_currentRotation = 0.0f;
+			m_currentRotation = Mathf.Clamp(0.0f, minRotation, maxRotation);
 			Transform = transform;
 			MinRotation = minRotation;
 			MaxRotation = maxRotation;
@@ -80,6 +80,12 @@ namespace KerbalVR
 		public float GetInterpolatedPosition()
 		{
 			return Mathf.Clamp01(Mathf.InverseLerp(MinRotation, MaxRotation, m_currentRotation));
+		}
+
+		public void SetInterpolatedPosition(float position)
+		{
+			m_currentRotation = Mathf.Lerp(MinRotation, MaxRotation, position);
+			Transform.localRotation = InitialRotation * Quaternion.AngleAxis(m_currentRotation, RotationAxis);
 		}
 	}
 }
