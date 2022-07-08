@@ -65,7 +65,9 @@ namespace KerbalVR {
 
         // interacting with pinchable objects
         protected PinchCollider pinchCollider;
-        
+
+        protected VRLadder ladder;
+
         #endregion
 
 
@@ -142,6 +144,8 @@ namespace KerbalVR {
             Transform pinchTransform = handObject.transform.Find(pinchTransformPath);
             pinchCollider = pinchTransform.gameObject.AddComponent<PinchCollider>();
             pinchCollider.Initialize(this);
+
+            ladder = gameObject.AddComponent<VRLadder>();
 
             // attach these objects to the interaction system
             handObject.transform.SetParent(transform, false);

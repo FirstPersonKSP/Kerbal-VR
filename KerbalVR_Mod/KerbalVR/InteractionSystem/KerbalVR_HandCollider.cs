@@ -36,6 +36,12 @@ namespace KerbalVR
             {
                 HoveredObject = interactable;
             }
+            else if (other.CompareTag(VRLadder.COLLIDER_TAG))
+			{
+                var vrLadder = gameObject.GetComponentUpwards<VRLadder>();
+                HoveredObject = vrLadder;
+                vrLadder.LadderTransform = other.transform;
+			}
         }
 
         protected void OnTriggerExit(Collider other)

@@ -9,35 +9,24 @@ using Valve.VR;
 
 namespace KerbalVR
 {
-	public class VRLadder : PartModule
+	// This component gets added to each hand, and represents the ladder that hand is grabbing
+	public class VRLadder : InteractableBehaviour
 	{
-		Transform m_ladderTransform;
-		InteractableBehaviour m_interactableBehaviour;
+		public Transform LadderTransform;
+
+		public static readonly string COLLIDER_TAG = "Ladder";
 
 		void Start()
 		{
-			var colliders = part.FindModelComponents<Collider>();
+			SkeletonPoser = Utils.GetOrAddComponent<SteamVR_Skeleton_Poser>(gameObject);
+			SkeletonPoser.skeletonMainPose = SkeletonPose_HandleRailGrabPose.GetInstance();
+			SkeletonPoser.Initialize();
 
-			foreach (var collider in colliders)
-			{
-				if (collider.gameObject.activeInHierarchy && collider.enabled && collider.CompareTag("Ladder"))
-				{
-					// TODO: support more than one ladder per part (requires other refactoring)
-					m_ladderTransform = collider.transform;
-					m_interactableBehaviour = Utils.GetOrAddComponent<InteractableBehaviour>(m_ladderTransform.gameObject);
-
-					m_interactableBehaviour.SkeletonPoser = Utils.GetOrAddComponent<SteamVR_Skeleton_Poser>(m_ladderTransform.gameObject);
-					m_interactableBehaviour.SkeletonPoser.skeletonMainPose = SkeletonPose_HandleRailGrabPose.GetInstance();
-					m_interactableBehaviour.SkeletonPoser.Initialize();
-
-					m_interactableBehaviour.OnGrab += OnGrab;
-					m_interactableBehaviour.OnRelease += OnRelease;
-					break;
-				}
-			}
+			OnGrab += OnGrabbed;
+			OnRelease += OnReleased;
 		}
 
-		private void OnRelease(Hand hand)
+		private void OnReleased(Hand hand)
 		{
 			if (!FlightGlobals.ActiveVessel.isEVA) return;
 
@@ -52,7 +41,7 @@ namespace KerbalVR
 			}
 		}
 
-		private void OnGrab(Hand hand)
+		private void OnGrabbed(Hand hand)
 		{
 			if (!FlightGlobals.ActiveVessel.isEVA) return;
 
@@ -63,7 +52,7 @@ namespace KerbalVR
 				var ladderTriggers = AccessTools.FieldRefAccess<KerbalEVA, List<Collider>>(kerbalEVA, "currentLadderTriggers");
 
 				ladderTriggers.Clear();
-				ladderTriggers.Add(m_ladderTransform.GetComponent<Collider>());
+				ladderTriggers.Add(LadderTransform.GetComponent<Collider>());
 
 				kerbalEVA.fsm.RunEvent(kerbalEVA.On_ladderGrabStart);
 			}
