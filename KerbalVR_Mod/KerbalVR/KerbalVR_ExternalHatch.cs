@@ -43,7 +43,7 @@ namespace KerbalVR
 
 			if (hatchTransform == null)
 			{
-				Utils.LogError($"Unable to find transform {hatchTransformName} on part {part.partName}");
+				Utils.LogError($"Unable to find transform {hatchTransformName} on part {part.name}");
 			}
 
 			m_rotationUtil = new RotationUtil(hatchTransform, rotationAxis, 0.0f, maxRotation);
