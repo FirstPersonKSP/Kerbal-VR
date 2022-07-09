@@ -1,8 +1,8 @@
 The following directories and files contain assets derived from RasterPropMonitor.  The license is below.
 
-KerbalVR/Models/ExternalHatch_Handle.mu
+KerbalVR/Models/ExternalHatch_Lever.mu
 KerbalVR/Models/ExternalHatch_Wheel.mu
-KerbalVR/Props/InternalHatch_Handle
+KerbalVR/Props/InternalHatch_Lever
 KerbalVR/Props/InternalHatch_Wheel
 
 ---------------------------------------------------------------------------------------
