@@ -31,10 +31,14 @@ namespace KerbalVR.InternalModules
 		[KSPField]
 		public float twistExponent = 3.0f;
 
+		[KSPField]
+		public bool twistIsYaw = false;
+
 		InteractableBehaviour interactable;
 		Transform stickTransform = null;
 
 		Quaternion grabbedOrientation; // the worldspace orientation of the hand at the moment the stick was grabbed
+		Hand grabbedHand;
 
 		SpaceNavigator previousSpaceNavigator;
 		FakeSpaceNavigator spaceNavigator = new FakeSpaceNavigator();
@@ -142,8 +146,8 @@ namespace KerbalVR.InternalModules
 				Vector3 inputAxes = GetInputAxes();
 				
 				st.pitch = inputAxes.x;
-				st.roll = inputAxes.y;
-				st.yaw = inputAxes.z;
+				st.roll = twistIsYaw ? inputAxes.z : inputAxes.y;
+				st.yaw = twistIsYaw ? inputAxes.y : inputAxes.z;
 			}
 		}
 
@@ -158,6 +162,16 @@ namespace KerbalVR.InternalModules
 
 			vessel.OnPreAutopilotUpdate += OnPreAutopilotUpdate;
 			vessel.OnPostAutopilotUpdate += OnPostAutopilotUpdate;
+			SteamVR_Actions.flight_ToggleRollYaw[hand.handType].onStateDown += ToggleRollYaw_OnStateDown;
+			grabbedHand = hand;
+		}
+
+		private void ToggleRollYaw_OnStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
+		{
+			if (grabbedHand != null && fromSource == grabbedHand.handType)
+			{
+				twistIsYaw = !twistIsYaw;
+			}
 		}
 
 		private void OnPreAutopilotUpdate(FlightCtrlState st)
@@ -180,18 +194,22 @@ namespace KerbalVR.InternalModules
 		{
 			vessel.OnPreAutopilotUpdate -= OnPreAutopilotUpdate;
 			vessel.OnPostAutopilotUpdate -= OnPostAutopilotUpdate;
+			SteamVR_Actions.flight_ToggleRollYaw[grabbedHand.handType].onStateDown -= ToggleRollYaw_OnStateDown;
+			grabbedHand = null;
 		}
 
 		public override void OnUpdate()
 		{
-
 			if (stickTransform != null)
 			{
+				float twistAmount = twistIsYaw ? FlightInputHandler.state.yaw : FlightInputHandler.state.roll;
+				float tiltAmount = twistIsYaw ? -FlightInputHandler.state.roll : -FlightInputHandler.state.yaw;
+
 				// TODO: invert the deadzone and exponent logic
 				stickTransform.localRotation = Quaternion.Euler(
 					-FlightInputHandler.state.pitch * tiltAngle,
-					FlightInputHandler.state.roll * twistAngle,
-					-FlightInputHandler.state.yaw * tiltAngle);
+					twistAmount * twistAngle,
+					tiltAmount * tiltAngle);
 			}
 		}
 
