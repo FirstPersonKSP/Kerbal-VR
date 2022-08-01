@@ -65,6 +65,8 @@ namespace KerbalVR
 					XRSettings.enabled = true;
 					Valve.VR.SteamVR.enabled = true;
 
+					Valve.VR.SteamVR_Settings.instance.lockPhysicsUpdateRateToRenderFrequency = false;
+
 					KerbalVR.Core.InitSystems();
 				}
 			}
