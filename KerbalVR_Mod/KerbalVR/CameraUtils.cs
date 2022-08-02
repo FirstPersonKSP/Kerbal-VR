@@ -111,16 +111,24 @@ namespace KerbalVR
 
 	[HarmonyPatch(typeof(FXCamera), "LateUpdate")]
 	[HarmonyPatch(typeof(FXDepthCamera), "LateUpdate")]
-	class FXCameraPatch
+	[HarmonyPatch(typeof(InternalCamera), nameof(InternalCamera.SetFOV))]
+	[HarmonyPatch(typeof(InternalCamera), nameof(InternalCamera.UpdateState))]
+	[HarmonyPatch(typeof(FlightCamera), nameof(FlightCamera.SetFoV))]
+	[HarmonyPatch(typeof(ScaledCamera), nameof(ScaledCamera.SetFoV))]
+	[HarmonyPatch(typeof(GalaxyCameraControl), nameof(GalaxyCameraControl.SetFoV))]
+	[HarmonyPatch(typeof(InternalSpaceOverlay), nameof(InternalSpaceOverlay.LateUpdate))]
+	[HarmonyPatch(typeof(IVACamera), "UpdateState")]
+	[HarmonyPatch(typeof(VehiclePhysics.CameraFree), nameof(VehiclePhysics.CameraFree.Update))]
+	[HarmonyPatch(typeof(VehiclePhysics.CameraLookAt), nameof(VehiclePhysics.CameraLookAt.Update))]
+	class CameraFOVPatch
 	{
 		private static MethodInfo set_fieldOfView = AccessTools.DeclaredPropertySetter(typeof(Camera), "fieldOfView");
-		private static FieldInfo FlightCamera_FieldOfView = AccessTools.Field(typeof(FlightCamera), nameof(FlightCamera.FieldOfView));
 
 		static void SetCameraFOV(Camera camera, float fov)
 		{
 			if (!camera.stereoEnabled)
 			{
-				camera.fieldOfView = fov;
+				// camera.fieldOfView = fov;
 			}
 		}
 
@@ -131,7 +139,7 @@ namespace KerbalVR
 				if (instruction.opcode == OpCodes.Callvirt && ReferenceEquals(instruction.operand, set_fieldOfView))
 				{
 					instruction.opcode = OpCodes.Call;
-					instruction.operand = AccessTools.Method(typeof(FXCameraPatch), nameof(SetCameraFOV));
+					instruction.operand = AccessTools.Method(typeof(CameraFOVPatch), nameof(SetCameraFOV));
 				}
 				
 				yield return instruction;
