@@ -388,10 +388,13 @@ namespace KerbalVR
 	{
 		static void Prefix(InternalSeat __instance)
 		{
-			if (__instance.kerbalRef != null && CameraManager.Instance.IVACameraActiveKerbal == __instance.kerbalRef)
+			if (KerbalVR.InteractionSystem.Instance != null)
 			{
-				KerbalVR.InteractionSystem.Instance.transform.SetParent(null, false);
-				GameObject.DontDestroyOnLoad(KerbalVR.InteractionSystem.Instance);
+				if (__instance.kerbalRef != null && CameraManager.Instance.IVACameraActiveKerbal == __instance.kerbalRef)
+				{
+					KerbalVR.InteractionSystem.Instance.transform.SetParent(null, false);
+					GameObject.DontDestroyOnLoad(KerbalVR.InteractionSystem.Instance);
+				}
 			}
 		}
 	}
