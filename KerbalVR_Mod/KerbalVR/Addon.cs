@@ -19,6 +19,8 @@ namespace KerbalVR
 			var harmony = new Harmony("KerbalVR");
 			harmony.PatchAll(Assembly.GetExecutingAssembly());
 
+			KerbalVR.Core.InitAssetLoader();
+
 			// for whatever reason, enabling VR mode during loading makes it super slow
 			m_wasEnabled = XRSettings.enabled;
 			XRSettings.enabled = false;

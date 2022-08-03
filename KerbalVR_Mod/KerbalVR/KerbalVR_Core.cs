@@ -13,6 +13,13 @@ namespace KerbalVR
         public static bool IsOpenVrReady { get; private set; } = true; // TODO: re-hookup
         public static bool IsVrEnabled { get; set; } = false;
 
+		public static void InitAssetLoader()
+		{
+			GameObject kvrAssetLoader = new GameObject("KVR_AssetLoader");
+			kvrAssetLoader.AddComponent<KerbalVR.AssetLoader>();
+			AssetLoader kvrAssetLoaderComponent = AssetLoader.Instance; // init the singleton
+			GameObject.DontDestroyOnLoad(kvrAssetLoader);
+		}
         public static void InitSystems()
         {
             //// initialize KerbalVR GameObjects
@@ -21,10 +28,7 @@ namespace KerbalVR
             //Configuration kvrConfigurationComponent = Configuration.Instance; // init the singleton
             //DontDestroyOnLoad(kvrConfiguration);
 
-            GameObject kvrAssetLoader = new GameObject("KVR_AssetLoader");
-            kvrAssetLoader.AddComponent<KerbalVR.AssetLoader>();
-            AssetLoader kvrAssetLoaderComponent = AssetLoader.Instance; // init the singleton
-            GameObject.DontDestroyOnLoad(kvrAssetLoader);
+            
 
             //GameObject kvrScene = new GameObject("KVR_Scene");
             //kvrScene.AddComponent<KerbalVR.Scene>();
