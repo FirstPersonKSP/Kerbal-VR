@@ -70,7 +70,7 @@ namespace KerbalVR.InternalModules
 
 			cover = gameObject.GetComponent<VRCover>();
 
-			m_ivaSwitch = IVASwitch.ConstructSwitch(gameObject);
+			m_ivaSwitch = IVASwitch.ConstructSwitch(gameObject, switchTransform);
 		}
 
 		class VRSwitchInteractionListener : MonoBehaviour, IFingertipInteractable
