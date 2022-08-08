@@ -157,7 +157,6 @@
     <Compile Include="KerbalVR_Types.cs" />
     <Compile Include="KerbalVR_Utils.cs" />
     <Compile Include="RotationUtil.cs" />
-    <Compile Include="RPMWrapper.cs" />
     <Compile Include="SkeletonPoses\KerbalVR_FallbackRelaxedPose.cs" />
     <Compile Include="SkeletonPoses\KerbalVR_HandleRailGrabPose.cs" />
     <Compile Include="SteamVR_Input\ActionSetClasses\SteamVR_Input_ActionSet_default.cs" />
