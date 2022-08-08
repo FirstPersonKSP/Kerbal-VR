@@ -8,7 +8,7 @@ using Valve.VR;
 
 namespace KerbalVR.InternalModules
 {
-	class VRButton : InternalModule
+	public class VRButton : InternalModule
 	{
 		[KSPField]
 		public string buttonTransformName = String.Empty;
@@ -110,6 +110,10 @@ namespace KerbalVR.InternalModules
 						latched = true;
 						gameObject.SendMessage("OnMouseDown");
 					}
+				}
+				else if (latched)
+				{
+					buttonModule.internalProp.SendMessage("OnMouseUp");
 				}
 
 				transform.localPosition = initialLocalPosition + buttonModule.axis * delta;

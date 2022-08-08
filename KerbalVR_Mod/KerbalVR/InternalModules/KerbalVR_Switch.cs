@@ -10,7 +10,7 @@ using Valve.VR.InteractionSystem;
 
 namespace KerbalVR.InternalModules
 {
-	class VRSwitch : InternalModule
+	public class VRSwitch : InternalModule
 	{
 		[KSPField]
 		public string switchTransformName = null;

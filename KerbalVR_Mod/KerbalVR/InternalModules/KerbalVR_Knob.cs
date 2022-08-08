@@ -20,7 +20,7 @@ namespace KerbalVR.InternalModules
     /// <summary>
     /// The InternalModule for a knob that can be manipulated in VR
     /// </summary>
-    class VRKnob : InternalModule
+    public class VRKnob : InternalModule
     {
         [KSPField]
         public string knobTransformName = null;

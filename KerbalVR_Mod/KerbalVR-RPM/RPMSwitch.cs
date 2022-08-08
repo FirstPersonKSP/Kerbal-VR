@@ -1,4 +1,5 @@
-﻿using KerbalVR.IVAAdaptors;
+﻿using KerbalVR;
+using KerbalVR.IVAAdaptors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,8 +27,6 @@ namespace KerbalVR_RPM
 				x_clickMethod = x_jsiActionGroupSwitchType.GetMethod("Click", BindingFlags.Instance | BindingFlags.Public);
 				x_switchTransformField = x_jsiActionGroupSwitchType.GetField("switchTransform", BindingFlags.Instance | BindingFlags.Public);
 			}
-
-			IVASwitch.CreationFunctions.Add(TryConstruct);
 		}
 
 		static public RPMSwitch TryConstruct(GameObject prop, Transform switchTransform)

@@ -8,7 +8,7 @@ using Valve.VR;
 
 namespace KerbalVR.InternalModules
 {
-	class VRFlightStick : InternalModule
+	public class VRFlightStick : InternalModule
 	{
 		[KSPField]
 		public string stickTransformName = String.Empty;

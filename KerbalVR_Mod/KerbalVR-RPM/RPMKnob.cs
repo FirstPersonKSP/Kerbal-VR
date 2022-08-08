@@ -82,8 +82,6 @@ namespace KerbalVR_RPM
 				x_rpmCompSetPersistentVariableMethod = x_rasterPropMonitorComputerType.GetMethod("SetPersistentVariable", BindingFlags.Instance | BindingFlags.NonPublic);
 				x_rpmCompGetInternalMethodMethod = x_rasterPropMonitorComputerType.GetMethod("GetInternalMethod", BindingFlags.Instance | BindingFlags.Public);
 			}
-
-			IVAKnob.CreationFunctions.Add(TryConstruct);
 		}
 
 		static public RPMKnob TryConstruct(GameObject gameObject, VRKnobCustomRotation customRotation)
@@ -107,6 +105,7 @@ namespace KerbalVR_RPM
 		object m_rpmComp;
 		string m_perPodPersistenceName;
 		bool m_perPodPersistenceIsGlobal;
+		JSI.JSIActionGroupSwitch m_jsiActionGroupSwitch;
 
 		VRKnobCustomRotation m_customRotation;
 
@@ -160,7 +159,17 @@ namespace KerbalVR_RPM
 							((Action<double>)del).Invoke(fraction * 100.0f);
 						}
 						break;
-
+					case "IntLight":
+						if (m_jsiVariableAnimator.gameObject.GetComponentCached(ref m_jsiActionGroupSwitch) != null &&
+							m_jsiActionGroupSwitch.lightObjects != null)
+						{
+							foreach (var light in m_jsiActionGroupSwitch.lightObjects)
+							{
+								light.intensity = fraction;
+								light.enabled = fraction > 0;
+							}
+						}
+						break;
 				}
 			}
 			else

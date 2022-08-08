@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31729.503
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DEEFC1C1-94D1-482E-BF16-87AD0A5C398E}"
 	ProjectSection(SolutionItems) = preProject
@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamVR", "SteamVR\SteamVR.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KerbalVR", "KerbalVR\KerbalVR.csproj", "{BBE6013A-E30C-43D6-919D-36176CDB2599}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KerbalVR-RPM", "KerbalVR-RPM\KerbalVR-RPM.csproj", "{132C7D00-6367-4312-BAE1-4286435638E0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{BBE6013A-E30C-43D6-919D-36176CDB2599}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBE6013A-E30C-43D6-919D-36176CDB2599}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBE6013A-E30C-43D6-919D-36176CDB2599}.Release|Any CPU.Build.0 = Release|Any CPU
+		{132C7D00-6367-4312-BAE1-4286435638E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{132C7D00-6367-4312-BAE1-4286435638E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{132C7D00-6367-4312-BAE1-4286435638E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{132C7D00-6367-4312-BAE1-4286435638E0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

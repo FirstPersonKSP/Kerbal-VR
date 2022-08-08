@@ -19,10 +19,17 @@ namespace KerbalVR.IVAAdaptors
 		{
 			foreach (var creationFunction in CreationFunctions)
 			{
-				var knob = creationFunction(gameObject, customRotation);
-				if (knob != null)
+				try
 				{
-					return knob;
+					var knob = creationFunction(gameObject, customRotation);
+					if (knob != null)
+					{
+							return knob;
+					}
+				}
+				catch (Exception ex)
+				{
+					Debug.LogException(ex);
 				}
 			}
 			return null;

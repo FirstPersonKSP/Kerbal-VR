@@ -17,10 +17,18 @@ namespace KerbalVR.IVAAdaptors
 		{
 			foreach (var creationFunction in CreationFunctions)
 			{
-				var ivaSwitch = creationFunction(gameObject, transform);
-				if (ivaSwitch != null)
+				try
 				{
-					return ivaSwitch;
+					var ivaSwitch = creationFunction(gameObject, transform);
+					if (ivaSwitch != null)
+					{
+					
+						return ivaSwitch;
+					}
+				}
+				catch (Exception ex)
+				{
+					Debug.LogException(ex);
 				}
 			}
 			return null;

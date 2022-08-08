@@ -66,6 +66,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Addon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RPMKnob.cs" />
     <Compile Include="RPMSwitch.cs" />
