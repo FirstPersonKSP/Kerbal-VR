@@ -121,6 +121,7 @@
   <ItemGroup>
     <Compile Include="Addon.cs" />
     <Compile Include="CameraUtils.cs" />
+    <Compile Include="ColliderUtil.cs" />
     <Compile Include="Flight.cs" />
     <Compile Include="Components\KerbalVR_AvionicsComputer.cs" />
     <Compile Include="InteractionSystem\KerbalVR_FingertipCollider.cs" />
@@ -148,7 +149,8 @@
     <Compile Include="IVAAdaptors\IVASwitch.cs" />
     <Compile Include="KerbalVR_AssetLoader.cs" />
     <Compile Include="KerbalVR_Core.cs" />
-    <Compile Include="KerbalVR_ExternalHatch.cs" />
+    <Compile Include="PartModules\ExternalCollider.cs" />
+    <Compile Include="PartModules\KerbalVR_ExternalHatch.cs" />
     <Compile Include="KerbalVR_Globals.cs" />
     <Compile Include="KerbalVR_InteractionSystem.cs" />
     <Compile Include="KerbalVR_Ladder.cs" />
@@ -179,10 +181,10 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>del /f /q $(SolutionDir)GameData\$(ProjectName)\Plugins\*
-xcopy /Y $(TargetDir) $(SolutionDir)GameData\$(ProjectName)\Plugins\</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y $(TargetDir) $(SolutionDir)GameData\$(ProjectName)\Plugins\</PostBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
