@@ -8,6 +8,15 @@ using UnityEngine;
 
 namespace KerbalVR.InternalModules
 {
+	public class VRKnobCustomRotation : ScriptableObject
+	{
+		[Persistent]
+		public float minRotation;
+
+		[Persistent]
+		public float maxRotation;
+	}
+
     /// <summary>
     /// The InternalModule for a knob that can be manipulated in VR
     /// </summary>
@@ -28,6 +37,8 @@ namespace KerbalVR.InternalModules
         [KSPField]
         public string customRotationHandler = String.Empty;
 
+		public VRKnobCustomRotation customRotation = null;
+
         VRKnobInteractionListener interactionListener;
         internal float currentAngle = 0;
         internal int lastStep = 0;
@@ -39,7 +50,20 @@ namespace KerbalVR.InternalModules
         GameObject arrow;
 #endif
 
-        public override void OnAwake()
+		public override void OnLoad(ConfigNode node)
+		{
+			base.OnLoad(node);
+
+			var customRotationNode = node.GetNode("CUSTOMROTATION");
+			
+			if (customRotationNode != null)
+			{
+				customRotation = new VRKnobCustomRotation();
+				ConfigNode.LoadObjectFromConfig(customRotation, customRotationNode);
+			}
+		}
+
+		public override void OnAwake()
         {
             base.OnAwake();
 
@@ -71,7 +95,7 @@ namespace KerbalVR.InternalModules
 
         public void Start()
         {
-            m_ivaKnob = IVAKnob.ConstructKnob(gameObject);
+            m_ivaKnob = IVAKnob.ConstructKnob(gameObject, customRotation);
         }
     }
 
