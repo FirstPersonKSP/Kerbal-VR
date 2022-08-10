@@ -30,15 +30,15 @@
         {
             "name": "KSAIVAUpgrade"
         },
-      {
-        "name": "QuickStart"
-      },
-      {
-        "name": "Harmony2"
-      },
-      {
-        "name": "ThroughTheEyesOfaKerbal"
-      }
+        {
+          "name": "QuickStart"
+        },
+        {
+          "name": "Harmony2"
+        },
+        {
+          "name": "ThroughTheEyesOfaKerbal"
+        }
     ],
     "recommends": [
       {
@@ -46,6 +46,9 @@
       },
       {
         "name": "RocketSoundEnhancement-Config-Default"
+      },
+      {
+        "name": "Chatterer"
       }
     ],
     "suggests": [
@@ -53,7 +56,10 @@
             "name": "Reviva"
         },
         {
-            "name": "DE-IVAExtension"
+          "name": "DE-IVAExtension"
+        },
+        {
+          "name": "BluedogDB"
         }
     ],
     "kind": "metapackage",
