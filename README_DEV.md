@@ -15,6 +15,10 @@ Vivero's version of KerbalVR achieved stereoscopic rendering by using custom cam
   This is the Kerbal Space Program mod. A standard C# project that implements
   all of the mod features, structured like any other KSP mod.
 
+  **KerbalVR-RPM**
+
+  This contains any RPM-specific logic.  KerbalVR will have abstract interfaces for props that need to take action based on VR events, and this library contains the implementation of those interfaces that are hooked up to RPM.  Some day, another library could be made for interfacing with MAS in order to support that system as well.  This project references RPM directly and uses Krafs publicizer to get at some of the internals.
+
 - **KerbalVR_Unity**
 
   This is a Unity project used to export the app toolbar UI assets, and other
@@ -28,13 +32,13 @@ Vivero's version of KerbalVR achieved stereoscopic rendering by using custom cam
 
 ## Compiling
 
-- **KerbalVR_Mod**
+- **KerbalVR_Mod solution**
 
-  Open in **Visual Studio 2019**. In the project properties under Reference Paths, add the path to your &lt;KSP_ROOT&gt;\KSP_x64_Data\Managed directory.  This information is not stored in the csproj so different developers can have different KSP install locations.  To compile,  hit **Build > Build Solution**.
+  Open in **Visual Studio 2022**. For each of the KerbalVR and KerbalVR-RPM projects, in the project properties under Reference Paths, add the path to your KSP root directory (where the executable is).  This information is not stored in the csproj so different developers can have different KSP install locations.  To compile,  hit **Build > Build Solution**.
 
-  This project automatically copies files into the GameData directory.  If you are iterating on code, I suggest making a junction or symlink from your KSP's GameData directory to point at your development directory.
+  These projects automatically copy files into the GameData directory.  If you are iterating on code, I suggest making a junction or symlink from your KSP's GameData directory to point at your development directory.
 
-  If you clone the *KerbalVR* repo, you can build this project alone **without
+  If you clone the *KerbalVR* repo, you can build this solution alone **without
   the having to first build the other projects**. The repo will contain the
   latest binaries generated from the other projects, including the Unity asset bundles.
 
