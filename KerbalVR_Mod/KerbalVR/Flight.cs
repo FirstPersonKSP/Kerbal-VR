@@ -49,7 +49,6 @@ namespace KerbalVR
 
 			Instance = this;
 
-			GameEvents.OnIVACameraKerbalChange.Add(OnIVACameraKerbalChange);
 			GameEvents.OnCameraChange.Add(OnCameraChange);
 			GameEvents.onVesselChange.Add(OnVesselChange);
 
@@ -85,7 +84,6 @@ namespace KerbalVR
 		public void OnDestroy()
 		{
 			Utils.Log("Flight.OnDestroy");
-			GameEvents.OnIVACameraKerbalChange.Remove(OnIVACameraKerbalChange);
 			GameEvents.OnCameraChange.Remove(OnCameraChange);
 
 			if (KerbalVR.InteractionSystem.Instance != null)
@@ -101,7 +99,7 @@ namespace KerbalVR
 			Instance = null;
 		}
 
-		private void OnIVACameraKerbalChange(Kerbal kerbal)
+		public void OnIVACameraKerbalChange()
 		{
 			SetArmBoneScale(m_lastKerbalTransform, Vector3.one);
 
@@ -386,6 +384,22 @@ namespace KerbalVR
 					GameObject.DontDestroyOnLoad(KerbalVR.InteractionSystem.Instance);
 				}
 			}
+		}
+	}
+
+	[HarmonyPatch(typeof(CameraManager), nameof(CameraManager.NextCameraIVA))]
+	class CameraManagerPatch
+	{
+		static void Prefix()
+		{
+			// disconnect the interaction system early, so that JSI doesn't disable it during the event callbacks
+			KerbalVR.InteractionSystem.Instance.transform.SetParent(null, false);
+			GameObject.DontDestroyOnLoad(KerbalVR.InteractionSystem.Instance);
+		}
+
+		static void Postfix()
+		{
+			FirstPersonKerbalFlight.Instance.OnIVACameraKerbalChange();
 		}
 	}
 }
