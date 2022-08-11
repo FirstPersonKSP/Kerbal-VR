@@ -74,9 +74,12 @@ namespace KerbalVR
 			OnCameraChange(CameraManager.Instance.currentCameraMode);
 		}
 
-		public void FixedUpdate()
+		public void LateUpdate()
 		{
-			
+			if (GameSettings.CAMERA_MODE.GetKeyDown())
+			{
+				KerbalVR.Core.ResetVRPosition();
+			}
 		}
 
 		public void OnDestroy()
@@ -105,20 +108,6 @@ namespace KerbalVR
 			FixIVACamera();
 		}
 
-		void ResetVRPosition()
-		{
-			if (SteamVR.active)
-			{
-				// seated mode means the transform of the Unity Camera is the nominal eye position for the VR headset
-				// in standing mode the transform needs to be at ground level
-				SteamVR.settings.trackingSpace = ETrackingUniverseOrigin.TrackingUniverseSeated;
-
-				var chaperone = OpenVR.Chaperone;
-				if (chaperone != null)
-					chaperone.ResetZeroPose(SteamVR.settings.trackingSpace);
-			}
-		}
-
 		private void OnCameraChange(CameraManager.CameraMode mode)
 		{
 			// restore kerbal arms
@@ -127,6 +116,7 @@ namespace KerbalVR
 
 			bool isEVA = FlightGlobals.ActiveVessel != null && FlightGlobals.ActiveVessel.isEVA;
 
+			KerbalVR.Core.SetVrRunning(mode != CameraManager.CameraMode.Map);
 			KerbalVR.Core.SetActionSetActive("EVA", isEVA);
 
 			if (mode == CameraManager.CameraMode.IVA)
@@ -398,5 +388,4 @@ namespace KerbalVR
 			}
 		}
 	}
-
 }

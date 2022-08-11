@@ -44,7 +44,9 @@ namespace KerbalVR
                 Utils.LogWarning("Could not load prefab: vr_glove_right_model_slim");
                 return;
             }
-        }
+
+			InitializeHandScripts();
+		}
         #endregion
 
         private void OnDestroy()
@@ -73,17 +75,6 @@ namespace KerbalVR
         protected SteamVR_Action_Boolean headsetOnAction;
         #endregion
 
-
-        protected void Update() {
-            // initialize hand scripts (need OpenVR and SteamVR_Input already initialized)
-            if (!isHandsInitialized && KerbalVR.Core.IsOpenVrReady) {
-                InitializeHandScripts();
-                isHandsInitialized = true;
-            }
-            if (!isHandsInitialized) {
-                return;
-            }
-        }
 
         protected void InitializeHandScripts() {
             // store actions for these devices

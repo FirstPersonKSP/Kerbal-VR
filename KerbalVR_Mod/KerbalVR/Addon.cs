@@ -10,8 +10,6 @@ namespace KerbalVR
 	[KSPAddon(KSPAddon.Startup.Instantly, true)]
 	public class FirstPersonKerbalAddon : MonoBehaviour
 	{
-		bool m_wasEnabled;
-
 		public void Awake()
 		{
 			Utils.Log("Addon Awake");
@@ -19,13 +17,13 @@ namespace KerbalVR
 			var harmony = new Harmony("KerbalVR");
 			harmony.PatchAll(Assembly.GetExecutingAssembly());
 
-			KerbalVR.Core.InitAssetLoader();
+			KerbalVR.Core.InitSystems(XRSettings.enabled);
 
-			// for whatever reason, enabling VR mode during loading makes it super slow
-			m_wasEnabled = XRSettings.enabled;
-			XRSettings.enabled = false;
-
+			// for whatever reason, enabling VR mode during loading makes it super slow (vsync maybe?)
+			KerbalVR.Core.SetVrRunning(false);
+			
 			Valve.VR.SteamVR_Settings.instance.trackingSpace = Valve.VR.ETrackingUniverseOrigin.TrackingUniverseSeated;
+			Valve.VR.SteamVR_Settings.instance.lockPhysicsUpdateRateToRenderFrequency = false;
 
 			GameEvents.onLevelWasLoaded.Add(OnLevelWasLoaded);
 			GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
@@ -53,24 +51,14 @@ namespace KerbalVR
 		{
 			Utils.Log($"OnLevelWasLoaded: {gameScene}");
 
-			if (m_wasEnabled)
+			if (KerbalVR.Core.IsVrEnabled)
 			{
 				if (gameScene == GameScenes.PSYSTEM)
 				{
 					PSystemManager.Instance.OnPSystemReady.Add(OnPSystemReady);
 				}
 
-				if (gameScene == GameScenes.MAINMENU)
-				{
-					KerbalVR.Core.InitSteamVRInput();
-
-					XRSettings.enabled = true;
-					Valve.VR.SteamVR.enabled = true;
-
-					Valve.VR.SteamVR_Settings.instance.lockPhysicsUpdateRateToRenderFrequency = false;
-
-					KerbalVR.Core.InitSystems();
-				}
+				KerbalVR.Core.SetVrRunning(gameScene == GameScenes.FLIGHT);
 			}
 		}
 		private void OnPSystemReady()
@@ -82,6 +70,20 @@ namespace KerbalVR
 
 			CameraUtils.AddVRCamera(ScaledCamera.Instance.galaxyCamera, true, true);
 			CameraUtils.AddVRCamera(ScaledCamera.Instance.cam, false, true);
+		}
+
+		[HarmonyPatch(typeof(CameraManager), "Update")]
+		class CameraManagerPatch
+		{
+			public static bool Prefix()
+			{
+				if (GameSettings.CAMERA_NEXT.GetKeyDown() && GameSettings.MODIFIER_KEY.GetKey())
+				{
+					KerbalVR.Core.SetVrRunning(!KerbalVR.Core.IsVrRunning);
+					return false;
+				}
+				return true;
+			}
 		}
 	}
 	

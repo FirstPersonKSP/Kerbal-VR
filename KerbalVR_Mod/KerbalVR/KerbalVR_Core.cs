@@ -13,29 +13,33 @@ namespace KerbalVR
         public static bool IsOpenVrReady { get; private set; } = true; // TODO: re-hookup
         public static bool IsVrEnabled { get; set; } = false;
 
-		public static void InitAssetLoader()
-		{
+        public static void InitSystems(bool vrEnabled)
+        {
+			IsVrEnabled = vrEnabled;
+			IsVrRunning = vrEnabled;
+
+			if (IsVrEnabled)
+			{
+				KerbalVR.Core.InitSteamVRInput();
+			}
+
+			//// initialize KerbalVR GameObjects
+			//GameObject kvrConfiguration = new GameObject("KVR_Configuration");
+			//kvrConfiguration.AddComponent<KerbalVR.Configuration>();
+			//Configuration kvrConfigurationComponent = Configuration.Instance; // init the singleton
+			//DontDestroyOnLoad(kvrConfiguration);
+
 			GameObject kvrAssetLoader = new GameObject("KVR_AssetLoader");
 			kvrAssetLoader.AddComponent<KerbalVR.AssetLoader>();
 			AssetLoader kvrAssetLoaderComponent = AssetLoader.Instance; // init the singleton
 			GameObject.DontDestroyOnLoad(kvrAssetLoader);
-		}
-        public static void InitSystems()
-        {
-            //// initialize KerbalVR GameObjects
-            //GameObject kvrConfiguration = new GameObject("KVR_Configuration");
-            //kvrConfiguration.AddComponent<KerbalVR.Configuration>();
-            //Configuration kvrConfigurationComponent = Configuration.Instance; // init the singleton
-            //DontDestroyOnLoad(kvrConfiguration);
 
-            
+			//GameObject kvrScene = new GameObject("KVR_Scene");
+			//kvrScene.AddComponent<KerbalVR.Scene>();
+			//Scene kvrSceneComponent = Scene.Instance; // init the singleton
+			//GameObject.DontDestroyOnLoad(kvrScene);
 
-            //GameObject kvrScene = new GameObject("KVR_Scene");
-            //kvrScene.AddComponent<KerbalVR.Scene>();
-            //Scene kvrSceneComponent = Scene.Instance; // init the singleton
-            //GameObject.DontDestroyOnLoad(kvrScene);
-
-            GameObject kvrInteractionSys = new GameObject("KVR_InteractionSystem");
+			GameObject kvrInteractionSys = new GameObject("KVR_InteractionSystem");
             kvrInteractionSys.AddComponent<KerbalVR.InteractionSystem>();
             InteractionSystem kvrInteractionSysComponent = InteractionSystem.Instance; // init the singleton
             GameObject.DontDestroyOnLoad(kvrInteractionSys);
@@ -52,6 +56,30 @@ namespace KerbalVR
             SetActionSetActive("flight", true);
             //ActivateActionSet("EVA");
         }
+
+		public static void SetVrRunning(bool running)
+		{
+			if (running != IsVrRunning && IsVrEnabled)
+			{
+				XRSettings.enabled = running;
+				Valve.VR.SteamVR.enabled = running;
+				Valve.VR.SteamVR_Behaviour.instance.enabled = running;
+				KerbalVR.InteractionSystem.Instance.enabled = running;
+
+				if (KerbalVR.InteractionSystem.Instance.LeftHand != null)
+				{
+					KerbalVR.InteractionSystem.Instance.LeftHand.enabled = running;
+					KerbalVR.InteractionSystem.Instance.RightHand.enabled = running;
+				}
+
+				IsVrRunning = running;
+
+				if (running)
+				{
+					ResetVRPosition();
+				}
+			}
+		}
 
         public static void SetActionSetActive(string actionSetName, bool active)
         {
@@ -72,7 +100,21 @@ namespace KerbalVR
                 Utils.LogError("Action Set '" + actionSetName + "' does not exist");
             }
         }
-    }
+
+		public static void ResetVRPosition()
+		{
+			if (SteamVR.active)
+			{
+				// seated mode means the transform of the Unity Camera is the nominal eye position for the VR headset
+				// in standing mode the transform needs to be at ground level
+				SteamVR.settings.trackingSpace = ETrackingUniverseOrigin.TrackingUniverseSeated;
+
+				var chaperone = OpenVR.Chaperone;
+				if (chaperone != null)
+					chaperone.ResetZeroPose(SteamVR.settings.trackingSpace);
+			}
+		}
+	}
 }
 
 #if false
