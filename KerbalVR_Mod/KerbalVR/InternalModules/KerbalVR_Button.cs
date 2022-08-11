@@ -88,7 +88,7 @@ namespace KerbalVR.InternalModules
 
 				if (latched)
 				{
-					buttonModule.internalProp.SendMessage("OnMouseUp");
+					gameObject.SendMessage("OnMouseUp");
 				}
 
 				latched = false;
@@ -110,10 +110,6 @@ namespace KerbalVR.InternalModules
 						latched = true;
 						gameObject.SendMessage("OnMouseDown");
 					}
-				}
-				else if (latched)
-				{
-					buttonModule.internalProp.SendMessage("OnMouseUp");
 				}
 
 				transform.localPosition = initialLocalPosition + buttonModule.axis * delta;
