@@ -15,7 +15,7 @@ namespace KerbalVR
             handCollider = this.gameObject.AddComponent<SphereCollider>();
             handCollider.isTrigger = true;
             handCollider.center = Hand.GripOffset;
-            handCollider.radius = 0.08f;
+            handCollider.radius = 0.05f;
 
             handRigidbody = this.gameObject.AddComponent<Rigidbody>();
             handRigidbody.useGravity = false;

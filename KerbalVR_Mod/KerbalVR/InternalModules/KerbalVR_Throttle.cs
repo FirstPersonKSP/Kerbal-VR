@@ -47,7 +47,7 @@ namespace KerbalVR.InternalModules
 				var capsuleCollider = Utils.GetOrAddComponent<CapsuleCollider>(leverTransform.gameObject);
 
 				capsuleCollider.radius = 0.02f;
-				capsuleCollider.center = Vector3.up * 0.02f;
+				capsuleCollider.center = Vector3.up * 0.04f;
 				capsuleCollider.height = 0.07f;
 
 				collider = capsuleCollider;

@@ -68,7 +68,7 @@ namespace KerbalVR.InternalModules
 			var collider = Utils.GetOrAddComponent<CapsuleCollider>(stickTransform.gameObject);
 
 			collider.radius = 0.02f;
-			collider.center = Vector3.up * 0.02f;
+			collider.center = Vector3.up * 0.04f;
 			collider.height = 0.07f;
 
 			interactable = Utils.GetOrAddComponent<InteractableBehaviour>(stickTransform.gameObject);
