@@ -117,18 +117,36 @@ namespace KerbalVR
 			KerbalVR.Core.SetVrRunning(mode != CameraManager.CameraMode.Map);
 			KerbalVR.Core.SetActionSetActive("EVA", isEVA);
 
-			if (mode == CameraManager.CameraMode.IVA)
+			if (isEVA)
+			{
+				FixEVACamera();
+			}
+			else if (mode == CameraManager.CameraMode.IVA)
 			{
 				// no longer resetting position between camera swaps because the camera changes orientation between iva/eva
 				// e.g. you turn 180 to reach a hatch behind you; you don't want that becoming the new base position
 				//ResetVRPosition();
 				FixIVACamera();
 			}
-			else if (isEVA)
+			else if (mode == CameraManager.CameraMode.Internal)
 			{
-				//ResetVRPosition();
-				FixEVACamera();
+				// this is mainly for ProbeControlRoom
+				FixInternalCamera();
 			}
+		}
+
+		private void FixInternalCamera()
+		{
+			Utils.Log("Flight.FixInternalCamera");
+
+			if (KerbalVR.InteractionSystem.Instance == null) return;
+
+			Transform eyeTransform = InternalCamera.Instance.transform.parent;
+			eyeTransform.localScale = Vector3.one;
+			InternalCamera.Instance.transform.localScale = Vector3.one;
+			KerbalVR.InteractionSystem.Instance.transform.localScale = Vector3.one;
+
+			KerbalVR.InteractionSystem.Instance.transform.SetParent(InternalCamera.Instance.transform.parent, false);
 		}
 
 		static readonly string[] ArmBones = { "bn_l_arm01", "bn_r_arm01" };

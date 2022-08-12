@@ -10,7 +10,7 @@ namespace KerbalVR
 	{
         public static bool IsInIVA()
         {
-            return (CameraManager.Instance != null) && (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA);
+            return (CameraManager.Instance != null) && (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA || CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.Internal);
         }
 
         public static bool IsInEVA()
