@@ -141,6 +141,8 @@
     <Compile Include="IVAAdaptors\IVASwitch.cs" />
     <Compile Include="KerbalVR_AssetLoader.cs" />
     <Compile Include="KerbalVR_Core.cs" />
+    <Compile Include="KerbalVR_Seat.cs" />
+    <Compile Include="Loaders\InternalModelLoader.cs" />
     <Compile Include="PartModules\ExternalCollider.cs" />
     <Compile Include="PartModules\KerbalVR_ExternalHatch.cs" />
     <Compile Include="KerbalVR_Globals.cs" />

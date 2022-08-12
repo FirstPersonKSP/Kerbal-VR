@@ -99,18 +99,33 @@ namespace KerbalVR
 			Instance = null;
 		}
 
+		void RestoreLastKerbal()
+		{
+			// restore kerbal arms
+			if (m_lastKerbalTransform != null)
+			{
+				SetArmBoneScale(m_lastKerbalTransform, Vector3.one);
+				var seatTransform = m_lastKerbalTransform.parent;
+				var collider = seatTransform.GetComponent<Collider>();
+				if (collider != null)
+				{
+					collider.enabled = true;
+				}
+
+				m_lastKerbalTransform = null;
+			}
+		}
+
 		public void OnIVACameraKerbalChange()
 		{
-			SetArmBoneScale(m_lastKerbalTransform, Vector3.one);
+			RestoreLastKerbal();
 
 			FixIVACamera();
 		}
 
 		private void OnCameraChange(CameraManager.CameraMode mode)
 		{
-			// restore kerbal arms
-			SetArmBoneScale(m_lastKerbalTransform, Vector3.one);
-			m_lastKerbalTransform = null;
+			RestoreLastKerbal();
 
 			bool isEVA = FlightGlobals.ActiveVessel != null && FlightGlobals.ActiveVessel.isEVA;
 
@@ -191,6 +206,13 @@ namespace KerbalVR
 				m_lastKerbalTransform = eyeTransform.parent;
 
 				SetArmBoneScale(m_lastKerbalTransform, Vector3.zero);
+
+				var seatTransform = m_lastKerbalTransform.parent;
+				var collider = seatTransform.GetComponent<Collider>();
+				if (collider != null)
+				{
+					collider.enabled = false;
+				}
 			}
 		}
 

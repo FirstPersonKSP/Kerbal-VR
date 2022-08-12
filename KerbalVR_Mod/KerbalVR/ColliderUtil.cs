@@ -19,6 +19,7 @@ namespace KerbalVR
 		[Persistent] public Vector3 localRotation; // if a new transform is being created, this is its local rotation
 		[Persistent] public bool isTrigger;
 		[Persistent] public int layer;
+		[Persistent] public string tag;
 
 		static Transform FindTransformRecursive(Transform root, string transformName)
 		{
@@ -41,7 +42,7 @@ namespace KerbalVR
 			if (string.IsNullOrEmpty(transformNameOrPath)) return null;
 			else if (transformNameOrPath.IndexOf('/') >= 0)
 			{
-				return root.Find("model").Find(transformNameOrPath);
+				return root.Find("model").GetChild(0).Find(transformNameOrPath);
 			}
 			else
 			{
@@ -132,6 +133,11 @@ namespace KerbalVR
 				{
 					collider.isTrigger = isTrigger;
 					collider.gameObject.layer = layer;
+
+					if (!string.IsNullOrEmpty(tag))
+					{
+						collider.tag = tag;
+					}
 				}
 			}
 

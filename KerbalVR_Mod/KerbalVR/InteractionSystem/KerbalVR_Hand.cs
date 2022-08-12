@@ -162,7 +162,10 @@ namespace KerbalVR {
                 if (handCollider.HoveredObject != null) {
                     heldObject = handCollider.HoveredObject;
                     heldObject.GrabbedHand = this;
-                    handSkeleton.BlendToPoser(heldObject.SkeletonPoser);
+					if (heldObject.SkeletonPoser != null)
+					{
+						handSkeleton.BlendToPoser(heldObject.SkeletonPoser);
+					}
                 }
             } else {
                 if (heldObject != null) {
