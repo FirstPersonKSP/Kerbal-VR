@@ -15,6 +15,7 @@ namespace KerbalVR
 		public static FirstPersonKerbalFlight Instance { get; private set; }
 
 		Transform m_lastKerbalTransform = null;
+		Collider m_lastSeatCollider = null;
 
 		static readonly float EVA_PRECISION_MODE_SCALE = 0.5f;
 		static float EVA_FLOATING_ROTATION_SCALE = 0.25f;
@@ -105,14 +106,13 @@ namespace KerbalVR
 			if (m_lastKerbalTransform != null)
 			{
 				SetArmBoneScale(m_lastKerbalTransform, Vector3.one);
-				var seatTransform = m_lastKerbalTransform.parent;
-				var collider = seatTransform.GetComponent<Collider>();
-				if (collider != null)
-				{
-					collider.enabled = true;
-				}
-
 				m_lastKerbalTransform = null;
+			}
+
+			if (m_lastSeatCollider != null)
+			{
+				m_lastSeatCollider.enabled = true;
+				m_lastSeatCollider = null;
 			}
 		}
 
@@ -189,7 +189,7 @@ namespace KerbalVR
 			if (KerbalVR.InteractionSystem.Instance == null) return;
 
 			// The IVA seats have a scale on them and VR camera doesn't seem to respect local scale on the camera's transform itself
-			if (InternalCamera.Instance.transform.parent == CameraManager.Instance.IVACameraActiveKerbal.eyeTransform)
+			// if (InternalCamera.Instance.transform.parent == CameraManager.Instance.IVACameraActiveKerbal.eyeTransform)
 			{
 				// TODO: how does this work with PCR?
 
@@ -208,10 +208,10 @@ namespace KerbalVR
 				SetArmBoneScale(m_lastKerbalTransform, Vector3.zero);
 
 				var seatTransform = m_lastKerbalTransform.parent;
-				var collider = seatTransform.GetComponent<Collider>();
-				if (collider != null)
+				m_lastSeatCollider = seatTransform.GetComponent<Collider>();
+				if (m_lastSeatCollider != null)
 				{
-					collider.enabled = false;
+					m_lastSeatCollider.enabled = false;
 				}
 			}
 		}
