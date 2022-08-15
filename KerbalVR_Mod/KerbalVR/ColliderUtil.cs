@@ -9,6 +9,7 @@ namespace KerbalVR
 {
 	internal struct ColliderParams
 	{
+#pragma warning disable 0649
 		[Persistent] public string shapeType;
 		[Persistent] public Vector3 center;
 		[Persistent] public float height; // Note: only used for Capsule primitives
@@ -20,6 +21,7 @@ namespace KerbalVR
 		[Persistent] public bool isTrigger;
 		[Persistent] public int layer;
 		[Persistent] public string tag;
+#pragma warning restore 0649
 
 		static Transform FindTransformRecursive(Transform root, string transformName)
 		{
