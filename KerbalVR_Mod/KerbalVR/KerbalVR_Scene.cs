@@ -13,9 +13,18 @@ namespace KerbalVR
             return (CameraManager.Instance != null) && (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA || CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.Internal);
         }
 
+		public static KerbalEVA GetKerbalEVA()
+		{
+			if (FlightGlobals.ActiveVessel == null) return null;
+			if (FlightGlobals.ActiveVessel.isEVA) return FlightGlobals.ActiveVessel.evaController;
+			var controlPart = FlightGlobals.ActiveVessel.GetReferenceTransformPart();
+			if (controlPart != null) return controlPart.FindModuleImplementing<KerbalEVA>();
+			return null;
+		}
+
         public static bool IsInEVA()
         {
-            return (FlightGlobals.ActiveVessel != null) && FlightGlobals.ActiveVessel.isEVA;
+			return GetKerbalEVA() != null;
         }
     }
 

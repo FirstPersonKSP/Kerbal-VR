@@ -26,21 +26,9 @@ namespace KerbalVR.Loaders
 
 				if (seat.seatTransform != null)
 				{
-					var collider = seat.seatTransform.gameObject.AddComponent<SphereCollider>();
-					collider.radius = 0.15f;
-					collider.center = Vector3.up * 0.3f + seat.kerbalOffset;
-					collider.isTrigger = true;
-
-					seat.transform.gameObject.layer = 20;
-
-					// Utils.GetOrAddComponent<ColliderVisualizer>(collider.gameObject);
-
-					var vrSeat = collider.gameObject.AddComponent<VRSeat>();
-					vrSeat.internalSeatIndex = seatIndex;
+					VRInternalSeat.CreateInternalSeat(seat, seatIndex);
 				}
 			}
 		}
-		
-
 	}
 }

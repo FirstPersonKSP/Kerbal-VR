@@ -127,14 +127,14 @@ namespace KerbalVR
 		{
 			RestoreLastKerbal();
 
-			bool isEVA = FlightGlobals.ActiveVessel != null && FlightGlobals.ActiveVessel.isEVA;
+			var kerbalEVA = KerbalVR.Scene.GetKerbalEVA();
 
 			KerbalVR.Core.SetVrRunning(mode != CameraManager.CameraMode.Map);
-			KerbalVR.Core.SetActionSetActive("EVA", isEVA);
+			KerbalVR.Core.SetActionSetActive("EVA", kerbalEVA != null);
 
-			if (isEVA)
+			if (kerbalEVA != null)
 			{
-				FixEVACamera();
+				FixEVACamera(kerbalEVA);
 			}
 			else if (mode == CameraManager.CameraMode.IVA)
 			{
@@ -216,28 +216,30 @@ namespace KerbalVR
 			}
 		}
 
-		private void FixEVACamera()
+		private void FixEVACamera(KerbalEVA kerbalEVA)
 		{
 			Utils.Log("Flight.FixEVACamera");
 
 			if (KerbalVR.InteractionSystem.Instance == null) return;
 
-			var kerbalEVA = FlightGlobals.fetch.activeVessel.evaController;
-
 			KerbalVR.InteractionSystem.Instance.transform.SetParent(FlightCamera.fetch.transform, false);
 
-			// force ThroughTheEyes to run its modifications on the kerbal's FSM.  These should be safe to run more than once
-			FirstPerson.FirstPersonEVA.instance.fpStateWalkRun.evt_OnEnterFirstPerson(kerbalEVA);
-			FirstPerson.FirstPersonEVA.instance.fpStateFloating.evt_OnEnterFirstPerson(kerbalEVA);
-			FirstPerson.FirstPersonEVA.instance.fpCameraManager.nearPlaneDistance = 0.02f;
+			if (!kerbalEVA.IsSeated())
+			{
+				// force ThroughTheEyes to run its modifications on the kerbal's FSM.  These should be safe to run more than once
+				FirstPerson.FirstPersonEVA.instance.fpStateWalkRun.evt_OnEnterFirstPerson(kerbalEVA);
+				FirstPerson.FirstPersonEVA.instance.fpStateFloating.evt_OnEnterFirstPerson(kerbalEVA);
+				FirstPerson.FirstPersonEVA.instance.fpCameraManager.nearPlaneDistance = 0.02f;
 
-			kerbalEVA.On_jump_start.OnCheckCondition = (KFSMState currentState) => m_jumpAction.state && !kerbalEVA.PartPlacementMode && !EVAConstructionModeController.MovementRestricted;
+				kerbalEVA.On_jump_start.OnCheckCondition = (KFSMState currentState) => m_jumpAction.state && !kerbalEVA.PartPlacementMode && !EVAConstructionModeController.MovementRestricted;
 
-			kerbalEVA.On_startRun.OnCheckCondition = (KFSMState currentState) => m_isSprinting;
-			kerbalEVA.On_endRun.OnCheckCondition = (KFSMState currentState) => !m_isSprinting;
 
-			JetpackPrecisionMode = true;
-			m_isSprinting = false;
+				kerbalEVA.On_startRun.OnCheckCondition = (KFSMState currentState) => m_isSprinting;
+				kerbalEVA.On_endRun.OnCheckCondition = (KFSMState currentState) => !m_isSprinting;
+
+				JetpackPrecisionMode = true;
+				m_isSprinting = false;
+			}
 		}
 
 		public void HandleMovementInput_Prefix(KerbalEVA kerbalEVA)
