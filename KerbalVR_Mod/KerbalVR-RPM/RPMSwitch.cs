@@ -12,29 +12,12 @@ namespace KerbalVR_RPM
 {
 	internal class RPMSwitch : IVASwitch
 	{
-		static readonly Type x_jsiActionGroupSwitchType;
-		static readonly FieldInfo x_currentStateField;
-		static readonly FieldInfo x_switchTransformField;
-		static readonly MethodInfo x_clickMethod;
-
-		static RPMSwitch()
-		{
-			x_jsiActionGroupSwitchType = AssemblyLoader.GetClassByName(typeof(InternalModule), "JSIActionGroupSwitch");
-
-			if (x_jsiActionGroupSwitchType != null)
-			{
-				x_currentStateField = x_jsiActionGroupSwitchType.GetField("currentState", BindingFlags.Instance | BindingFlags.NonPublic);
-				x_clickMethod = x_jsiActionGroupSwitchType.GetMethod("Click", BindingFlags.Instance | BindingFlags.Public);
-				x_switchTransformField = x_jsiActionGroupSwitchType.GetField("switchTransform", BindingFlags.Instance | BindingFlags.Public);
-			}
-		}
-
 		static public RPMSwitch TryConstruct(GameObject prop, Transform switchTransform)
 		{
 			string transformName = switchTransform.name;
-			var switchComponents = prop.GetComponents(x_jsiActionGroupSwitchType);
+			var switchComponents = prop.GetComponents<JSI.JSIActionGroupSwitch>();
 
-			var switchComponent = switchComponents.FirstOrDefault(x => (string)x_switchTransformField.GetValue(x) == transformName);
+			var switchComponent = switchComponents.FirstOrDefault(x => x.switchTransform == transformName);
 
 			if (switchComponent != null)
 			{
@@ -44,23 +27,23 @@ namespace KerbalVR_RPM
 			return null;
 		}
 
-		Component m_rpmComponent;
+		JSI.JSIActionGroupSwitch m_rpmComponent;
 
-		public RPMSwitch(Component switchComponent)
+		public RPMSwitch(JSI.JSIActionGroupSwitch switchComponent)
 		{
 			m_rpmComponent = switchComponent;
 		}
 
 		public override bool CurrentState
 		{
-			get { return (bool)x_currentStateField.GetValue(m_rpmComponent); }
+			get { return m_rpmComponent.currentState; }
 		}
 
 		public override void SetState(bool newState)
 		{
 			if (newState != CurrentState)
 			{
-				x_clickMethod.Invoke(m_rpmComponent, null);
+				m_rpmComponent.Click();
 			}
 		}
 	}
