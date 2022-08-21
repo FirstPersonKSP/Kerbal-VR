@@ -92,9 +92,9 @@ namespace KerbalVR.InternalModules
 					NormalizeTranslation(movementBounds.z, rawPosition.z));
 
 				result = new Vector3(
-					VRFlightStick.ApplyDeadZone(raw.x, deadzoneFractionVector.x, exponentVector.x),
-					VRFlightStick.ApplyDeadZone(raw.y, deadzoneFractionVector.y, exponentVector.y),
-					VRFlightStick.ApplyDeadZone(raw.z, deadzoneFractionVector.z, exponentVector.z));
+					InteractionCommon.VRFlightStick.ApplyDeadZone(raw.x, deadzoneFractionVector.x, exponentVector.x),
+					InteractionCommon.VRFlightStick.ApplyDeadZone(raw.y, deadzoneFractionVector.y, exponentVector.y),
+					InteractionCommon.VRFlightStick.ApplyDeadZone(raw.z, deadzoneFractionVector.z, exponentVector.z));
 			}
 
 			return result;
