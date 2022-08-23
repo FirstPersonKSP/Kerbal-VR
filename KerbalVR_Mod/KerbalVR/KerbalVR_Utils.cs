@@ -446,13 +446,13 @@ namespace KerbalVR
         protected void Awake() {
             // TODO: handle multiple colliders
 
-            CapsuleCollider capsuleCollider = this.gameObject.GetComponent<CapsuleCollider>();
+            CapsuleCollider capsuleCollider = this.gameObject.GetComponentInChildren<CapsuleCollider>();
             if (capsuleCollider != null) {
                 Utils.Log("ColliderVisualizer found CapsuleCollider");
 
                 visual = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                 Destroy(visual.GetComponent<CapsuleCollider>());
-                visual.transform.SetParent(this.transform);
+                visual.transform.SetParent(capsuleCollider.transform);
                 visual.transform.localScale = new Vector3(
                     capsuleCollider.radius * 2f, capsuleCollider.height * 0.5f, capsuleCollider.radius * 2f);
                 visual.transform.localRotation = Quaternion.identity;
@@ -460,26 +460,26 @@ namespace KerbalVR
                 // TODO: handle axis alignment
             }
 
-            SphereCollider sphereCollider = this.gameObject.GetComponent<SphereCollider>();
+            SphereCollider sphereCollider = this.gameObject.GetComponentInChildren<SphereCollider>();
             if (sphereCollider != null) {
                 Utils.Log("ColliderVisualizer found SphereCollider");
 
                 visual = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 Destroy(visual.GetComponent<SphereCollider>());
-                visual.transform.SetParent(this.transform);
+                visual.transform.SetParent(sphereCollider.transform);
                 visual.transform.localScale = Vector3.one * sphereCollider.radius * 2f;
                 visual.transform.localRotation = Quaternion.identity;
                 visual.transform.localPosition = sphereCollider.center;
             }
 
-            BoxCollider boxCollider = this.gameObject.GetComponent<BoxCollider>();
+            BoxCollider boxCollider = this.gameObject.GetComponentInChildren<BoxCollider>();
             if (boxCollider != null)
 			{
                 Utils.Log("ColliderVisualizer found BoxCollider");
 
                 visual = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 Destroy(visual.GetComponent<BoxCollider>());
-                visual.transform.SetParent(this.transform);
+                visual.transform.SetParent(boxCollider.transform);
                 visual.transform.localScale = boxCollider.size;
                 visual.transform.localRotation = Quaternion.identity;
                 visual.transform.localPosition = boxCollider.center;

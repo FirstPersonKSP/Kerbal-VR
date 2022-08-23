@@ -27,7 +27,7 @@ namespace KerbalVR.PartModules
 				return;
 			}
 
-			m_flightStick.OnStart(transform, vessel);
+			m_flightStick.OnStart(transform, vessel, true);
 
 			var gizmo = Utils.CreateGizmo();
 			gizmo.transform.SetParent(transform.parent, false);

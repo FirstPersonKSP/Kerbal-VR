@@ -18,7 +18,7 @@ namespace KerbalVR.Loaders
 			{
 				var seatTransform = __instance.part.FindModelTransform(__instance.seatPivotName);
 
-				var collider = VRInternalSeat.AddSeatCollider(seatTransform, Vector3.zero, 0);
+				var collider = VRInternalSeat.AddSeatCollider(seatTransform, Vector3.zero, 21);
 				collider.gameObject.AddComponent<VRExternalSeat>();
 			}
 		}

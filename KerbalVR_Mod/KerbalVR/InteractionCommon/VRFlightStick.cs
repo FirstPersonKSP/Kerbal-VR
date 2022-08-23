@@ -53,7 +53,7 @@ namespace KerbalVR.InteractionCommon
 			}
 		}
 
-		internal void OnStart(Transform stickTransform, Vessel vessel)
+		internal void OnStart(Transform stickTransform, Vessel vessel, bool createRigidBody)
 		{
 			m_stickTransform = stickTransform;
 			m_vessel = vessel;
@@ -70,8 +70,9 @@ namespace KerbalVR.InteractionCommon
 			stickTransform.localScale = Vector3.one;
 			stickTransform.SetParent(anchorTransform, false);
 
-			var collider = stickTransform.gameObject.GetComponent<Collider>();
+			var collider = stickTransform.gameObject.GetComponentInChildren<Collider>();
 
+			// create a collider if one doesn't exist
 			if (collider == null)
 			{
 				var capsule = stickTransform.gameObject.AddComponent<CapsuleCollider>();
@@ -82,7 +83,15 @@ namespace KerbalVR.InteractionCommon
 				collider = capsule;
 			}
 
-			interactable = Utils.GetOrAddComponent<InteractableBehaviour>(stickTransform.gameObject);
+			// trying to get the flightstick to be interactable when you're sitting in the seat.  doesn't seem to work.
+			//if (createRigidBody)
+			//{
+			//	var rb = collider.gameObject.AddComponent<Rigidbody>();
+			//	rb.isKinematic = true;
+			//	rb.useGravity = false;
+			//}
+
+			interactable = Utils.GetOrAddComponent<InteractableBehaviour>(collider.gameObject);
 
 			interactable.SkeletonPoser = Utils.GetOrAddComponent<SteamVR_Skeleton_Poser>(stickTransform.gameObject);
 			interactable.SkeletonPoser.skeletonMainPose = SkeletonPose_HandleRailGrabPose.GetInstance();
