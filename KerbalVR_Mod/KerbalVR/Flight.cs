@@ -231,11 +231,11 @@ namespace KerbalVR
 				FirstPerson.FirstPersonEVA.instance.fpStateFloating.evt_OnEnterFirstPerson(kerbalEVA);
 				FirstPerson.FirstPersonEVA.instance.fpCameraManager.nearPlaneDistance = 0.02f;
 
-				kerbalEVA.On_jump_start.OnCheckCondition = (KFSMState currentState) => m_jumpAction.state && !kerbalEVA.PartPlacementMode && !EVAConstructionModeController.MovementRestricted;
+				kerbalEVA.On_jump_start.OnCheckCondition = (KFSMState currentState) => kerbalEVA.VesselUnderControl && m_jumpAction.state && !kerbalEVA.PartPlacementMode && !EVAConstructionModeController.MovementRestricted;
 
 
-				kerbalEVA.On_startRun.OnCheckCondition = (KFSMState currentState) => m_isSprinting;
-				kerbalEVA.On_endRun.OnCheckCondition = (KFSMState currentState) => !m_isSprinting;
+				kerbalEVA.On_startRun.OnCheckCondition = (KFSMState currentState) => kerbalEVA.VesselUnderControl && m_isSprinting;
+				kerbalEVA.On_endRun.OnCheckCondition = (KFSMState currentState) => kerbalEVA.VesselUnderControl && !m_isSprinting;
 
 				JetpackPrecisionMode = true;
 				m_isSprinting = false;
@@ -244,6 +244,11 @@ namespace KerbalVR
 
 		public void HandleMovementInput_Prefix(KerbalEVA kerbalEVA)
 		{
+			if (!kerbalEVA.VesselUnderControl)
+			{
+				return;
+			}
+
 			// this enables "FPS" controls so the character will strafe instead of turning and walking
 			kerbalEVA.CharacterFrameModeToggle = true;
 
@@ -279,6 +284,11 @@ namespace KerbalVR
 
 		public void HandleMovementInput_Postfix(KerbalEVA kerbalEVA)
 		{
+			if (!kerbalEVA.VesselUnderControl)
+			{
+				return;
+			}
+
 			// rotation needs to be done after the main method or else it will get overwritten
 			Vector2 lookStickInput = m_lookStickAction.GetAxis(SteamVR_Input_Sources.Any);
 
@@ -302,9 +312,9 @@ namespace KerbalVR
 
 		public void FPStateFloating_PreOnFixedUpdate_Postfix(KerbalEVA kerbalEVA)
 		{
-			if (kerbalEVA.vessel.situation == Vessel.Situations.SPLASHED || 
-				kerbalEVA.vessel.situation == Vessel.Situations.LANDED ||
-				!kerbalEVA.JetpackDeployed)
+			if (!kerbalEVA.VesselUnderControl ||
+				!kerbalEVA.JetpackDeployed ||
+				kerbalEVA.SurfaceOrSplashed())
 			{
 				return;
 			}

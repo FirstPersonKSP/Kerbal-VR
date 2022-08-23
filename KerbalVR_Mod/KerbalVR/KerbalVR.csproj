@@ -109,6 +109,7 @@
   </ItemGroup>
   <ItemGroup>
     <Publicize Include="ThroughTheEyes" />
+    <Publicize Include="Assembly-CSharp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Addon.cs" />
