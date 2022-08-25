@@ -27,7 +27,7 @@ namespace KerbalVR.PartModules
 				return;
 			}
 
-			m_flightStick.OnStart(transform, vessel, true);
+			m_flightStick.OnStart(transform, vessel);
 
 #if DEBUG
 			var gizmo = Utils.CreateGizmo();
