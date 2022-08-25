@@ -67,6 +67,7 @@ namespace KerbalVR
 			m_toggleLightAction.onStateDown += ToggleLight_OnStateDown;
 			m_sprintAction.onStateDown += Sprint_OnStateDown;
 			m_swapRollYawAction.onStateDown += SwapRollYaw_OnStateDown;
+			m_jumpAction.onStateDown += Jump_OnStateDown;
 		}
 
 		private void OnVesselChange(Vessel data)
@@ -96,8 +97,26 @@ namespace KerbalVR
 			m_toggleLightAction.onStateDown -= ToggleLight_OnStateDown;
 			m_sprintAction.onStateDown -= Sprint_OnStateDown;
 			m_swapRollYawAction.onStateDown -= SwapRollYaw_OnStateDown;
+			m_jumpAction.onStateDown -= Jump_OnStateDown;
 
 			Instance = null;
+		}
+
+		// Note, jumping in EVA isn't handled here; it's hooked into the kerbal FSM
+		private void Jump_OnStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
+		{
+			var kerbalEVA = KerbalVR.Scene.GetKerbalEVA();
+
+			if (kerbalEVA != null && kerbalEVA.IsSeated())
+			{
+				kerbalEVA.OnDeboardSeat();
+				KerbalVR.Scene.EnterFirstPerson();
+			}
+		}
+
+		public void OnSeatBoarded()
+		{
+			OnCameraChange(CameraManager.Instance.currentCameraMode);
 		}
 
 		void RestoreLastKerbal()
@@ -368,12 +387,20 @@ namespace KerbalVR
 
 		private void ToggleLight_OnStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
 		{
-			FlightGlobals.ActiveVessel.evaController.ToggleLamp();
+			var eva = KerbalVR.Scene.GetKerbalEVA();
+			if (eva != null)
+			{
+				eva.ToggleLamp();
+			}
 		}
 
 		private void ToggleRCS_OnStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
 		{
-			FlightGlobals.ActiveVessel.evaController.ToggleJetpack();
+			var eva = KerbalVR.Scene.GetKerbalEVA();
+			if (eva != null)
+			{
+				eva.ToggleJetpack();
+			}
 		}
 		private void Sprint_OnStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
 		{

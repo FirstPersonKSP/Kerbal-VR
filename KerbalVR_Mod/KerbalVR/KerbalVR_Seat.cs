@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -103,8 +104,19 @@ namespace KerbalVR
 
 		private void OnCameraChange(CameraManager.CameraMode cameraMode)
 		{
+			UpdateSeatCollision();
+		}
+
+		public void UpdateSeatCollision()
+		{
+			var part = this.gameObject.GetComponentUpwards<Part>();
+			var seatModule = part.FindModuleImplementing<KerbalSeat>();
+			var kerbal = InteractionSystem.Instance.gameObject.GetComponentUpwards<KerbalEVA>();
+
+			bool currentlyInSeat = kerbal != null && kerbal.part == seatModule.Occupant;
+
 			var collider = gameObject.GetComponent<Collider>();
-			collider.enabled = !KerbalVR.Scene.IsInIVA();
+			collider.enabled = !KerbalVR.Scene.IsInIVA() && !currentlyInSeat;
 		}
 
 		void OnDestroy()
@@ -123,26 +135,36 @@ namespace KerbalVR
 
 			if (seatModule.Occupant)
 			{
-				// exit the seat
-				if (part == FlightGlobals.ActiveVessel.GetReferenceTransformPart())
-				{
-					var actionParam = new KSPActionParam(KSPActionGroup.None, KSPActionType.Activate);
-					seatModule.LeaveSeat(actionParam);
-				}
 				// switch to them
-				else
-				{
-					FlightGlobals.SetActiveVessel(seatModule.Occupant.vessel);
-				}
+				// what about different command chairs on the same vessel...?
+				FlightGlobals.SetActiveVessel(seatModule.Occupant.vessel);
 			}
 			else
 			{
 				seatModule.BoardSeat();
+				var collider = gameObject.GetComponent<Collider>();
+				collider.enabled = false;
+				KerbalVR.FirstPersonKerbalFlight.Instance.OnSeatBoarded(); // during the boarding process we switch vessels which confuses the flight system; restore it here
 
-				var fpCameraManager = FirstPerson.FirstPersonEVA.instance.fpCameraManager;
-				fpCameraManager.isFirstPerson = false;
-				fpCameraManager.saveCameraState(FlightCamera.fetch);
-				fpCameraManager.CheckAndSetFirstPerson(FlightGlobals.ActiveVessel);
+				KerbalVR.Scene.EnterFirstPerson();
+			}
+		}
+	}
+
+	[HarmonyPatch(typeof(KerbalEVA), nameof(KerbalEVA.EjectFromSeat))]
+	class KerbalEVA_EjectFromSeat
+	{
+		public static void Postfix(KerbalEVA __instance)
+		{
+			// oddly, kerbalSeat never seems to get set back to null.
+			var vrSeat = __instance.kerbalSeat.GetComponentInChildren<VRExternalSeat>();
+			if (vrSeat != null)
+			{
+				var collider = vrSeat.gameObject.GetComponent<Collider>();
+				if (collider != null)
+				{
+					collider.enabled = true;
+				}
 			}
 		}
 	}

@@ -29,10 +29,11 @@ namespace KerbalVR.PartModules
 
 			m_flightStick.OnStart(transform, vessel, true);
 
+#if DEBUG
 			var gizmo = Utils.CreateGizmo();
 			gizmo.transform.SetParent(transform.parent, false);
-
 			Utils.GetOrAddComponent<ColliderVisualizer>(transform.gameObject);
+#endif
 		}
 
 		public override void OnUpdate()

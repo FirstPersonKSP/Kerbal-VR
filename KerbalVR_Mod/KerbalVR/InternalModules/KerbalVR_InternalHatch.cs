@@ -64,10 +64,7 @@ namespace KerbalVR.InternalModules
 
 				yield return null;
 
-				var fpCameraManager = FirstPerson.FirstPersonEVA.instance.fpCameraManager;
-				fpCameraManager.isFirstPerson = false;
-				fpCameraManager.saveCameraState(FlightCamera.fetch);
-				fpCameraManager.CheckAndSetFirstPerson(FlightGlobals.ActiveVessel);
+				KerbalVR.Scene.EnterFirstPerson();
 			}
 		}
 

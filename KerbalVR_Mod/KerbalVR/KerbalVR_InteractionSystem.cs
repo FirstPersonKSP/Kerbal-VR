@@ -1,3 +1,5 @@
+using HarmonyLib;
+using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
 
@@ -124,4 +126,26 @@ namespace KerbalVR
         }
 
     } // class InteractionSystem
+
+	// The interaction system is sometimes a child of a part (e.g. when in a command chair), in which case the CollisionManager will try to disable collisions between the hands and other colliders on the vessel
+	[HarmonyPatch(typeof(CollisionManager), nameof(CollisionManager.GetAllVesselColliders))]
+	class GetAllVesselColliders_Patch
+	{
+		public static void Prefix(CollisionManager __instance, ref Transform __state)
+		{
+			if (InteractionSystem.Instance.gameObject.GetComponentUpwards<Part>() != null)
+			{
+				__state = InteractionSystem.Instance.transform.parent;
+				InteractionSystem.Instance.transform.SetParent(null, false);
+			}
+		}
+
+		public static void Postfix(CollisionManager __instance, Transform __state)
+		{
+			if (__state != null)
+			{
+				InteractionSystem.Instance.transform.SetParent(__state, false);
+			}
+		}
+	}
 } // namespace KerbalVR

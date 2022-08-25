@@ -26,7 +26,15 @@ namespace KerbalVR
         {
 			return GetKerbalEVA() != null;
         }
-    }
+
+		internal static void EnterFirstPerson()
+		{
+			var fpCameraManager = FirstPerson.FirstPersonEVA.instance.fpCameraManager;
+			fpCameraManager.isFirstPerson = false;
+			fpCameraManager.saveCameraState(FlightCamera.fetch);
+			fpCameraManager.CheckAndSetFirstPerson(FlightGlobals.ActiveVessel);
+		}
+	}
 
 #if false
     /// <summary>
