@@ -22,14 +22,27 @@ namespace KerbalVR.InternalModules
         [KSPField]
         public Vector3 zeroVector = Vector3.up;
 
+        /// <summary>
+        /// Fully opened Angle
+        /// </summary>
         [KSPField]
         public float minAngle = -110;
 
+        /// <summary>
+        /// Fully Closed Angle
+        /// </summary>
         [KSPField]
         public float maxAngle = 0;
 
-        VRCoverInteractionListener interactionListener = null;
+		/// <summary>
+		/// Values below this limit will be snapped to minAngle
+		/// </summary>
+		[KSPField]
+		public float snappingLimit = -90;
+
+		VRCoverInteractionListener interactionListener = null;
         internal float currentAngle = 0;
+        internal float snappedAngle = 0;
         internal Transform hingeTransform = null;
 
         public bool IsOpen
@@ -59,7 +72,8 @@ namespace KerbalVR.InternalModules
                 interactionListener.coverModule = this;
 
                 currentAngle = maxAngle;
-            }
+                snappedAngle = currentAngle;
+			}
 
             if (hingeTransform == null && coverTransform != null)
             {
@@ -106,7 +120,11 @@ namespace KerbalVR.InternalModules
 
         public void OnExit(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
         {
-            
+			// align current angle with visual
+			if (coverModule.currentAngle < coverModule.snappingLimit)
+            {
+                coverModule.currentAngle = coverModule.snappedAngle;
+			}
         }
 
         public void OnStay(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
@@ -137,7 +155,19 @@ namespace KerbalVR.InternalModules
         void SetAngle(float angle)
         {
             coverModule.currentAngle = angle;
-            coverModule.hingeTransform.localRotation = Quaternion.AngleAxis(coverModule.currentAngle, coverModule.rotationAxis);
+
+			if (coverModule.currentAngle < coverModule.snappingLimit)
+			{
+				coverModule.snappedAngle = coverModule.minAngle;
+
+                // play a snap sound here?
+			}
+			else
+			{
+				coverModule.snappedAngle = coverModule.currentAngle;
+			}
+
+			coverModule.hingeTransform.localRotation = Quaternion.AngleAxis(coverModule.snappedAngle, coverModule.rotationAxis);
         }
     }
 }
