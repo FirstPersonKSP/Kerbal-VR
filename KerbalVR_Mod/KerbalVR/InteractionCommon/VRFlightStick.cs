@@ -53,7 +53,7 @@ namespace KerbalVR.InteractionCommon
 			}
 		}
 
-		internal void OnStart(Transform stickTransform, Vessel vessel, bool createRigidBody)
+		internal void OnStart(Transform stickTransform, Vessel vessel)
 		{
 			m_stickTransform = stickTransform;
 			m_vessel = vessel;
@@ -82,14 +82,6 @@ namespace KerbalVR.InteractionCommon
 				
 				collider = capsule;
 			}
-
-			// trying to get the flightstick to be interactable when you're sitting in the seat.  doesn't seem to work.
-			//if (createRigidBody)
-			//{
-			//	var rb = collider.gameObject.AddComponent<Rigidbody>();
-			//	rb.isKinematic = true;
-			//	rb.useGravity = false;
-			//}
 
 			interactable = Utils.GetOrAddComponent<InteractableBehaviour>(collider.gameObject);
 

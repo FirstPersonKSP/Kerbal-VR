@@ -10,103 +10,46 @@ using UnityEngine;
 
 namespace KerbalVR
 {
-	class ScaledSpaceCameraTransformUpdate : MonoBehaviour
-	{
-		private void LateUpdate()
-		{
-			transform.parent.position = ScaledSpace.LocalToScaledSpace(ScaledCamera.Instance.tgtRef.position);
-			transform.parent.localRotation = ScaledCamera.Instance.tgtRef.rotation;
-		}
-	}
-
-	class ChildCameraUpdater : MonoBehaviour
-	{
-		public Camera ParentCamera;
-		public Camera ChildCamera;
-
-		private void LateUpdate()
-		{
-			if (ParentCamera)
-			{
-				CameraUtils.CopyCameraSettings(ParentCamera, ChildCamera);
-
-				ParentCamera.enabled = false;
-			}
-		}
-	}
-
 	static class CameraUtils
 	{
-		public static void DisablePositionTrackingOnCamera(Camera camera)
+
+		public static GameObject CreateVRAnchor(Camera camera)
 		{
-			if (camera.transform.parent.name != "VRDisablePositionTracking")
-			{
-				var vrFix = new GameObject("VRDisablePositionTracking").transform;
-				vrFix.localScale = Vector3.zero;
-				vrFix.SetParent(camera.transform.parent, false);
-				camera.transform.SetParent(vrFix, false);
-				// camera.gameObject.AddComponent<ScaledSpaceCameraTransformUpdate>();
-			}
+			var anchor = new GameObject(camera.name + " VRAnchor");
+			anchor.transform.localPosition = camera.transform.localPosition;
+			anchor.transform.localRotation = camera.transform.localRotation;
+			anchor.transform.localScale = camera.transform.localScale;
+			anchor.transform.SetParent(camera.transform.parent, false);
+			camera.transform.SetParent(anchor.transform, false);
+			camera.transform.localPosition = Vector3.zero;
+			camera.transform.localRotation = Quaternion.identity;
+			camera.transform.localScale = Vector3.one;
+
+			return anchor;
 		}
 
-		static public void CopyCameraSettings(Camera from, Camera to)
+		public static T MoveComponent<T>(GameObject from, GameObject to) where T : Component
 		{
-			to.allowDynamicResolution = from.allowDynamicResolution;
-			to.allowHDR = from.allowHDR;
-			to.allowMSAA = from.allowMSAA;
-			to.backgroundColor = from.backgroundColor;
-			to.clearFlags = from.clearFlags;
-			to.clearStencilAfterLightingPass = from.clearStencilAfterLightingPass;
-			to.cullingMask = from.cullingMask;
-			to.depth = from.depth;
-			to.depthTextureMode = from.depthTextureMode;
-			to.eventMask = from.eventMask;
-			to.farClipPlane = from.farClipPlane;
-			to.layerCullDistances = from.layerCullDistances;
-			to.nearClipPlane = from.nearClipPlane;
-			to.opaqueSortMode = from.opaqueSortMode;
-			to.orthographic = from.orthographic;
-			to.renderingPath = from.renderingPath;
-			to.useOcclusionCulling = from.useOcclusionCulling;
+			var oldComponent = from.GetComponent<T>();
+			if (oldComponent != null)
+			{
+				var newComponent = to.AddComponent<T>();
+
+				FieldInfo[] fields = typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+				foreach (var field in fields)
+				{
+					object value = field.GetValue(oldComponent);
+					field.SetValue(newComponent, value);
+				}
+
+				Component.DestroyImmediate(oldComponent);
+
+				return newComponent;
+			}
+
+			return null;
 		}
 
-		static public GameObject AddVRCamera(Camera parent, bool disablePositionTracking, bool dontDestroyOnLoad)
-		{
-			string childName = parent.name;
-			parent.name += "(Stock)";
-			var childObject = parent.gameObject.GetChild(childName);
-
-			if (childObject != null)
-			{
-				return childObject;
-			}
-
-			var go = new GameObject(childName);
-
-			if (dontDestroyOnLoad)
-			{
-				GameObject.DontDestroyOnLoad(go);
-			}
-			var vrCam = go.AddComponent<Camera>();
-			go.transform.SetParent(parent.transform, false);
-
-			// copy settings from parent camera
-			CopyCameraSettings(parent, vrCam);
-
-			var camUpdater = go.AddComponent<ChildCameraUpdater>();
-			camUpdater.ParentCamera = parent;
-			camUpdater.ChildCamera = vrCam;
-
-			if (disablePositionTracking)
-			{
-				parent.transform.localScale = Vector3.zero;
-			}
-
-			parent.enabled = false;
-			// Destroy(parent);
-
-			return go;
-		}
 	}
 
 	[HarmonyPatch(typeof(FXCamera), "LateUpdate")]
@@ -147,5 +90,6 @@ namespace KerbalVR
 		}
 	}
 
+	// [harmonyPatch(typeof(PlanetariumCamera), nameof(PlanetariumCamera.Activate))]
 
 }
