@@ -27,6 +27,12 @@ namespace KerbalVR.InternalModules
 		[KSPField]
 		public float maxAngle = 40;
 
+		/// <summary>
+		/// If has a cover, whether the cover turns off the switch when close
+		/// </summary>
+		[KSPField]
+		public bool coverTurnOffSwitch = true;
+
 		VRSwitchInteractionListener interactionListener = null;
 		VRCover cover = null;
 		internal float currentAngle = 0;
@@ -71,6 +77,27 @@ namespace KerbalVR.InternalModules
 			cover = gameObject.GetComponent<VRCover>();
 
 			m_ivaSwitch = IVASwitch.ConstructSwitch(gameObject, switchTransform);
+
+			if (cover && coverTurnOffSwitch)
+			{
+				cover.OnCoverClose += Cover_OnCoverClose;
+
+				// initialize cover state, since switch might be on when vehicle spawns (like gears)
+				cover.SetState(m_ivaSwitch.CurrentState);
+			}
+		}
+
+		void OnDestroy()
+		{
+			cover.OnCoverClose -= Cover_OnCoverClose;
+		}
+
+		/// <summary>
+		/// Event callback when cover is closed
+		/// </summary>
+		private void Cover_OnCoverClose()
+		{
+			m_ivaSwitch.SetState(false);
 		}
 
 		class VRSwitchInteractionListener : MonoBehaviour, IFingertipInteractable
