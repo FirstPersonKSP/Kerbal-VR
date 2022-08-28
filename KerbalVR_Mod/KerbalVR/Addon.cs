@@ -67,9 +67,6 @@ namespace KerbalVR
 
 			GameObject.Find("UIMainCamera").GetComponent<Camera>().stereoTargetEye = StereoTargetEyeMask.None;
 			GameObject.Find("UIVectorCamera").GetComponent<Camera>().stereoTargetEye = StereoTargetEyeMask.None;
-
-			CameraUtils.AddVRCamera(ScaledCamera.Instance.galaxyCamera, true, true);
-			CameraUtils.AddVRCamera(ScaledCamera.Instance.cam, false, true);
 		}
 
 		[HarmonyPatch(typeof(CameraManager), "Update")]
@@ -83,6 +80,34 @@ namespace KerbalVR
 					return false;
 				}
 				return true;
+			}
+		}
+
+		[HarmonyPatch(typeof(PSystemManager), nameof(PSystemManager.SetupScaledSpace))]
+		class PSystemManagerPatch
+		{
+			public static void Postfix()
+			{
+				Camera scaledCamera = ScaledCamera.Instance.cam;
+				Camera galaxyCamera = ScaledCamera.Instance.galaxyCamera;
+
+				// fudge the scaled camera
+				var scaledCameraAnchor = CameraUtils.CreateVRAnchor(scaledCamera);
+				var dummyListener = scaledCameraAnchor.AddComponent<AudioListener>(); // PlanetariumCamera.Awake requires an audiolistener
+				var dummyCamera = scaledCameraAnchor.AddComponent<Camera>(); // PlanetariumCamera.Deactivate requires a camera object
+				PlanetariumCamera._fetch = CameraUtils.MoveComponent<PlanetariumCamera>(scaledCamera.gameObject, scaledCameraAnchor);
+				PSystemManager.Instance.scaledSpaceCamera = PlanetariumCamera.fetch;
+				Component.DestroyImmediate(dummyListener);
+				dummyCamera.enabled = false;
+
+				PlanetariumCamera.camRef = scaledCamera;
+				var scaledCameraDriver = CameraUtils.MoveComponent<ScaledCamera>(scaledCamera.gameObject, scaledCameraAnchor);
+
+				// disable position tracking on the galaxy camera
+				var galaxyCameraAnchor = CameraUtils.CreateVRAnchor(galaxyCamera);
+				galaxyCameraAnchor.transform.localScale = Vector3.zero;
+				var followRot = CameraUtils.MoveComponent<FollowRot>(galaxyCamera.gameObject, galaxyCameraAnchor);
+				followRot.tgt = scaledCameraAnchor.transform;
 			}
 		}
 	}
