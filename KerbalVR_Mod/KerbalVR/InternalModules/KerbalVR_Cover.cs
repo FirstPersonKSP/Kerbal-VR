@@ -8,137 +8,149 @@ using Valve.VR;
 
 namespace KerbalVR.InternalModules
 {
-    class VRCover : InternalModule
-    {
-        [KSPField]
-        public string coverTransformName = "";
+	class VRCover : InternalModule
+	{
+		[KSPField]
+		public string coverTransformName = "";
 
-        [KSPField]
-        public string hingeTransformName = "";
+		[KSPField]
+		public string hingeTransformName = "";
 
-        [KSPField]
-        public Vector3 rotationAxis = Vector3.right;
+		[KSPField]
+		public Vector3 rotationAxis = Vector3.right;
 
-        [KSPField]
-        public Vector3 zeroVector = Vector3.up;
+		[KSPField]
+		public Vector3 zeroVector = Vector3.up;
 
-        /// <summary>
-        /// Fully opened Angle
-        /// </summary>
-        [KSPField]
-        public float minAngle = -110;
+		/// <summary>
+		/// Fully opened Angle
+		/// </summary>
+		[KSPField]
+		public float minAngle = -110;
 
-        /// <summary>
-        /// Fully Closed Angle
-        /// </summary>
-        [KSPField]
-        public float maxAngle = 0;
+		/// <summary>
+		/// Fully Closed Angle
+		/// </summary>
+		[KSPField]
+		public float maxAngle = 0;
 
-        /// <summary>
-        /// Values below this limit will be snapped to minAngle
-        /// </summary>
-        [KSPField]
-        public float snappingLimit = -90;
+		/// <summary>
+		/// Values below this percentage of total angle will be snapped to minAngle
+		/// </summary>
+		[KSPField]
+		public float snapOnThreshold = 0.1f;
 
-        VRCoverInteractionListener interactionListener = null;
-        internal float currentAngle = 0;
-        internal float snappedAngle = 0;
-        internal Transform hingeTransform = null;
+		/// <summary>
+		/// Values above this percentage of total angle will be snapped to maxAngle
+		/// </summary>
+		[KSPField]
+		public float snapOffThreshold = 0.02f;
 
-        public bool IsOpen
-        {
-            get { return currentAngle == minAngle; }
-        }
+		VRCoverInteractionListener interactionListener = null;
+		internal float currentAngle = 0;
+		internal float snappedAngle = 0;
+		internal Transform hingeTransform = null;
+		internal float snapOnAngle = 0;
+		internal float snapOffAngle = 0;
 
-        static Transform FirstAncestorWithName(Transform transform, string name)
-        {
-            while (transform != null && transform.name != name)
-            {
-                transform = transform.parent;
-            }
+		public bool IsOpen
+		{
+			get { return currentAngle == minAngle; }
+		}
 
-            return transform;
-        }
+		static Transform FirstAncestorWithName(Transform transform, string name)
+		{
+			while (transform != null && transform.name != name)
+			{
+				transform = transform.parent;
+			}
 
-        public override void OnAwake()
-        {
-            base.OnAwake();
+			return transform;
+		}
 
-            var coverTransform = internalProp.FindModelTransform(coverTransformName);
+		public override void OnAwake()
+		{
+			base.OnAwake();
 
-            if (coverTransform != null && interactionListener == null)
-            {
-                interactionListener = coverTransform.gameObject.AddComponent<VRCoverInteractionListener>();
-                interactionListener.coverModule = this;
+			var coverTransform = internalProp.FindModelTransform(coverTransformName);
 
-                currentAngle = maxAngle;
-                snappedAngle = currentAngle;
-            }
+			if (coverTransform != null && interactionListener == null)
+			{
+				interactionListener = coverTransform.gameObject.AddComponent<VRCoverInteractionListener>();
+				interactionListener.coverModule = this;
 
-            if (hingeTransform == null && coverTransform != null)
-            {
-                if (hingeTransformName != "")
-                {
-                    hingeTransform = FirstAncestorWithName(coverTransform, hingeTransformName);
-                }
+				currentAngle = maxAngle;
+				snappedAngle = currentAngle;
+			}
 
-                if (hingeTransform == null)
-                {
-                    hingeTransform = coverTransform;
-                }
-            }
-        }
-    }
+			if (hingeTransform == null && coverTransform != null)
+			{
+				if (hingeTransformName != "")
+				{
+					hingeTransform = FirstAncestorWithName(coverTransform, hingeTransformName);
+				}
 
-    class VRCoverInteractionListener : MonoBehaviour, IFingertipInteractable
-    {
-        public VRCover coverModule;
+				if (hingeTransform == null)
+				{
+					hingeTransform = coverTransform;
+				}
+			}
 
-        float m_contactedAngle;
+			float totalTravel = (minAngle - maxAngle);
+			snapOnAngle = totalTravel * (1 - snapOnThreshold);
+			snapOffAngle = totalTravel * snapOnThreshold;
+		}
+	}
 
-        float GetFingertipAngle(Vector3 fingertipCenter)
-        {
-            Vector3 vec = fingertipCenter - coverModule.hingeTransform.position;
-            vec = coverModule.hingeTransform.parent.InverseTransformDirection(vec);
-            vec -= vec * Vector3.Dot(vec, coverModule.rotationAxis);
-            vec = Vector3.Normalize(vec);
+	class VRCoverInteractionListener : MonoBehaviour, IFingertipInteractable
+	{
+		public VRCover coverModule;
 
-            Vector3 yaxis = Vector3.Cross(coverModule.rotationAxis, coverModule.zeroVector);
+		float m_contactedAngle;
 
-            float x = Vector3.Dot(vec, coverModule.zeroVector);
-            float y = Vector3.Dot(vec, yaxis);
+		float GetFingertipAngle(Vector3 fingertipCenter)
+		{
+			Vector3 vec = fingertipCenter - coverModule.hingeTransform.position;
+			vec = coverModule.hingeTransform.parent.InverseTransformDirection(vec);
+			vec -= vec * Vector3.Dot(vec, coverModule.rotationAxis);
+			vec = Vector3.Normalize(vec);
 
-            return Mathf.Atan2(y, x) * Mathf.Rad2Deg;
-        }
+			Vector3 yaxis = Vector3.Cross(coverModule.rotationAxis, coverModule.zeroVector);
 
-        public void OnEnter(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
-        {
-            m_contactedAngle = GetFingertipAngle(hand.FingertipPosition);
+			float x = Vector3.Dot(vec, coverModule.zeroVector);
+			float y = Vector3.Dot(vec, yaxis);
 
-            enabled = true;
-        }
+			return Mathf.Atan2(y, x) * Mathf.Rad2Deg;
+		}
 
-        public void OnExit(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
-        {
-            // align current angle with visual
-            if (coverModule.currentAngle < coverModule.snappingLimit)
-            {
-                coverModule.currentAngle = coverModule.snappedAngle;
-            }
-        }
+		public void OnEnter(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+		{
+			m_contactedAngle = GetFingertipAngle(hand.FingertipPosition);
 
-        public void OnStay(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
-        {
-            float newAngle = GetFingertipAngle(hand.FingertipPosition);
-            float delta = newAngle - m_contactedAngle;
+			enabled = true;
+		}
 
-            if (delta > 180) delta -= 360;
-            if (delta < -180) delta += 360;
+		public void OnExit(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+		{
+			// align current angle with visual
+			if (coverModule.currentAngle < coverModule.snapOnAngle || coverModule.currentAngle > coverModule.snapOffAngle)
+			{
+				coverModule.currentAngle = coverModule.snappedAngle;
+			}
+		}
 
-            float angle = coverModule.currentAngle + delta;
-            float clampedAngle = Mathf.Clamp(angle, coverModule.minAngle, coverModule.maxAngle);
+		public void OnStay(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+		{
+			float newAngle = GetFingertipAngle(hand.FingertipPosition);
+			float delta = newAngle - m_contactedAngle;
 
-            /*
+			if (delta > 180) delta -= 360;
+			if (delta < -180) delta += 360;
+
+			float angle = coverModule.currentAngle + delta;
+			float clampedAngle = Mathf.Clamp(angle, coverModule.minAngle, coverModule.maxAngle);
+
+			/*
             if (angle != clampedAngle)
             {
                 m_isMoving = false;
@@ -149,25 +161,31 @@ namespace KerbalVR.InternalModules
             }
             */
 
-            SetAngle(clampedAngle);
-        }
+			SetAngle(clampedAngle);
+		}
 
-        void SetAngle(float angle)
-        {
-            coverModule.currentAngle = angle;
+		void SetAngle(float angle)
+		{
+			coverModule.currentAngle = angle;
 
-            if (coverModule.currentAngle < coverModule.snappingLimit)
-            {
-                coverModule.snappedAngle = coverModule.minAngle;
+			if (coverModule.currentAngle < coverModule.snapOnAngle)
+			{
+				coverModule.snappedAngle = coverModule.minAngle;
 
-                // play a snap sound here?
-            }
-            else
-            {
-                coverModule.snappedAngle = coverModule.currentAngle;
-            }
+				// play a snap sound here?
+			}
+			else if (coverModule.currentAngle > coverModule.snapOffAngle)
+			{
+				coverModule.snappedAngle = coverModule.maxAngle;
 
-            coverModule.hingeTransform.localRotation = Quaternion.AngleAxis(coverModule.snappedAngle, coverModule.rotationAxis);
-        }
-    }
+				// play a snap sound here?
+			}
+			else
+			{
+				coverModule.snappedAngle = coverModule.currentAngle;
+			}
+
+			coverModule.hingeTransform.localRotation = Quaternion.AngleAxis(coverModule.snappedAngle, coverModule.rotationAxis);
+		}
+	}
 }
