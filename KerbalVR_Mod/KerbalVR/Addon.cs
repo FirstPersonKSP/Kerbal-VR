@@ -93,6 +93,7 @@ namespace KerbalVR
 
 				// fudge the scaled camera
 				var scaledCameraAnchor = CameraUtils.CreateVRAnchor(scaledCamera);
+				scaledCameraAnchor.transform.localScale = Vector3.one * ScaledSpace.InverseScaleFactor;
 				var dummyListener = scaledCameraAnchor.AddComponent<AudioListener>(); // PlanetariumCamera.Awake requires an audiolistener
 				var dummyCamera = scaledCameraAnchor.AddComponent<Camera>(); // PlanetariumCamera.Deactivate requires a camera object
 				PlanetariumCamera._fetch = CameraUtils.MoveComponent<PlanetariumCamera>(scaledCamera.gameObject, scaledCameraAnchor);
