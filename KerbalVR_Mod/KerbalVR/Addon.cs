@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.XR;
@@ -14,8 +15,7 @@ namespace KerbalVR
 		{
 			Utils.Log("Addon Awake");
 
-			var harmony = new Harmony("KerbalVR");
-			harmony.PatchAll(Assembly.GetExecutingAssembly());
+			ApplyPatches();
 
 			KerbalVR.Core.InitSystems(XRSettings.enabled);
 
@@ -29,6 +29,73 @@ namespace KerbalVR
 			GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
 
 			DontDestroyOnLoad(this);
+		}
+
+		private static void Scatterer_CreateRenderTextures_Prefix(ref int width, ref int height)
+		{
+			width = UnityEngine.XR.XRSettings.eyeTextureWidth;
+			height = UnityEngine.XR.XRSettings.eyeTextureHeight;
+		}
+
+		private static IEnumerable<CodeInstruction> ScreenCopyCommandBuffer_Initialize_Transpiler(IEnumerable<CodeInstruction> instructions)
+		{
+			var screenWidthProperty = typeof(Screen).GetProperty(nameof(Screen.width), BindingFlags.Static | BindingFlags.Public).GetGetMethod();
+			var screenHeightProperty = typeof(Screen).GetProperty(nameof(Screen.height), BindingFlags.Static | BindingFlags.Public).GetGetMethod();
+
+			var eyeWidthProperty = typeof(XRSettings).GetProperty(nameof(XRSettings.eyeTextureWidth), BindingFlags.Static | BindingFlags.Public).GetGetMethod();
+			var eyeHeightProperty = typeof(XRSettings).GetProperty(nameof(XRSettings.eyeTextureHeight), BindingFlags.Static | BindingFlags.Public).GetGetMethod();
+
+			foreach (var instruction in instructions)
+			{
+				if (instruction.Calls(screenWidthProperty))
+				{
+					instruction.operand = eyeWidthProperty;
+				}
+				else if (instruction.Calls(screenHeightProperty))
+				{
+					instruction.operand = eyeHeightProperty;
+				}
+
+				yield return instruction;
+			}
+		}
+		
+		private void ApplyPatches()
+		{
+			var harmony = new Harmony("KerbalVR");
+			harmony.PatchAll(Assembly.GetExecutingAssembly());
+
+			// I had thought the below code might help with the apparent aliasing issues when using scatterer in vr, but it didn't.
+#if false
+			var scattererAssembly = AssemblyLoader.loadedAssemblies.assemblies.FirstOrDefault(a => a.name == "scatterer");
+			if (scattererAssembly != null)
+			{
+				var commandBufferType = scattererAssembly.assembly.GetType("Scatterer.ScatteringCommandBuffer");
+
+				if (commandBufferType != null)
+				{
+					var CreateRenderTextures_MethodInfo = commandBufferType.GetMethod("CreateRenderTextures", BindingFlags.Instance | BindingFlags.NonPublic);
+					if (CreateRenderTextures_MethodInfo != null)
+					{
+						var prefix = new HarmonyMethod(GetType(), nameof(Scatterer_CreateRenderTextures_Prefix));
+						var result = harmony.Patch(CreateRenderTextures_MethodInfo, prefix);
+						Debug.Log($"patched scatterer: {result}");
+					}
+				}
+
+				var ScreenCopyCommandBufferType = scattererAssembly.assembly.GetType("Scatterer.ScreenCopyCommandBuffer");
+				if (ScreenCopyCommandBufferType != null)
+				{
+					var Initialize_MethodInfo = ScreenCopyCommandBufferType.GetMethod("Initialize", BindingFlags.Instance | BindingFlags.Public);
+					if (Initialize_MethodInfo != null)
+					{
+						var transpiler = new HarmonyMethod(GetType(), nameof(ScreenCopyCommandBuffer_Initialize_Transpiler));
+						harmony.Patch(Initialize_MethodInfo, null, null, transpiler);
+					}
+				}
+			}
+#endif
+
 		}
 
 		private void OnGameSceneLoadRequested(GameScenes data)
