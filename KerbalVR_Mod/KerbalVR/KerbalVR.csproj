@@ -117,6 +117,7 @@
     <Compile Include="ColliderUtil.cs" />
     <Compile Include="Flight.cs" />
     <Compile Include="Components\KerbalVR_AvionicsComputer.cs" />
+    <Compile Include="HapticUtils.cs" />
     <Compile Include="InteractionCommon\VRFlightStick.cs" />
     <Compile Include="InteractionCommon\VRThrottleLever.cs" />
     <Compile Include="InteractionSystem\KerbalVR_FingertipCollider.cs" />

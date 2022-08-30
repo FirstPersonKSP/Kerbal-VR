@@ -36,6 +36,7 @@ namespace KerbalVR.InternalModules
 		VRSwitchInteractionListener interactionListener = null;
 		VRCover cover = null;
 		internal float currentAngle = 0;
+		internal float middleAngle = 0;
 
 		internal IVASwitch m_ivaSwitch;
 
@@ -45,14 +46,17 @@ namespace KerbalVR.InternalModules
 #endif
 		private void Start()
 		{
-			var switchTransform = internalProp.FindModelTransform(switchTransformName);
+			middleAngle = (maxAngle + minAngle) / 2f;
 
-			if (switchTransform != null && interactionListener == null)
+			var switchTransform = internalProp.FindModelTransform(switchTransformName);
+			m_ivaSwitch = IVASwitch.ConstructSwitch(gameObject, switchTransform);
+
+			if (interactionListener == null)
 			{
 				interactionListener = Util.FindOrAddComponent<VRSwitchInteractionListener>(switchTransform.gameObject);
 				interactionListener.switchModule = this;
-
-				currentAngle = maxAngle;
+				interactionListener.enabled = true;
+				interactionListener.SetAngleToSwitchState();
 
 #if PROP_GIZMOS
 				if (arrow == null)
@@ -72,12 +76,7 @@ namespace KerbalVR.InternalModules
 #endif
 			}
 
-			interactionListener.enabled = true;
-
 			cover = gameObject.GetComponent<VRCover>();
-
-			m_ivaSwitch = IVASwitch.ConstructSwitch(gameObject, switchTransform);
-
 			if (cover && coverTurnsOffSwitch)
 			{
 				cover.OnCoverClose += Cover_OnCoverClose;
@@ -89,7 +88,10 @@ namespace KerbalVR.InternalModules
 
 		void OnDestroy()
 		{
-			cover.OnCoverClose -= Cover_OnCoverClose;
+			if (cover && coverTurnsOffSwitch)
+			{
+				cover.OnCoverClose -= Cover_OnCoverClose;
+			}	
 		}
 
 		/// <summary>
@@ -98,6 +100,7 @@ namespace KerbalVR.InternalModules
 		private void Cover_OnCoverClose()
 		{
 			m_ivaSwitch.SetState(false);
+			interactionListener.SetAngleToSwitchState();
 		}
 
 		class VRSwitchInteractionListener : MonoBehaviour, IFingertipInteractable
@@ -106,7 +109,11 @@ namespace KerbalVR.InternalModules
 
 			Hand m_hand;
 			float m_contactedAngle;
-			bool m_isMoving = false;
+			bool m_interactable = false;
+			/// <summary>
+			/// Use to prevent sticky switch after toggle
+			/// </summary>
+			bool m_stateChanged = false;
 
 			float GetFingertipAngle(Vector3 fingertipCenter)
 			{
@@ -123,9 +130,24 @@ namespace KerbalVR.InternalModules
 				return Mathf.Atan2(y, x) * Mathf.Rad2Deg;
 			}
 
-			public void Update()
+			public void OnEnter(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
 			{
-				if (m_isMoving)
+				m_interactable = !switchModule.cover || switchModule.cover.IsOpen;
+
+				if (m_interactable)
+				{
+					m_hand = hand;
+					enabled = true;
+					m_contactedAngle = GetFingertipAngle(m_hand.FingertipPosition);
+					m_stateChanged = false;
+
+					HapticUtils.Light(inputSource);
+				}
+			}
+
+			public void OnStay(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+			{
+				if (!m_stateChanged && m_interactable)
 				{
 					float newAngle = GetFingertipAngle(m_hand.FingertipPosition);
 					float delta = newAngle - m_contactedAngle;
@@ -136,48 +158,47 @@ namespace KerbalVR.InternalModules
 					float angle = switchModule.currentAngle + delta;
 					float clampedAngle = Mathf.Clamp(angle, switchModule.minAngle, switchModule.maxAngle);
 
-					if (angle != clampedAngle)
+					if (switchModule.m_ivaSwitch.CurrentState)
 					{
-						m_isMoving = false;
-
-						bool newState = clampedAngle == switchModule.minAngle;
-
-						switchModule.m_ivaSwitch.SetState(newState);
+						// it was on (min angle)
+						if (clampedAngle > switchModule.middleAngle)
+						{
+							// snap off
+							switchModule.m_ivaSwitch.SetState(false);
+							clampedAngle = switchModule.maxAngle;
+							m_stateChanged = true;
+							HapticUtils.Snap(inputSource);
+						}
+					}
+					else
+					{
+						// it was off (max angle)
+						if (clampedAngle < switchModule.middleAngle)
+						{
+							// snap on
+							switchModule.m_ivaSwitch.SetState(true);
+							clampedAngle = switchModule.minAngle;
+							m_stateChanged = true;
+							HapticUtils.Snap(inputSource);
+						}
 					}
 
 					SetAngle(clampedAngle);
-
 					m_contactedAngle = newAngle;
-				}
-				else
-				{
-					SetAngle(switchModule.m_ivaSwitch.CurrentState ? switchModule.minAngle : switchModule.maxAngle);
-				}
-			}
-
-			public void OnEnter(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
-			{
-				if (!m_isMoving && (!switchModule.cover || switchModule.cover.IsOpen))
-				{
-					m_hand = hand;
-					m_contactedAngle = GetFingertipAngle(m_hand.FingertipPosition);
-					m_isMoving = true;
-
-					enabled = true;
 				}
 			}
 
 			public void OnExit(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
 			{
-			
+				SetAngleToSwitchState();
 			}
 
-			public void OnStay(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+			internal void SetAngleToSwitchState()
 			{
-
+				SetAngle(switchModule.m_ivaSwitch.CurrentState ? switchModule.minAngle : switchModule.maxAngle);
 			}
 
-			void SetAngle(float angle)
+			private void SetAngle(float angle)
 			{
 				switchModule.currentAngle = angle;
 				transform.localRotation = Quaternion.AngleAxis(switchModule.currentAngle, switchModule.rotationAxis);
