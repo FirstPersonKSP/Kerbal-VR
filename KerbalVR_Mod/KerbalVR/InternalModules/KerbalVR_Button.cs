@@ -78,6 +78,11 @@ namespace KerbalVR.InternalModules
 				initialContactOffset = GetFingertipPosition(hand.FingertipPosition);
 
 				latchedCover = buttonModule.cover != null && !buttonModule.cover.IsOpen;
+
+				if (!latchedCover)
+				{
+					HapticUtils.Light(inputSource);
+				}
 			}
 
 			public void OnExit(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
@@ -109,6 +114,7 @@ namespace KerbalVR.InternalModules
 					{
 						latched = true;
 						gameObject.SendMessage("OnMouseDown");
+						HapticUtils.Heavy(inputSource);
 					}
 				}
 

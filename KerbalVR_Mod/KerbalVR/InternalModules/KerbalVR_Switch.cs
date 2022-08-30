@@ -140,6 +140,8 @@ namespace KerbalVR.InternalModules
 					enabled = true;
 					m_contactedAngle = GetFingertipAngle(m_hand.FingertipPosition);
 					m_stateChanged = false;
+
+					HapticUtils.Light(inputSource);
 				}
 			}
 
@@ -165,6 +167,7 @@ namespace KerbalVR.InternalModules
 							switchModule.m_ivaSwitch.SetState(false);
 							clampedAngle = switchModule.maxAngle;
 							m_stateChanged = true;
+							HapticUtils.Snap(inputSource);
 						}
 					}
 					else
@@ -176,6 +179,7 @@ namespace KerbalVR.InternalModules
 							switchModule.m_ivaSwitch.SetState(true);
 							clampedAngle = switchModule.minAngle;
 							m_stateChanged = true;
+							HapticUtils.Snap(inputSource);
 						}
 					}
 
