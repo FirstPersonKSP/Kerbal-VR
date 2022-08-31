@@ -88,13 +88,13 @@ namespace KerbalVR {
             }
             handObject.name = "KVR_HandObject_" + handType;
             DontDestroyOnLoad(handObject);
+			handObject.SetActive(false); // default to inactive, to match the default in Update
 
             // cache the hand renderers
             string renderModelParentPath = (handType == SteamVR_Input_Sources.LeftHand) ? "slim_l" : "slim_r";
             string renderModelPath = renderModelParentPath + "/vr_glove_right_slim";
             Transform handSkin = handObject.transform.Find(renderModelPath);
             handRenderer = handSkin.gameObject.GetComponent<SkinnedMeshRenderer>();
-            handRenderer.enabled = false;
             Utils.SetLayer(handObject, 0);
 
             // define hand-specific names
@@ -255,8 +255,9 @@ namespace KerbalVR {
             // makes changes as necessary
             isRenderingHands.Push(isRendering);
             if (isRenderingHands.IsChanged()) {
-                handRenderer.enabled = isRenderingHands.Value;
-            }
+				handObject.SetActive(isRendering);
+
+			}
             if (renderLayerHands.IsChanged()) {
                 Utils.SetLayer(this.gameObject, renderLayerHands.Value);
                 Utils.SetLayer(handObject, renderLayerHands.Value);
