@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mono.Cecil;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -170,6 +171,8 @@ namespace KerbalVR.InternalModules
             public void OnEnter(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
             {
                 m_contactedAngle = GetFingertipAngle(hand.FingertipPosition);
+
+                HapticUtils.Light(inputSource);
 
                 enabled = true;
             }

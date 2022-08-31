@@ -26,7 +26,7 @@ namespace KerbalVR
 			OnRelease += OnReleased;
 		}
 
-		private void OnReleased(Hand hand)
+		private void OnReleased(Hand hand, SteamVR_Input_Sources source)
 		{
 			if (!FlightGlobals.ActiveVessel.isEVA) return;
 
@@ -41,7 +41,7 @@ namespace KerbalVR
 			}
 		}
 
-		private void OnGrabbed(Hand hand)
+		private void OnGrabbed(Hand hand, SteamVR_Input_Sources source)
 		{
 			if (!FlightGlobals.ActiveVessel.isEVA) return;
 

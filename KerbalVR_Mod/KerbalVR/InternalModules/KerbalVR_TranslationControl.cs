@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using Valve.VR;
 
 namespace KerbalVR.InternalModules
 {
@@ -121,7 +122,7 @@ namespace KerbalVR.InternalModules
 			}
 		}
 
-		private void OnGrab(Hand hand)
+		private void OnGrab(Hand hand, SteamVR_Input_Sources source)
 		{
 			grabbedPosition = transform.InverseTransformPoint(hand.GripPosition);
 		}

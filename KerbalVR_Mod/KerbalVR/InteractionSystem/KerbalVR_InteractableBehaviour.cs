@@ -30,19 +30,19 @@ namespace KerbalVR {
 				{
                     if (lastHand != null && OnRelease != null)
 					{
-						OnRelease.Invoke(lastHand);
+						OnRelease.Invoke(lastHand, lastHand.handType);
 					}
                     lastHand = value;
                     if (value != null && OnGrab != null)
 					{
-                        OnGrab.Invoke(value);
+                        OnGrab.Invoke(value, value.handType);
 					}
 				}
 			}
         }
         private Hand lastHand;
 
-        public delegate void GrabDelegate(Hand hand);
+        public delegate void GrabDelegate(Hand hand, SteamVR_Input_Sources source);
         public GrabDelegate OnGrab;
         public GrabDelegate OnRelease;
     }

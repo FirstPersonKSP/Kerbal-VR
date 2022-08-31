@@ -85,12 +85,12 @@ namespace KerbalVR
 			m_rotationUtil.Reset();
 		}
 
-		private void OnRelease(Hand hand)
+		private void OnRelease(Hand hand, SteamVR_Input_Sources source)
 		{
 			m_grabbedHand = null;
 		}
 
-		private void OnGrab(Hand hand)
+		private void OnGrab(Hand hand, SteamVR_Input_Sources source)
 		{
 			m_grabbedHand = hand;
 			m_rotationUtil.Grabbed(m_grabbedHand.GripPosition);
