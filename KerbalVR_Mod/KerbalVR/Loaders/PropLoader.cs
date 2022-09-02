@@ -15,9 +15,12 @@ namespace KerbalVR.Loaders
 			string airlockName = null;
 			if (node.TryGetValue("airlockName", ref airlockName))
 			{
-				foreach (InternalModules.VRInternalHatch internalHatch in __instance.internalModules)
+				foreach (var internalModule in __instance.internalModules)
 				{
-					internalHatch.airlockName = airlockName;
+					if (internalModule is InternalModules.VRInternalHatch internalHatch)
+					{
+						internalHatch.airlockName = airlockName;
+					}
 				}
 			}
 		}
