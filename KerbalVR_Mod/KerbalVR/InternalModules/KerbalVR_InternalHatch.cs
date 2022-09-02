@@ -22,6 +22,9 @@ namespace KerbalVR.InternalModules
 		[KSPField]
 		public float maxRotation = 450.0f;
 
+		[KSPField]
+		public string airlockName = string.Empty;
+
 		InteractableBehaviour m_interactableBehaviour;
 		Hand m_grabbedHand;
 		RotationUtil m_rotationUtil;
@@ -40,6 +43,21 @@ namespace KerbalVR.InternalModules
 			m_interactableBehaviour.OnRelease += OnRelease;
 		}
 
+		static Transform FindAirlock(Part part, string airlockName)
+		{
+			if (!string.IsNullOrEmpty(airlockName))
+			{
+				var childTransform = part.FindModelTransform(airlockName);
+
+				if (childTransform.CompareTag("Airlock"))
+				{
+					return childTransform;
+				}
+			}
+
+			return part.airlock;
+		}
+
 		IEnumerator GoEVA()
 		{
 			float acLevel = ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.AstronautComplex);
@@ -50,7 +68,7 @@ namespace KerbalVR.InternalModules
 
 			if (kerbal != null && evaPossible && HighLogic.CurrentGame.Parameters.Flight.CanEVA)
 			{
-				var kerbalEVA = FlightEVA.SpawnEVA(kerbal);
+				var kerbalEVA = FlightEVA.fetch.spawnEVA(kerbal.protoCrewMember, kerbal.InPart, FindAirlock(kerbal.InPart, airlockName), true);
 				CameraManager.Instance.SetCameraFlight();
 
 				yield return null;

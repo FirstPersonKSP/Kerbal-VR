@@ -148,6 +148,7 @@
     <Compile Include="KerbalVR_Seat.cs" />
     <Compile Include="Loaders\ExternalSeatLoader.cs" />
     <Compile Include="Loaders\InternalModelLoader.cs" />
+    <Compile Include="Loaders\PropLoader.cs" />
     <Compile Include="PartModules\ExternalCollider.cs" />
     <Compile Include="PartModules\KerbalVR_ExternalHatch.cs" />
     <Compile Include="KerbalVR_Globals.cs" />
