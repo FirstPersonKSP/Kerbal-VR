@@ -24,6 +24,23 @@ namespace KerbalVR
 			
 		}
 
+		public static void MoveKerbalToSeat(Kerbal kerbal, InternalSeat internalSeat)
+		{
+			var internalModel = internalSeat.internalModel;
+
+			kerbal.protoCrewMember.seat.kerbalRef = null;
+			internalModel.UnseatKerbalAt(kerbal.protoCrewMember.seat);
+			internalModel.SitKerbalAt(kerbal.protoCrewMember, internalSeat);
+
+			kerbal.transform.parent = internalSeat.seatTransform;
+			kerbal.transform.localPosition = internalSeat.kerbalOffset;
+			kerbal.transform.localScale = Vector3.Scale(kerbal.transform.localScale, internalSeat.kerbalScale);
+			kerbal.transform.localRotation = Quaternion.identity;
+			kerbal.InPart = internalModel.part;
+			kerbal.ShowHelmet(internalSeat.allowCrewHelmet);
+			internalSeat.kerbalRef = kerbal;
+		}
+
 		private void OnGrabbed(Hand hand)
 		{
 			var internalModel = gameObject.GetComponentUpwards<InternalModel>();
@@ -46,18 +63,8 @@ namespace KerbalVR
 			else
 			{
 				var kerbal = CameraManager.Instance.IVACameraActiveKerbal;
-				kerbal.protoCrewMember.seat.kerbalRef = null;
-
-				internalModel.UnseatKerbalAt(kerbal.protoCrewMember.seat);
-				internalModel.SitKerbalAt(kerbal.protoCrewMember, internalSeat);
-
-				kerbal.transform.parent = internalSeat.seatTransform;
-				kerbal.transform.localPosition = internalSeat.kerbalOffset;
-				kerbal.transform.localScale = Vector3.Scale(kerbal.transform.localScale, internalSeat.kerbalScale);
-				kerbal.transform.localRotation = Quaternion.identity;
-				kerbal.InPart = internalModel.part;
-				kerbal.ShowHelmet(internalSeat.allowCrewHelmet);
-				internalSeat.kerbalRef = kerbal;
+				
+				MoveKerbalToSeat(kerbal, internalSeat);
 
 				GameEvents.OnIVACameraKerbalChange.Fire(internalSeat.kerbalRef);
 				FirstPersonKerbalFlight.Instance.OnIVACameraKerbalChange();
