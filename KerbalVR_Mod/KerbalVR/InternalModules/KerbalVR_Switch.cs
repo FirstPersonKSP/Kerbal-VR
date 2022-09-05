@@ -100,7 +100,7 @@ namespace KerbalVR.InternalModules
 		private void Cover_OnCoverClose()
 		{
 			m_ivaSwitch.SetState(false);
-			interactionListener.SetAngleToSwitchState();
+			interactionListener.SetAngle(maxAngle);
 		}
 
 		class VRSwitchInteractionListener : MonoBehaviour, IFingertipInteractable
@@ -198,7 +198,7 @@ namespace KerbalVR.InternalModules
 				SetAngle(switchModule.m_ivaSwitch.CurrentState ? switchModule.minAngle : switchModule.maxAngle);
 			}
 
-			private void SetAngle(float angle)
+			internal void SetAngle(float angle)
 			{
 				switchModule.currentAngle = angle;
 				transform.localRotation = Quaternion.AngleAxis(switchModule.currentAngle, switchModule.rotationAxis);

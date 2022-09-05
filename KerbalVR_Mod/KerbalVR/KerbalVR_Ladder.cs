@@ -55,6 +55,7 @@ namespace KerbalVR
 				ladderTriggers.Add(LadderTransform.GetComponent<Collider>());
 
 				kerbalEVA.fsm.RunEvent(kerbalEVA.On_ladderGrabStart);
+				HapticUtils.Heavy(source);
 			}
 		}
 	}

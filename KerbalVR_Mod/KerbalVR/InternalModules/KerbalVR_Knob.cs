@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using Valve.VR;
 
 namespace KerbalVR.InternalModules
 {
@@ -109,7 +110,7 @@ namespace KerbalVR.InternalModules
         public GameObject GameObject => gameObject;
         float m_grabbedAngle = 0;
 
-        public void OnHold(Hand hand)
+        public void OnHold(Hand hand, SteamVR_Input_Sources source)
         {
             float newAngle = GetGrabbedAngle(hand);
             float delta = newAngle - m_grabbedAngle;
@@ -125,17 +126,18 @@ namespace KerbalVR.InternalModules
             SetAngle(angle);
             m_grabbedAngle = newAngle;
 
-            CheckForStepChange();
+            CheckForStepChange(source);
         }
 
-        public void OnPinch(Hand hand)
+        public void OnPinch(Hand hand, SteamVR_Input_Sources source)
         {
             m_grabbedAngle = GetGrabbedAngle(hand);
             knobModule.m_ivaKnob.SetUpdateEnabled(false);
+            HapticUtils.Light(source);
         }
 
         // reads from knobModule.currentAngle; returns rotation fraction
-        float CheckForStepChange()
+        float CheckForStepChange(SteamVR_Input_Sources source)
         {
             float interp = Mathf.InverseLerp(knobModule.m_ivaKnob.MinRotation, knobModule.m_ivaKnob.MaxRotation, knobModule.currentAngle);
             float rotationFraction = interp;
@@ -154,18 +156,19 @@ namespace KerbalVR.InternalModules
                 {
                     knobModule.lastStep = stepIndex;
                     knobModule.m_ivaKnob.SetRotationFraction(knobModule.customRotationHandler, rotationFraction);
-                }
+                    HapticUtils.Light(source);
+				}
             }
 
             return rotationFraction;
         }
 
-        public void OnRelease(Hand hand)
+        public void OnRelease(Hand hand, SteamVR_Input_Sources source)
         {
             // SetAngle(0);
             // knobModule.m_ivaKnob.SetUpdateEnabled(true);
 
-            float rotationFraction = CheckForStepChange();
+            float rotationFraction = CheckForStepChange(source);
 
             float angle = Mathf.Lerp(knobModule.m_ivaKnob.MinRotation, knobModule.m_ivaKnob.MaxRotation, rotationFraction);
 

@@ -96,6 +96,7 @@ namespace KerbalVR.InternalModules
 		{
 			m_grabbedHand = hand;
 			m_rotationUtil.Grabbed(m_grabbedHand.GripPosition);
+			HapticUtils.Heavy(source);
 			StartCoroutine(UpdateHatchTransform());
 		}
 	}

@@ -18,12 +18,12 @@ namespace KerbalVR
 
 		public static void Heavy(SteamVR_Input_Sources inputSource)
 		{
-			Pulse(0.05f, 100f, 1f, inputSource);
+			Pulse(0.1f, 100f, 1f, inputSource);
 		}
 
 		public static void Snap(SteamVR_Input_Sources inputSource)
 		{
-			Pulse(0.01f, 200f, 1f, inputSource);
+			Pulse(0.03f, 200f, 1f, inputSource);
 		}
 
 		public static void Pulse(float duration, float frequncy, float amplitude, SteamVR_Input_Sources inputSource)
