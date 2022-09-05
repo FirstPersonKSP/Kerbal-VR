@@ -21,9 +21,21 @@ namespace KerbalVR
 		[KSPField]
 		public float maxRotation = 175.0f;
 
+		[SerializeField]
+		public List<string> internalSeatNames = new List<string>();
+
 		InteractableBehaviour m_interactableBehaviour;
 		Hand m_grabbedHand;
 		RotationUtil m_rotationUtil;
+
+		public override void OnLoad(ConfigNode node)
+		{
+			if (HighLogic.LoadedScene != GameScenes.LOADING) return;
+
+			base.OnLoad(node);
+
+			internalSeatNames = node.GetValuesList("internalSeatName");
+		}
 
 		void Start()
 		{
@@ -59,6 +71,20 @@ namespace KerbalVR
 			m_interactableBehaviour.OnRelease += OnRelease;
 		}
 
+		InternalSeat FindSeat(string name)
+		{
+			foreach (var seat in part.internalModel.seats)
+			{
+				if (seat.seatTransformName == name)
+				{
+					return seat;
+				}
+			}
+
+			Debug.LogError($"Seat {name} not found in internal space {part.internalModel.internalName} for hatch on part {part.name}");
+			return null;
+		}
+
 		public IEnumerator UpdateHatchTransform()
 		{
 			while (m_grabbedHand)
@@ -70,7 +96,18 @@ namespace KerbalVR
 					var kerbalEVA = FlightGlobals.ActiveVessel.evaController;
 					var protoCrewMember = kerbalEVA.part.protoModuleCrew[0];
 					kerbalEVA.BoardPart(part);
-					
+
+					// try to move to the seats in order of preference
+					foreach (var internalSeatName in internalSeatNames)
+					{
+						var seat = FindSeat(internalSeatName);
+						if (seat != null && !seat.taken && seat != protoCrewMember.seat)
+						{
+							VRInternalSeat.MoveKerbalToSeat(protoCrewMember.KerbalRef, seat);
+							break;
+						}
+					}
+
 					yield return null; // we have to wait a frame so the kerbal gets set up
 
 					CameraManager.Instance.SetCameraIVA(protoCrewMember.KerbalRef, false);
