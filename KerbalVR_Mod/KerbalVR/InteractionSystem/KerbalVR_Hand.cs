@@ -89,6 +89,7 @@ namespace KerbalVR {
             handObject.name = "KVR_HandObject_" + handType;
             DontDestroyOnLoad(handObject);
             handObject.SetActive(false); // default to inactive, to match the default in Update
+            Detach();
 
             // cache the hand renderers
             string renderModelParentPath = (handType == SteamVR_Input_Sources.LeftHand) ? "slim_l" : "slim_r";
@@ -146,8 +147,11 @@ namespace KerbalVR {
             pinchCollider.Initialize(this);
 
             ladder = gameObject.AddComponent<VRLadder>();
+            
+        }
 
-            // attach these objects to the interaction system
+        public void Detach()
+        {
             handObject.transform.SetParent(transform, false);
             handObject.transform.localPosition = Vector3.zero;
             handObject.transform.localRotation = Quaternion.identity;
