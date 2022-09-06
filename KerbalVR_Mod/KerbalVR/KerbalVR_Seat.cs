@@ -20,7 +20,7 @@ namespace KerbalVR
 			OnRelease += OnReleased;
 		}
 
-		private void OnReleased(Hand hand, SteamVR_Input_Sources source)
+		private void OnReleased(Hand hand)
 		{
 			
 		}
@@ -42,7 +42,7 @@ namespace KerbalVR
 			internalSeat.kerbalRef = kerbal;
 		}
 
-		private void OnGrabbed(Hand hand, SteamVR_Input_Sources source)
+		private void OnGrabbed(Hand hand)
 		{
 			var internalModel = gameObject.GetComponentUpwards<InternalModel>();
 			var internalSeat = internalModel.seats[internalSeatIndex];
@@ -132,11 +132,11 @@ namespace KerbalVR
 			GameEvents.OnCameraChange.Remove(OnCameraChange);
 		}
 
-		private void OnReleased(Hand hand, SteamVR_Input_Sources source)
+		private void OnReleased(Hand hand)
 		{
 		}
 
-		private void OnGrabbed(Hand hand, SteamVR_Input_Sources source)
+		private void OnGrabbed(Hand hand)
 		{
 			var part = this.gameObject.GetComponentUpwards<Part>();
 			var seatModule = part.FindModuleImplementing<KerbalSeat>();

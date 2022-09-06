@@ -144,10 +144,10 @@ namespace KerbalVR.InternalModules
         /// <param name="open"><see langword="true"/> to set cover open, <see langword="false"/> otherwise</param>
         public void SetState(bool open)
         {
-			currentAngle = open ? minAngle : maxAngle;
+            currentAngle = open ? minAngle : maxAngle;
             snappedAngle = currentAngle;
-			hingeTransform.localRotation = Quaternion.AngleAxis(currentAngle, rotationAxis);
-		}
+            hingeTransform.localRotation = Quaternion.AngleAxis(currentAngle, rotationAxis);
+        }
 
         class VRCoverInteractionListener : MonoBehaviour, IFingertipInteractable
         {
@@ -199,33 +199,33 @@ namespace KerbalVR.InternalModules
                 float angle = coverModule.currentAngle + delta;
 
                 // set angle
-				coverModule.currentAngle = Mathf.Clamp(angle, coverModule.minAngle, coverModule.maxAngle);
+                coverModule.currentAngle = Mathf.Clamp(angle, coverModule.minAngle, coverModule.maxAngle);
 
-				if (coverModule.currentAngle < coverModule.snapOnAngle)
-				{
-					if (coverModule.snappedAngle != coverModule.minAngle)
-					{
-						coverModule.snappedAngle = coverModule.minAngle;
-						coverModule.CoverOpen();
-						HapticUtils.Snap(inputSource);
-					}
-				}
-				else if (coverModule.currentAngle > coverModule.snapOffAngle)
-				{
-					if (coverModule.snappedAngle != coverModule.maxAngle)
-					{
-						coverModule.snappedAngle = coverModule.maxAngle;
-						coverModule.CoverClose();
-						HapticUtils.Snap(inputSource);
-					}
-				}
-				else
-				{
-					coverModule.snappedAngle = coverModule.currentAngle;
-				}
+                if (coverModule.currentAngle < coverModule.snapOnAngle)
+                {
+                    if (coverModule.snappedAngle != coverModule.minAngle)
+                    {
+                        coverModule.snappedAngle = coverModule.minAngle;
+                        coverModule.CoverOpen();
+                        HapticUtils.Snap(inputSource);
+                    }
+                }
+                else if (coverModule.currentAngle > coverModule.snapOffAngle)
+                {
+                    if (coverModule.snappedAngle != coverModule.maxAngle)
+                    {
+                        coverModule.snappedAngle = coverModule.maxAngle;
+                        coverModule.CoverClose();
+                        HapticUtils.Snap(inputSource);
+                    }
+                }
+                else
+                {
+                    coverModule.snappedAngle = coverModule.currentAngle;
+                }
 
-				coverModule.hingeTransform.localRotation = Quaternion.AngleAxis(coverModule.snappedAngle, coverModule.rotationAxis);
-			}
+                coverModule.hingeTransform.localRotation = Quaternion.AngleAxis(coverModule.snappedAngle, coverModule.rotationAxis);
+            }
         }
     }
 }

@@ -152,7 +152,7 @@ namespace KerbalVR.InteractionCommon
 			}
 		}
 
-		private void OnGrab(Hand hand, SteamVR_Input_Sources source)
+		private void OnGrab(Hand hand)
 		{
 			grabbedOrientation = Quaternion.Inverse(hand.handObject.transform.rotation) * m_stickTransform.parent.rotation;
 
@@ -161,9 +161,9 @@ namespace KerbalVR.InteractionCommon
 			SteamVR_Actions.flight_ToggleRollYaw[hand.handType].onStateDown += ToggleRollYaw_OnStateDown;
 			grabbedHand = hand;
 
-			HapticUtils.Heavy(source);
+			HapticUtils.Heavy(hand.handType);
 		}
-		private void OnRelease(Hand hand, SteamVR_Input_Sources source)
+		private void OnRelease(Hand hand)
 		{
 			m_vessel.OnPreAutopilotUpdate -= OnPreAutopilotUpdate;
 			m_vessel.OnPostAutopilotUpdate -= OnPostAutopilotUpdate;

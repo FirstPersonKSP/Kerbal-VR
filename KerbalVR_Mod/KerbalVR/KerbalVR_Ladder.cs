@@ -26,7 +26,7 @@ namespace KerbalVR
 			OnRelease += OnReleased;
 		}
 
-		private void OnReleased(Hand hand, SteamVR_Input_Sources source)
+		private void OnReleased(Hand hand)
 		{
 			if (!FlightGlobals.ActiveVessel.isEVA) return;
 
@@ -41,7 +41,7 @@ namespace KerbalVR
 			}
 		}
 
-		private void OnGrabbed(Hand hand, SteamVR_Input_Sources source)
+		private void OnGrabbed(Hand hand)
 		{
 			if (!FlightGlobals.ActiveVessel.isEVA) return;
 
@@ -55,7 +55,7 @@ namespace KerbalVR
 				ladderTriggers.Add(LadderTransform.GetComponent<Collider>());
 
 				kerbalEVA.fsm.RunEvent(kerbalEVA.On_ladderGrabStart);
-				HapticUtils.Heavy(source);
+				HapticUtils.Heavy(hand.handType);
 			}
 		}
 	}

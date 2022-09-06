@@ -13,9 +13,9 @@ namespace KerbalVR {
         /// False, otherwise.
         /// </summary>
         public bool IsGrabbed
-		{
+        {
             get { return GrabbedHand != null; }
-		}
+        }
 
         /// <summary>
         /// The Hand object that is grabbing this object. Null, if no
@@ -25,24 +25,24 @@ namespace KerbalVR {
         { 
             get { return lastHand; }
             set
-			{
+            {
                 if (lastHand != value)
-				{
+                {
                     if (lastHand != null && OnRelease != null)
-					{
-						OnRelease.Invoke(lastHand, lastHand.handType);
-					}
+                    {
+                        OnRelease.Invoke(lastHand);
+                    }
                     lastHand = value;
                     if (value != null && OnGrab != null)
-					{
-                        OnGrab.Invoke(value, value.handType);
-					}
-				}
-			}
+                    {
+                        OnGrab.Invoke(value);
+                    }
+                }
+            }
         }
         private Hand lastHand;
 
-        public delegate void GrabDelegate(Hand hand, SteamVR_Input_Sources source);
+        public delegate void GrabDelegate(Hand hand);
         public GrabDelegate OnGrab;
         public GrabDelegate OnRelease;
     }

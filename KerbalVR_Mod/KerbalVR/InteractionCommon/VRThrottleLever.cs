@@ -59,10 +59,10 @@ namespace KerbalVR.InteractionCommon
 			interactable.OnGrab += OnGrab;
 		}
 
-		private void OnGrab(Hand hand, SteamVR_Input_Sources source)
+		private void OnGrab(Hand hand)
 		{
 			m_rotationUtil.Grabbed(hand.GripPosition);
-			HapticUtils.Heavy(source);
+			HapticUtils.Heavy(hand.handType);
 		}
 
 		public void OnUpdate()

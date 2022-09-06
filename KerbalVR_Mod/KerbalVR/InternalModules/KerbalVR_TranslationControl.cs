@@ -122,10 +122,10 @@ namespace KerbalVR.InternalModules
 			}
 		}
 
-		private void OnGrab(Hand hand, SteamVR_Input_Sources source)
+		private void OnGrab(Hand hand)
 		{
 			grabbedPosition = transform.InverseTransformPoint(hand.GripPosition);
-			HapticUtils.Heavy(source);
+			HapticUtils.Heavy(hand.handType);
 		}
 	}
 }

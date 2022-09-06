@@ -9,14 +9,14 @@ using Valve.VR;
 
 namespace KerbalVR.InternalModules
 {
-	public class VRKnobCustomRotation : ScriptableObject
-	{
-		[Persistent]
-		public float minRotation;
+    public class VRKnobCustomRotation : ScriptableObject
+    {
+        [Persistent]
+        public float minRotation;
 
-		[Persistent]
-		public float maxRotation;
-	}
+        [Persistent]
+        public float maxRotation;
+    }
 
     /// <summary>
     /// The InternalModule for a knob that can be manipulated in VR
@@ -38,7 +38,7 @@ namespace KerbalVR.InternalModules
         [KSPField]
         public string customRotationHandler = String.Empty;
 
-		public VRKnobCustomRotation customRotation = null;
+        public VRKnobCustomRotation customRotation = null;
 
         VRKnobInteractionListener interactionListener;
         internal float currentAngle = 0;
@@ -51,20 +51,20 @@ namespace KerbalVR.InternalModules
         GameObject arrow;
 #endif
 
-		public override void OnLoad(ConfigNode node)
-		{
-			base.OnLoad(node);
+        public override void OnLoad(ConfigNode node)
+        {
+            base.OnLoad(node);
 
-			var customRotationNode = node.GetNode("CUSTOMROTATION");
-			
-			if (customRotationNode != null)
-			{
-				customRotation = new VRKnobCustomRotation();
-				ConfigNode.LoadObjectFromConfig(customRotation, customRotationNode);
-			}
-		}
+            var customRotationNode = node.GetNode("CUSTOMROTATION");
+            
+            if (customRotationNode != null)
+            {
+                customRotation = new VRKnobCustomRotation();
+                ConfigNode.LoadObjectFromConfig(customRotation, customRotationNode);
+            }
+        }
 
-		public override void OnAwake()
+        public override void OnAwake()
         {
             base.OnAwake();
 
@@ -157,7 +157,7 @@ namespace KerbalVR.InternalModules
                     knobModule.lastStep = stepIndex;
                     knobModule.m_ivaKnob.SetRotationFraction(knobModule.customRotationHandler, rotationFraction);
                     HapticUtils.Light(source);
-				}
+                }
             }
 
             return rotationFraction;
