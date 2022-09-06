@@ -54,6 +54,9 @@
     <StartWorkingDirectory>$(ReferencePath)</StartWorkingDirectory>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="$(ReferencePath)\GameData\KerbalVR\Plugins\KSPDev_Utils.2.7.dll">
+      <Private>False</Private>
+    </Reference>
     <Reference Include="$(ReferencePath)\GameData\000_Harmony\0Harmony.dll">
       <Private>False</Private>
     </Reference>
