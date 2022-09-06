@@ -181,7 +181,7 @@ namespace KerbalVR.InternalModules
         float GetGrabbedAngle(Hand hand)
         {
             Vector3 perpVector = transform.parent.TransformDirection(knobModule.pointerAxis);
-            Vector3 localPerpVector = hand.handObject.transform.InverseTransformDirection(perpVector);
+            Vector3 localPerpVector = hand.transform.InverseTransformDirection(perpVector);
 
             return Mathf.Atan2(localPerpVector.y, localPerpVector.x) * Mathf.Rad2Deg;
         }

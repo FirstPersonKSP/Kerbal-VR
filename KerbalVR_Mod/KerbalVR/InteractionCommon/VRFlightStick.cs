@@ -113,7 +113,7 @@ namespace KerbalVR.InteractionCommon
 
 			if (interactable.IsGrabbed)
 			{
-				Quaternion currentHandOrientation = Quaternion.Inverse(interactable.GrabbedHand.handObject.transform.rotation) * m_stickTransform.parent.rotation;
+				Quaternion currentHandOrientation = Quaternion.Inverse(interactable.GrabbedHand.transform.rotation) * m_stickTransform.parent.rotation;
 
 				Quaternion deltaRotation = Quaternion.Inverse(grabbedOrientation) * currentHandOrientation;
 
@@ -154,7 +154,7 @@ namespace KerbalVR.InteractionCommon
 
 		private void OnGrab(Hand hand)
 		{
-			grabbedOrientation = Quaternion.Inverse(hand.handObject.transform.rotation) * m_stickTransform.parent.rotation;
+			grabbedOrientation = Quaternion.Inverse(hand.transform.rotation) * m_stickTransform.parent.rotation;
 
 			m_vessel.OnPreAutopilotUpdate += OnPreAutopilotUpdate;
 			m_vessel.OnPostAutopilotUpdate += OnPostAutopilotUpdate;

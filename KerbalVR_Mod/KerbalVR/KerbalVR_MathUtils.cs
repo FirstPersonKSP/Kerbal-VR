@@ -3,8 +3,14 @@ using Valve.VR;
 
 namespace KerbalVR
 {
-    public class MathUtils
+    public static class MathUtils
     {
+        public static Vector3 Reciprocal(this Vector3 self)
+        {
+            return new Vector3(1.0f / self.x, 1.0f / self.y, 1.0f / self.z);
+        }
+
+
         /// <summary>
         /// Converts a pose matrix provided by OpenVR to a set of Euler angles, in radians.
         /// </summary>

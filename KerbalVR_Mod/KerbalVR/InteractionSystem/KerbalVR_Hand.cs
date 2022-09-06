@@ -39,14 +39,14 @@ namespace KerbalVR {
         public GameObject handObject;
         static internal readonly Vector3 GripOffset = new Vector3(0, 0, -0.1f);
         public Vector3 GripPosition
-		{
-            get { return handObject.transform.TransformPoint(GripOffset); }
-		}
+        {
+            get { return transform.TransformPoint(GripOffset); }
+        }
 
         public Vector3 FingertipPosition
-		{
+        {
             get { return fingertipInteraction.FingertipCenter; }
-		}
+        }
 
         protected SkinnedMeshRenderer handRenderer;
         protected SteamVR_Behaviour_Skeleton handSkeleton;
@@ -88,7 +88,7 @@ namespace KerbalVR {
             }
             handObject.name = "KVR_HandObject_" + handType;
             DontDestroyOnLoad(handObject);
-			handObject.SetActive(false); // default to inactive, to match the default in Update
+            handObject.SetActive(false); // default to inactive, to match the default in Update
 
             // cache the hand renderers
             string renderModelParentPath = (handType == SteamVR_Input_Sources.LeftHand) ? "slim_l" : "slim_r";
@@ -120,7 +120,7 @@ namespace KerbalVR {
             handSkeleton.Initialize();
 
             // add tracking
-            var pose = handObject.AddComponent<SteamVR_Behaviour_Pose>();
+            var pose = gameObject.AddComponent<SteamVR_Behaviour_Pose>();
             pose.inputSource = handType;
 
             // create a child object for the colider so that it can be on a different layer
@@ -149,6 +149,9 @@ namespace KerbalVR {
 
             // attach these objects to the interaction system
             handObject.transform.SetParent(transform, false);
+            handObject.transform.localPosition = Vector3.zero;
+            handObject.transform.localRotation = Quaternion.identity;
+            handObject.transform.localScale = Vector3.one;
         }
 
         /// <summary>
@@ -162,16 +165,24 @@ namespace KerbalVR {
                 if (handCollider.HoveredObject != null) {
                     heldObject = handCollider.HoveredObject;
                     heldObject.GrabbedHand = this;
-					if (heldObject.SkeletonPoser != null)
-					{
-						handSkeleton.BlendToPoser(heldObject.SkeletonPoser);
-					}
+                    if (heldObject.SkeletonPoser != null)
+                    {
+                        handSkeleton.BlendToPoser(heldObject.SkeletonPoser);
+                    }
+                    handObject.transform.SetParent(heldObject.transform, true);
+                    Vector3 scale = handObject.transform.parent.lossyScale.Reciprocal();
+                    scale.Scale(transform.lossyScale);
+                    handObject.transform.localScale = scale;
                 }
             } else {
                 if (heldObject != null) {
                     heldObject.GrabbedHand = null;
                     heldObject = null;
                     handSkeleton.BlendToSkeleton();
+                    handObject.transform.SetParent(transform, false);
+                    handObject.transform.localPosition = Vector3.zero;
+                    handObject.transform.localRotation = Quaternion.identity;
+                    handObject.transform.localScale = Vector3.one;
                 }
             }
         }
@@ -214,7 +225,9 @@ namespace KerbalVR {
             if (isRendering) {
                 // get device indices for each hand, then set the transform
                 bool isConnected = handActionPose.GetDeviceIsConnected(handType);
-                if (isConnected) {
+                if (isConnected)
+                {
+
 #if false
                     // keep this object (Hand script) always tracking the device
                     SteamVR_Utils.RigidTransform handTransform = new SteamVR_Utils.RigidTransform(KerbalVR.Core.GamePoses[deviceIndex].mDeviceToAbsoluteTracking);
@@ -255,9 +268,9 @@ namespace KerbalVR {
             // makes changes as necessary
             isRenderingHands.Push(isRendering);
             if (isRenderingHands.IsChanged()) {
-				handObject.SetActive(isRendering);
+                handObject.SetActive(isRendering);
 
-			}
+            }
             if (renderLayerHands.IsChanged()) {
                 Utils.SetLayer(this.gameObject, renderLayerHands.Value);
                 Utils.SetLayer(handObject, renderLayerHands.Value);
