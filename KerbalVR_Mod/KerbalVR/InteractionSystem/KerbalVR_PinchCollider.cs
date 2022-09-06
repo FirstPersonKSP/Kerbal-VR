@@ -50,7 +50,7 @@ namespace KerbalVR
         {
             if (heldInteractable != null)
             {
-                heldInteractable.OnHold(hand, fromSource);
+                heldInteractable.OnHold(hand);
             }
         }
 
@@ -61,11 +61,11 @@ namespace KerbalVR
             if (isPinching && hoveredInteractable != null)
             {
                 heldInteractable = hoveredInteractable;
-                heldInteractable.OnPinch(hand, fromSource);
+                heldInteractable.OnPinch(hand);
             }
             else if (!isPinching && heldInteractable != null)
             {
-                heldInteractable.OnRelease(hand, fromSource);
+                heldInteractable.OnRelease(hand);
                 heldInteractable = null;
             }
         }

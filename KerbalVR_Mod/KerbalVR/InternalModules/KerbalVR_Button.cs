@@ -73,7 +73,7 @@ namespace KerbalVR.InternalModules
                 return Vector3.Dot(localFingertipPosition, buttonModule.axis);
             }
 
-            public void OnEnter(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+            public void OnEnter(Hand hand, Collider buttonCollider)
             {
                 initialContactOffset = GetFingertipPosition(hand.FingertipPosition);
 
@@ -81,11 +81,11 @@ namespace KerbalVR.InternalModules
 
                 //if (!latchedCover)
                 //{
-                //	HapticUtils.Light(inputSource);
+                //	HapticUtils.Light(hand.handType);
                 //}
             }
 
-            public void OnExit(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+            public void OnExit(Hand hand, Collider buttonCollider)
             {
                 if (latchedCover) return;
 
@@ -99,7 +99,7 @@ namespace KerbalVR.InternalModules
                 latched = false;
             }
 
-            public void OnStay(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+            public void OnStay(Hand hand, Collider buttonCollider)
             {
                 if (latchedCover) return;
 
@@ -114,7 +114,7 @@ namespace KerbalVR.InternalModules
                     {
                         latched = true;
                         gameObject.SendMessage("OnMouseDown");
-                        HapticUtils.Light(inputSource);
+                        HapticUtils.Light(hand.handType);
                     }
                 }
 

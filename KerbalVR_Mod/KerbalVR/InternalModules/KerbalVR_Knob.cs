@@ -110,7 +110,7 @@ namespace KerbalVR.InternalModules
         public GameObject GameObject => gameObject;
         float m_grabbedAngle = 0;
 
-        public void OnHold(Hand hand, SteamVR_Input_Sources source)
+        public void OnHold(Hand hand)
         {
             float newAngle = GetGrabbedAngle(hand);
             float delta = newAngle - m_grabbedAngle;
@@ -126,14 +126,14 @@ namespace KerbalVR.InternalModules
             SetAngle(angle);
             m_grabbedAngle = newAngle;
 
-            CheckForStepChange(source);
+            CheckForStepChange(hand.handType);
         }
 
-        public void OnPinch(Hand hand, SteamVR_Input_Sources source)
+        public void OnPinch(Hand hand)
         {
             m_grabbedAngle = GetGrabbedAngle(hand);
             knobModule.m_ivaKnob.SetUpdateEnabled(false);
-            HapticUtils.Light(source);
+            HapticUtils.Light(hand.handType);
         }
 
         // reads from knobModule.currentAngle; returns rotation fraction
@@ -163,12 +163,12 @@ namespace KerbalVR.InternalModules
             return rotationFraction;
         }
 
-        public void OnRelease(Hand hand, SteamVR_Input_Sources source)
+        public void OnRelease(Hand hand)
         {
             // SetAngle(0);
             // knobModule.m_ivaKnob.SetUpdateEnabled(true);
 
-            float rotationFraction = CheckForStepChange(source);
+            float rotationFraction = CheckForStepChange(hand.handType);
 
             float angle = Mathf.Lerp(knobModule.m_ivaKnob.MinRotation, knobModule.m_ivaKnob.MaxRotation, rotationFraction);
 

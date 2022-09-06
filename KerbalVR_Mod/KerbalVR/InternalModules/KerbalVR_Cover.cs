@@ -170,16 +170,16 @@ namespace KerbalVR.InternalModules
                 return Mathf.Atan2(y, x) * Mathf.Rad2Deg;
             }
 
-            public void OnEnter(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+            public void OnEnter(Hand hand, Collider buttonCollider)
             {
                 m_contactedAngle = GetFingertipAngle(hand.FingertipPosition);
 
-                HapticUtils.Light(inputSource);
+                HapticUtils.Light(hand.handType);
 
                 enabled = true;
             }
 
-            public void OnExit(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+            public void OnExit(Hand hand, Collider buttonCollider)
             {
                 // align current angle with visual
                 if (coverModule.currentAngle < coverModule.snapOnAngle || coverModule.currentAngle > coverModule.snapOffAngle)
@@ -188,7 +188,7 @@ namespace KerbalVR.InternalModules
                 }
             }
 
-            public void OnStay(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+            public void OnStay(Hand hand, Collider buttonCollider)
             {
                 float newAngle = GetFingertipAngle(hand.FingertipPosition);
                 float delta = newAngle - m_contactedAngle;
@@ -207,7 +207,7 @@ namespace KerbalVR.InternalModules
                     {
                         coverModule.snappedAngle = coverModule.minAngle;
                         coverModule.CoverOpen();
-                        HapticUtils.Snap(inputSource);
+                        HapticUtils.Snap(hand.handType);
                     }
                 }
                 else if (coverModule.currentAngle > coverModule.snapOffAngle)
@@ -216,7 +216,7 @@ namespace KerbalVR.InternalModules
                     {
                         coverModule.snappedAngle = coverModule.maxAngle;
                         coverModule.CoverClose();
-                        HapticUtils.Snap(inputSource);
+                        HapticUtils.Snap(hand.handType);
                     }
                 }
                 else

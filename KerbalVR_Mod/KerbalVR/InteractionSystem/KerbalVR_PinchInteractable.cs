@@ -13,8 +13,8 @@ namespace KerbalVR
 
         GameObject GameObject { get; }
 
-        void OnPinch(Hand hand, SteamVR_Input_Sources source);
-        void OnHold(Hand hand, SteamVR_Input_Sources source);
-        void OnRelease(Hand hand, SteamVR_Input_Sources source);
+        void OnPinch(Hand hand);
+        void OnHold(Hand hand);
+        void OnRelease(Hand hand);
     }
 }

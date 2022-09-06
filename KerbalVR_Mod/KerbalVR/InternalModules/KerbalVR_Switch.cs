@@ -130,7 +130,7 @@ namespace KerbalVR.InternalModules
 				return Mathf.Atan2(y, x) * Mathf.Rad2Deg;
 			}
 
-			public void OnEnter(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+			public void OnEnter(Hand hand, Collider buttonCollider)
 			{
 				m_interactable = !switchModule.cover || switchModule.cover.IsOpen;
 
@@ -141,11 +141,11 @@ namespace KerbalVR.InternalModules
 					m_contactedAngle = GetFingertipAngle(m_hand.FingertipPosition);
 					m_stateChanged = false;
 
-					HapticUtils.Light(inputSource);
+					HapticUtils.Light(hand.handType);
 				}
 			}
 
-			public void OnStay(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+			public void OnStay(Hand hand, Collider buttonCollider)
 			{
 				if (!m_stateChanged && m_interactable)
 				{
@@ -167,7 +167,7 @@ namespace KerbalVR.InternalModules
 							switchModule.m_ivaSwitch.SetState(false);
 							clampedAngle = switchModule.maxAngle;
 							m_stateChanged = true;
-							HapticUtils.Snap(inputSource);
+							HapticUtils.Snap(hand.handType);
 						}
 					}
 					else
@@ -179,7 +179,7 @@ namespace KerbalVR.InternalModules
 							switchModule.m_ivaSwitch.SetState(true);
 							clampedAngle = switchModule.minAngle;
 							m_stateChanged = true;
-							HapticUtils.Snap(inputSource);
+							HapticUtils.Snap(hand.handType);
 						}
 					}
 
@@ -188,7 +188,7 @@ namespace KerbalVR.InternalModules
 				}
 			}
 
-			public void OnExit(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+			public void OnExit(Hand hand, Collider buttonCollider)
 			{
 				SetAngleToSwitchState();
 			}
