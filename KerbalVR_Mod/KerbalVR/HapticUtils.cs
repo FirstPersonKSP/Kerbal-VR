@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.XR;
 using Valve.VR;
 
 namespace KerbalVR
@@ -10,26 +11,36 @@ namespace KerbalVR
 	[PersistentFieldsDatabase("KerbalVR/settings/KerbalVRConfig")]
 	public class HapticUtils : MonoBehaviour
 	{
-		public class HapticLevel
+		public class PulseSetting
 		{
-			[PersistentField("name")]
-			public string name;
 			[PersistentField("duration")]
-			public float duration;
+			public float duration = 0.005f;
 			[PersistentField("frequency")]
-			public float frequncy;
+			public float frequncy = 0.005f;
 			[PersistentField("amplitude")]
-			public float amplitude;
+			public float amplitude = 1.0f;
+		}
+
+		public class HapticProfile
+		{
+			[PersistentField("controller")]
+			public HardwareUtils.ControllerType controller = HardwareUtils.ControllerType.Default;
+			[PersistentField("Light")]
+			public PulseSetting light = new PulseSetting();
+			[PersistentField("Heavy")]
+			public PulseSetting heavy = new PulseSetting();
+			[PersistentField("Snap")]
+			public PulseSetting snap = new PulseSetting();
 		}
 
 		[PersistentField("Haptic/enabled")]
 		public bool hapticEnabledConfig = true;
 
-		[PersistentField("Haptic/Level", isCollection = true)]
-		public readonly List<HapticLevel> hapticLevelsConfig = new List<HapticLevel>();
+		[PersistentField("Haptic/Profile", isCollection = true)]
+		public List<HapticProfile> hapticProfiles = new List<HapticProfile>();
 
 		private static bool hapticEnabled;
-		private static Dictionary<string, HapticLevel> hapticLevels;
+		private static HapticProfile currentProfile = null;
 		private readonly static SteamVR_Action_Vibration hapticAction = SteamVR_Actions.default_Haptic;
 
 		private void Awake()
@@ -37,29 +48,57 @@ namespace KerbalVR
 			ConfigAccessor.ReadFieldsInType(GetType(), this);
 
 			hapticEnabled = hapticEnabledConfig;
-			hapticLevels = hapticLevelsConfig.ToDictionary(x => x.name);
+			hapticEnabled &= Core.IsVrEnabled;
+
+			if (hapticEnabled)
+			{
+				foreach (HapticProfile profile in hapticProfiles)
+				{
+					Debug.Log($"[KerbalVR/HapticUtils] Profile '{profile.controller}' loaded");
+
+					if (HardwareUtils.controllerType == profile.controller)
+					{
+						currentProfile = profile;
+					}
+				}
+
+				if (currentProfile == null) // no device-specific profile found
+				{
+					HapticProfile defaultProfile = hapticProfiles.FirstOrDefault(x => x.controller == HardwareUtils.ControllerType.Default);
+					if (defaultProfile != null) // if default profile found
+					{
+						currentProfile = defaultProfile;
+					}
+					else
+					{
+						currentProfile = new HapticProfile();
+					}
+				}
+
+				Debug.Log($"[KerbalVR/HapticUtils] Using profile '{currentProfile.controller}'");
+			}
 		}
 
 		public static void Light(SteamVR_Input_Sources inputSource)
 		{
-			Pulse(hapticLevels["Light"], inputSource);
+			Pulse(currentProfile.light, inputSource);
 		}
 
 		public static void Heavy(SteamVR_Input_Sources inputSource)
 		{
-			Pulse(hapticLevels["Heavy"], inputSource);
+			Pulse(currentProfile.heavy, inputSource);
 		}
 
 		public static void Snap(SteamVR_Input_Sources inputSource)
 		{
-			Pulse(hapticLevels["Snap"], inputSource);
+			Pulse(currentProfile.snap, inputSource);
 		}
 
-		public static void Pulse(HapticLevel hapticSetting, SteamVR_Input_Sources inputSource)
+		public static void Pulse(PulseSetting setting, SteamVR_Input_Sources inputSource)
 		{
 			if (hapticEnabled)
 			{
-				hapticAction.Execute(0f, hapticSetting.duration, hapticSetting.frequncy, hapticSetting.amplitude, inputSource);
+				hapticAction.Execute(0f, setting.duration, setting.frequncy, setting.amplitude, inputSource);
 			}
 		}
 

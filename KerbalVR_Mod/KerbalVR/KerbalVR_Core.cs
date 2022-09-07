@@ -21,6 +21,7 @@ namespace KerbalVR
 			if (IsVrEnabled)
 			{
 				KerbalVR.Core.InitSteamVRInput();
+				HardwareUtils.Init();
 			}
 
 			//// initialize KerbalVR GameObjects
