@@ -36,3 +36,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("0.6.0")]
 
 [assembly: KSPAssembly("KerbalVR-RPM", 0, 6, 0)] 
+
+[assembly: KSPAssemblyDependency("RasterPropMonitor", 0, 18)]
