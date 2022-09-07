@@ -90,6 +90,29 @@ namespace KerbalVR
 		}
 	}
 
+	[HarmonyPatch(typeof(FXCamera), nameof(FXCamera.Start))]
+	class FXCameraPatch_Start
+	{
+		public static void Postfix(FXCamera __instance)
+		{
+			__instance.velocityCam.stereoTargetEye = StereoTargetEyeMask.None;
+			__instance.velocityCam.transform.SetParent(FlightCamera.fetch.transform.parent, false);
+
+			__instance.transform.SetParent(FlightCamera.fetch.transform.parent, false);
+		}
+	}
+
+	[HarmonyPatch(typeof(FXCamera), nameof(FXCamera.LateUpdate))]
+	class FXCameraPatch_LateUpdate
+	{
+		public static void Postfix(FXCamera __instance)
+		{
+			__instance.transform.localPosition = FlightCamera.fetch.transform.localPosition;
+			__instance.transform.localRotation = FlightCamera.fetch.transform.localRotation;
+			__instance.transform.localScale = FlightCamera.fetch.transform.localScale;
+		}
+	}
+
 	// [harmonyPatch(typeof(PlanetariumCamera), nameof(PlanetariumCamera.Activate))]
 
 }
