@@ -27,6 +27,9 @@ namespace KerbalVR
             pinchThumb = SteamVR_Input.GetBooleanAction("default", "PinchThumb")[hand.handType];
             pinchThumb.onChange += OnChangePinch;
 
+            pinchIndex.onUpdate += OnUpdatePinch;
+            pinchThumb.onUpdate += OnUpdatePinch;
+
             collider = gameObject.AddComponent<SphereCollider>();
             collider.isTrigger = true;
             collider.radius = 0.02f;
@@ -43,7 +46,7 @@ namespace KerbalVR
 #endif
         }
 
-        private void Update()
+        private void OnUpdatePinch(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource, bool newState)
         {
             if (heldInteractable != null)
             {

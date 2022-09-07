@@ -5,17 +5,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using Valve.VR;
 
 namespace KerbalVR.InternalModules
 {
-	public class VRKnobCustomRotation : ScriptableObject
-	{
-		[Persistent]
-		public float minRotation;
+    public class VRKnobCustomRotation : ScriptableObject
+    {
+        [Persistent]
+        public float minRotation;
 
-		[Persistent]
-		public float maxRotation;
-	}
+        [Persistent]
+        public float maxRotation;
+    }
 
     /// <summary>
     /// The InternalModule for a knob that can be manipulated in VR
@@ -37,7 +38,7 @@ namespace KerbalVR.InternalModules
         [KSPField]
         public string customRotationHandler = String.Empty;
 
-		public VRKnobCustomRotation customRotation = null;
+        public VRKnobCustomRotation customRotation = null;
 
         VRKnobInteractionListener interactionListener;
         internal float currentAngle = 0;
@@ -50,20 +51,20 @@ namespace KerbalVR.InternalModules
         GameObject arrow;
 #endif
 
-		public override void OnLoad(ConfigNode node)
-		{
-			base.OnLoad(node);
+        public override void OnLoad(ConfigNode node)
+        {
+            base.OnLoad(node);
 
-			var customRotationNode = node.GetNode("CUSTOMROTATION");
-			
-			if (customRotationNode != null)
-			{
-				customRotation = new VRKnobCustomRotation();
-				ConfigNode.LoadObjectFromConfig(customRotation, customRotationNode);
-			}
-		}
+            var customRotationNode = node.GetNode("CUSTOMROTATION");
+            
+            if (customRotationNode != null)
+            {
+                customRotation = new VRKnobCustomRotation();
+                ConfigNode.LoadObjectFromConfig(customRotation, customRotationNode);
+            }
+        }
 
-		public override void OnAwake()
+        public override void OnAwake()
         {
             base.OnAwake();
 
@@ -125,17 +126,18 @@ namespace KerbalVR.InternalModules
             SetAngle(angle);
             m_grabbedAngle = newAngle;
 
-            CheckForStepChange();
+            CheckForStepChange(hand.handType);
         }
 
         public void OnPinch(Hand hand)
         {
             m_grabbedAngle = GetGrabbedAngle(hand);
             knobModule.m_ivaKnob.SetUpdateEnabled(false);
+            HapticUtils.Light(hand.handType);
         }
 
         // reads from knobModule.currentAngle; returns rotation fraction
-        float CheckForStepChange()
+        float CheckForStepChange(SteamVR_Input_Sources source)
         {
             float interp = Mathf.InverseLerp(knobModule.m_ivaKnob.MinRotation, knobModule.m_ivaKnob.MaxRotation, knobModule.currentAngle);
             float rotationFraction = interp;
@@ -154,6 +156,7 @@ namespace KerbalVR.InternalModules
                 {
                     knobModule.lastStep = stepIndex;
                     knobModule.m_ivaKnob.SetRotationFraction(knobModule.customRotationHandler, rotationFraction);
+                    HapticUtils.Light(source);
                 }
             }
 
@@ -165,7 +168,7 @@ namespace KerbalVR.InternalModules
             // SetAngle(0);
             // knobModule.m_ivaKnob.SetUpdateEnabled(true);
 
-            float rotationFraction = CheckForStepChange();
+            float rotationFraction = CheckForStepChange(hand.handType);
 
             float angle = Mathf.Lerp(knobModule.m_ivaKnob.MinRotation, knobModule.m_ivaKnob.MaxRotation, rotationFraction);
 

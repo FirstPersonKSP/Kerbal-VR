@@ -62,6 +62,7 @@ namespace KerbalVR.InteractionCommon
 		private void OnGrab(Hand hand)
 		{
 			m_rotationUtil.Grabbed(hand.GripPosition);
+			HapticUtils.Heavy(hand.handType);
 		}
 
 		public void OnUpdate()

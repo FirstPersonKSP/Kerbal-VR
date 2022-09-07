@@ -48,7 +48,7 @@ namespace KerbalVR
                 var interactable = other.gameObject.GetComponent<IFingertipInteractable>();
                 if (interactable != null)
                 {
-                    interactable.OnEnter(hand, other, inputSource);
+                    interactable.OnEnter(hand, other);
                 }
             }
         }
@@ -60,7 +60,7 @@ namespace KerbalVR
                 var interactable = other.gameObject.GetComponent<IFingertipInteractable>();
                 if (interactable != null)
                 {
-                    interactable.OnStay(hand, other, inputSource);
+                    interactable.OnStay(hand, other);
                 }
             }
         }
@@ -72,7 +72,7 @@ namespace KerbalVR
                 var interactable = other.gameObject.GetComponent<IFingertipInteractable>();
                 if (interactable != null)
                 {
-                    interactable.OnExit(hand, other, inputSource);
+                    interactable.OnExit(hand, other);
                 }
             }
         }

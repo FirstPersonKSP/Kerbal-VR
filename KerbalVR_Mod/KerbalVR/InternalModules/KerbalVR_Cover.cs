@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mono.Cecil;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -38,13 +39,13 @@ namespace KerbalVR.InternalModules
         /// Values below this percentage of total angle will be snapped to minAngle
         /// </summary>
         [KSPField]
-        public float snapOpenThreshold = 0.15f;
+        public float snapOpenThreshold = 0.3f;
 
         /// <summary>
         /// Values above this percentage of total angle will be snapped to maxAngle
         /// </summary>
         [KSPField]
-        public float snapClosedThreshold = 0.05f;
+        public float snapClosedThreshold = 0.1f;
 
         VRCoverInteractionListener interactionListener = null;
         internal float currentAngle = 0;
@@ -143,7 +144,9 @@ namespace KerbalVR.InternalModules
         /// <param name="open"><see langword="true"/> to set cover open, <see langword="false"/> otherwise</param>
         public void SetState(bool open)
         {
-            interactionListener.SetAngle(open ? minAngle : maxAngle);
+            currentAngle = open ? minAngle : maxAngle;
+            snappedAngle = currentAngle;
+            hingeTransform.localRotation = Quaternion.AngleAxis(currentAngle, rotationAxis);
         }
 
         class VRCoverInteractionListener : MonoBehaviour, IFingertipInteractable
@@ -167,14 +170,16 @@ namespace KerbalVR.InternalModules
                 return Mathf.Atan2(y, x) * Mathf.Rad2Deg;
             }
 
-            public void OnEnter(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+            public void OnEnter(Hand hand, Collider buttonCollider)
             {
                 m_contactedAngle = GetFingertipAngle(hand.FingertipPosition);
+
+                HapticUtils.Light(hand.handType);
 
                 enabled = true;
             }
 
-            public void OnExit(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+            public void OnExit(Hand hand, Collider buttonCollider)
             {
                 // align current angle with visual
                 if (coverModule.currentAngle < coverModule.snapOnAngle || coverModule.currentAngle > coverModule.snapOffAngle)
@@ -183,7 +188,7 @@ namespace KerbalVR.InternalModules
                 }
             }
 
-            public void OnStay(Hand hand, Collider buttonCollider, SteamVR_Input_Sources inputSource)
+            public void OnStay(Hand hand, Collider buttonCollider)
             {
                 float newAngle = GetFingertipAngle(hand.FingertipPosition);
                 float delta = newAngle - m_contactedAngle;
@@ -192,37 +197,27 @@ namespace KerbalVR.InternalModules
                 if (delta < -180) delta += 360;
 
                 float angle = coverModule.currentAngle + delta;
-                float clampedAngle = Mathf.Clamp(angle, coverModule.minAngle, coverModule.maxAngle);
 
-                /*
-                if (angle != clampedAngle)
-                {
-                    m_isMoving = false;
-
-                    bool newState = clampedAngle == switchModule.maxAngle;
-
-                    switchModule.m_ivaSwitch.SetState(newState);
-                }
-                */
-
-                SetAngle(clampedAngle);
-            }
-
-            internal void SetAngle(float angle)
-            {
-                coverModule.currentAngle = angle;
+                // set angle
+                coverModule.currentAngle = Mathf.Clamp(angle, coverModule.minAngle, coverModule.maxAngle);
 
                 if (coverModule.currentAngle < coverModule.snapOnAngle)
                 {
-                    coverModule.snappedAngle = coverModule.minAngle;
-
-                    coverModule.CoverOpen();
+                    if (coverModule.snappedAngle != coverModule.minAngle)
+                    {
+                        coverModule.snappedAngle = coverModule.minAngle;
+                        coverModule.CoverOpen();
+                        HapticUtils.Snap(hand.handType);
+                    }
                 }
                 else if (coverModule.currentAngle > coverModule.snapOffAngle)
                 {
-                    coverModule.snappedAngle = coverModule.maxAngle;
-
-                    coverModule.CoverClose();
+                    if (coverModule.snappedAngle != coverModule.maxAngle)
+                    {
+                        coverModule.snappedAngle = coverModule.maxAngle;
+                        coverModule.CoverClose();
+                        HapticUtils.Snap(hand.handType);
+                    }
                 }
                 else
                 {

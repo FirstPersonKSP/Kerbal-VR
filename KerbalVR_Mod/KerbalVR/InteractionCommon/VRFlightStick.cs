@@ -160,6 +160,8 @@ namespace KerbalVR.InteractionCommon
 			m_vessel.OnPostAutopilotUpdate += OnPostAutopilotUpdate;
 			SteamVR_Actions.flight_ToggleRollYaw[hand.handType].onStateDown += ToggleRollYaw_OnStateDown;
 			grabbedHand = hand;
+
+			HapticUtils.Heavy(hand.handType);
 		}
 		private void OnRelease(Hand hand)
 		{
