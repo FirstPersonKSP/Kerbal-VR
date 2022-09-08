@@ -79,10 +79,13 @@ namespace KerbalVR
 		{
 			foreach (var instruction in instructions)
 			{
-				if (instruction.opcode == OpCodes.Callvirt && ReferenceEquals(instruction.operand, set_fieldOfView))
+				if (!KerbalVR.Core.IsVrEnabled)
 				{
-					instruction.opcode = OpCodes.Call;
-					instruction.operand = AccessTools.Method(typeof(CameraFOVPatch), nameof(SetCameraFOV));
+					if (instruction.opcode == OpCodes.Callvirt && ReferenceEquals(instruction.operand, set_fieldOfView))
+					{
+						instruction.opcode = OpCodes.Call;
+						instruction.operand = AccessTools.Method(typeof(CameraFOVPatch), nameof(SetCameraFOV));
+					}
 				}
 				
 				yield return instruction;
@@ -90,28 +93,21 @@ namespace KerbalVR
 		}
 	}
 
-	[HarmonyPatch(typeof(FXCamera), nameof(FXCamera.Start))]
-	class FXCameraPatch_Start
+	[HarmonyPatch(typeof(AerodynamicsFX), nameof(AerodynamicsFX.Start))]
+	class AerodynamicsFX_Patch
 	{
-		public static void Postfix(FXCamera __instance)
+		public static void Postfix(AerodynamicsFX __instance)
 		{
-			__instance.velocityCam.stereoTargetEye = StereoTargetEyeMask.None;
-			__instance.velocityCam.transform.SetParent(FlightCamera.fetch.transform.parent, false);
-
-			__instance.transform.SetParent(FlightCamera.fetch.transform.parent, false);
+			if (KerbalVR.Core.IsVrEnabled)
+			{
+				// these cameras are children of Camera 00, which means they would get head tracking double-applied
+				// Move them up one transform (child of Camera LocalSpace) so they are peers of the other cameras and get the same tracking
+				__instance.fxCamera.transform.SetParent(__instance.fxCamera.transform.parent.parent, false);
+				__instance.fxDepthCamera.transform.SetParent(__instance.fxDepthCamera.transform.parent.parent, false);
+			}
 		}
 	}
 
-	[HarmonyPatch(typeof(FXCamera), nameof(FXCamera.LateUpdate))]
-	class FXCameraPatch_LateUpdate
-	{
-		public static void Postfix(FXCamera __instance)
-		{
-			__instance.transform.localPosition = FlightCamera.fetch.transform.localPosition;
-			__instance.transform.localRotation = FlightCamera.fetch.transform.localRotation;
-			__instance.transform.localScale = FlightCamera.fetch.transform.localScale;
-		}
-	}
 
 	// [harmonyPatch(typeof(PlanetariumCamera), nameof(PlanetariumCamera.Activate))]
 
