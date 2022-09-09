@@ -148,7 +148,10 @@ namespace KerbalVR
 
 			var kerbalEVA = KerbalVR.Scene.GetKerbalEVA();
 
-			KerbalVR.Core.SetVrRunning(mode != CameraManager.CameraMode.Map);
+			if (KerbalVR.Core.IsVrRunning)
+			{
+				KerbalVR.Core.SetVrRunningDesired(mode != CameraManager.CameraMode.Map);
+			}
 			KerbalVR.Core.SetActionSetActive("EVA", kerbalEVA != null);
 
 			if (kerbalEVA != null)

@@ -9,9 +9,18 @@ namespace KerbalVR
 {
     public static class Core
 	{
-        public static bool IsVrRunning { get; private set; } = true; // TODO: re-hookup
-        public static bool IsOpenVrReady { get; private set; } = true; // TODO: re-hookup
-        public static bool IsVrEnabled { get; set; } = false;
+		/// <summary>
+		/// Whether or not VR mode is currently running.  This changes based on the current scene, whether the headset is on, or with a manual toggle.
+		/// </summary>
+        public static bool IsVrRunning { get; private set; }
+        /// <summary>
+		/// Whether or not the game was launched with VR mode enabled.  This never changes until the game is restarted.
+		/// </summary>
+		public static bool IsVrEnabled { get; private set; }
+
+		private static SteamVR_Action_Boolean headsetOnAction;
+		private static bool isHeadsetOn; // if the headset-on action is bound, whether or not the headset is on the head.  If it's not bound (perhaps the hardware doesn't support it), then always true
+		private static bool vrRunningDesired; // whether or not the game wants VR running, e.g. based on the current scene or manual toggle
 
         public static void InitSystems(bool vrEnabled)
         {
@@ -57,9 +66,11 @@ namespace KerbalVR
             //ActivateActionSet("EVA");
         }
 
-		public static void SetVrRunning(bool running)
+		private static void UpdateVrRunning()
 		{
-			if (running != IsVrRunning && IsVrEnabled)
+			bool running = vrRunningDesired;
+
+			if (IsVrEnabled && running != IsVrRunning)
 			{
 				XRSettings.enabled = running;
 				Valve.VR.SteamVR.enabled = running;
@@ -79,6 +90,12 @@ namespace KerbalVR
 					ResetVRPosition();
 				}
 			}
+		}
+
+		public static void SetVrRunningDesired(bool running)
+		{
+			vrRunningDesired = running;
+			UpdateVrRunning();
 		}
 
         public static void SetActionSetActive(string actionSetName, bool active)
@@ -113,6 +130,30 @@ namespace KerbalVR
 				if (chaperone != null)
 					chaperone.ResetZeroPose(SteamVR.settings.trackingSpace);
 			}
+		}
+
+		internal static void InitHeadsetState()
+		{
+			if (IsVrEnabled)
+			{
+				headsetOnAction = SteamVR_Input.GetBooleanAction("HeadsetOnHead");
+				headsetOnAction.onChange += OnChangeHeadsetOnAction;
+				isHeadsetOn = headsetOnAction.GetState(SteamVR_Input_Sources.Head) || !headsetOnAction.activeBinding; // for some reason activeBinding is false at startup
+			}
+		}
+
+		private static void OnChangeHeadsetOnAction(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource, bool newState)
+		{
+			if (!newState)
+			{
+				vrRunningDesired = false;
+			}
+			if (newState && HighLogic.LoadedSceneIsFlight)
+			{
+				vrRunningDesired = true;
+			}
+			UpdateVrRunning();
+			// TODO: fix camera orientations
 		}
 	}
 }

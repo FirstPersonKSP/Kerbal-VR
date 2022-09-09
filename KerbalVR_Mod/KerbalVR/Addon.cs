@@ -20,7 +20,7 @@ namespace KerbalVR
 			KerbalVR.Core.InitSystems(XRSettings.enabled);
 
 			// for whatever reason, enabling VR mode during loading makes it super slow (vsync maybe?)
-			KerbalVR.Core.SetVrRunning(false);
+			KerbalVR.Core.SetVrRunningDesired(false);
 			
 			Valve.VR.SteamVR_Settings.instance.trackingSpace = Valve.VR.ETrackingUniverseOrigin.TrackingUniverseSeated;
 			Valve.VR.SteamVR_Settings.instance.lockPhysicsUpdateRateToRenderFrequency = false;
@@ -59,7 +59,7 @@ namespace KerbalVR
 				yield return instruction;
 			}
 		}
-		
+
 		private void ApplyPatches()
 		{
 			var harmony = new Harmony("KerbalVR");
@@ -125,7 +125,7 @@ namespace KerbalVR
 					PSystemManager.Instance.OnPSystemReady.Add(OnPSystemReady);
 				}
 
-				KerbalVR.Core.SetVrRunning(gameScene == GameScenes.FLIGHT);
+				KerbalVR.Core.SetVrRunningDesired(gameScene == GameScenes.FLIGHT);
 			}
 		}
 		private void OnPSystemReady()
@@ -134,6 +134,8 @@ namespace KerbalVR
 
 			GameObject.Find("UIMainCamera").GetComponent<Camera>().stereoTargetEye = StereoTargetEyeMask.None;
 			GameObject.Find("UIVectorCamera").GetComponent<Camera>().stereoTargetEye = StereoTargetEyeMask.None;
+
+			Core.InitHeadsetState();
 		}
 
 		[HarmonyPatch(typeof(CameraManager), "Update")]
@@ -143,7 +145,7 @@ namespace KerbalVR
 			{
 				if (GameSettings.CAMERA_NEXT.GetKeyDown() && GameSettings.MODIFIER_KEY.GetKey())
 				{
-					KerbalVR.Core.SetVrRunning(!KerbalVR.Core.IsVrRunning);
+					KerbalVR.Core.SetVrRunningDesired(!KerbalVR.Core.IsVrRunning);
 					return false;
 				}
 				return true;
@@ -155,27 +157,30 @@ namespace KerbalVR
 		{
 			public static void Postfix()
 			{
-				Camera scaledCamera = ScaledCamera.Instance.cam;
-				Camera galaxyCamera = ScaledCamera.Instance.galaxyCamera;
+				if (KerbalVR.Core.IsVrEnabled)
+				{
+					Camera scaledCamera = ScaledCamera.Instance.cam;
+					Camera galaxyCamera = ScaledCamera.Instance.galaxyCamera;
 
-				// fudge the scaled camera
-				var scaledCameraAnchor = CameraUtils.CreateVRAnchor(scaledCamera);
-				scaledCameraAnchor.transform.localScale = Vector3.one * ScaledSpace.InverseScaleFactor;
-				var dummyListener = scaledCameraAnchor.AddComponent<AudioListener>(); // PlanetariumCamera.Awake requires an audiolistener
-				var dummyCamera = scaledCameraAnchor.AddComponent<Camera>(); // PlanetariumCamera.Deactivate requires a camera object
-				PlanetariumCamera._fetch = CameraUtils.MoveComponent<PlanetariumCamera>(scaledCamera.gameObject, scaledCameraAnchor);
-				PSystemManager.Instance.scaledSpaceCamera = PlanetariumCamera.fetch;
-				Component.DestroyImmediate(dummyListener);
-				dummyCamera.enabled = false;
+					// fudge the scaled camera
+					var scaledCameraAnchor = CameraUtils.CreateVRAnchor(scaledCamera);
+					scaledCameraAnchor.transform.localScale = Vector3.one * ScaledSpace.InverseScaleFactor;
+					var dummyListener = scaledCameraAnchor.AddComponent<AudioListener>(); // PlanetariumCamera.Awake requires an audiolistener
+					var dummyCamera = scaledCameraAnchor.AddComponent<Camera>(); // PlanetariumCamera.Deactivate requires a camera object
+					PlanetariumCamera._fetch = CameraUtils.MoveComponent<PlanetariumCamera>(scaledCamera.gameObject, scaledCameraAnchor);
+					PSystemManager.Instance.scaledSpaceCamera = PlanetariumCamera.fetch;
+					Component.DestroyImmediate(dummyListener);
+					dummyCamera.enabled = false;
 
-				PlanetariumCamera.camRef = scaledCamera;
-				var scaledCameraDriver = CameraUtils.MoveComponent<ScaledCamera>(scaledCamera.gameObject, scaledCameraAnchor);
+					PlanetariumCamera.camRef = scaledCamera;
+					var scaledCameraDriver = CameraUtils.MoveComponent<ScaledCamera>(scaledCamera.gameObject, scaledCameraAnchor);
 
-				// disable position tracking on the galaxy camera
-				var galaxyCameraAnchor = CameraUtils.CreateVRAnchor(galaxyCamera);
-				galaxyCameraAnchor.transform.localScale = Vector3.zero;
-				var followRot = CameraUtils.MoveComponent<FollowRot>(galaxyCamera.gameObject, galaxyCameraAnchor);
-				followRot.tgt = scaledCameraAnchor.transform;
+					// disable position tracking on the galaxy camera
+					var galaxyCameraAnchor = CameraUtils.CreateVRAnchor(galaxyCamera);
+					galaxyCameraAnchor.transform.localScale = Vector3.zero;
+					var followRot = CameraUtils.MoveComponent<FollowRot>(galaxyCamera.gameObject, galaxyCameraAnchor);
+					followRot.tgt = scaledCameraAnchor.transform;
+				}
 			}
 		}
 	}

@@ -74,15 +74,12 @@ namespace KerbalVR
         // device behaviors and actions
         protected bool isHandsInitialized = false;
         protected SteamVR_Action_Pose handActionPose;
-        protected SteamVR_Action_Boolean headsetOnAction;
         #endregion
 
 
         protected void InitializeHandScripts() {
             // store actions for these devices
             handActionPose = SteamVR_Input.GetPoseAction("default", "Pose");
-            headsetOnAction = SteamVR_Input.GetBooleanAction("default", "HeadsetOnHead");
-            headsetOnAction.onChange += OnChangeHeadsetOnAction;
 
             // set up the hand objects
             var lhGameObject = new GameObject("KVR_HandL");
@@ -113,16 +110,6 @@ namespace KerbalVR
             //DontDestroyOnLoad(HeadUpDisplay);
             //hud = HeadUpDisplay.AddComponent<KerbalVR.HeadUpDisplay>();
             //hud.Initialize();
-        }
-
-        /// <summary>
-        /// Activate or deactivate VR when the headset is worn or not, respectively.
-        /// </summary
-        /// <param name="fromAction">The HeadsetOnHead action</param>
-        /// <param name="fromSource">The source for the event</param>
-        /// <param name="newState">True if the headset is being worn by the user, false otherwise</param>
-        protected void OnChangeHeadsetOnAction(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource, bool newState) {
-            KerbalVR.Core.IsVrEnabled = newState;
         }
 
     } // class InteractionSystem
