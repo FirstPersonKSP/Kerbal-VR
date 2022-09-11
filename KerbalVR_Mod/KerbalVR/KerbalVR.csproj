@@ -123,6 +123,7 @@
     <Compile Include="HapticUtils.cs" />
     <Compile Include="InteractionCommon\VRFlightStick.cs" />
     <Compile Include="InteractionCommon\VRThrottleLever.cs" />
+    <Compile Include="InteractionCommon\VRYoke.cs" />
     <Compile Include="InteractionSystem\KerbalVR_FingertipCollider.cs" />
     <Compile Include="InteractionSystem\KerbalVR_FingertipInteractable.cs" />
     <Compile Include="InteractionSystem\KerbalVR_Hand.cs" />
@@ -144,6 +145,7 @@
     <Compile Include="InternalModules\KerbalVR_Throttle.cs" />
     <Compile Include="InternalModules\KerbalVR_TouchDisplay.cs" />
     <Compile Include="InternalModules\KerbalVR_TranslationControl.cs" />
+    <Compile Include="InternalModules\KerbalVR_Yoke.cs" />
     <Compile Include="IVAAdaptors\IVAKnob.cs" />
     <Compile Include="IVAAdaptors\IVASwitch.cs" />
     <Compile Include="KerbalVR_AssetLoader.cs" />
