@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<KSPBundleDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" UrlName="kerbalvr" Name="kerbalvr" CreatedTime="-8585745126863546806">
+<KSPBundleDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" UrlName="kerbalvr" Name="kerbalvr" CreatedTime="-8585387153855050709">
   <Author>Vivero</Author>
   <Info>Assets for the KerbalVR mod.</Info>
   <Assets>
+    <Asset Name="IndexController" Path="Assets/HardwareModels/Prefabs/IndexController.prefab" Type="GameObject" Url="HardwareModels/Prefabs/IndexController" AutoLoad="false" />
+    <Asset Name="IndexHMD" Path="Assets/HardwareModels/Prefabs/IndexHMD.prefab" Type="GameObject" Url="HardwareModels/Prefabs/IndexHMD" AutoLoad="false" />
+    <Asset Name="Oculus2HMD" Path="Assets/HardwareModels/Prefabs/Oculus2HMD.prefab" Type="GameObject" Url="HardwareModels/Prefabs/Oculus2HMD" AutoLoad="false" />
+    <Asset Name="Quest2Controller" Path="Assets/HardwareModels/Prefabs/Quest2Controller.prefab" Type="GameObject" Url="HardwareModels/Prefabs/Quest2Controller" AutoLoad="false" />
+    <Asset Name="RiftHMD" Path="Assets/HardwareModels/Prefabs/RiftHMD.prefab" Type="GameObject" Url="HardwareModels/Prefabs/RiftHMD" AutoLoad="false" />
+    <Asset Name="ViveController" Path="Assets/HardwareModels/Prefabs/ViveController.prefab" Type="GameObject" Url="HardwareModels/Prefabs/ViveController" AutoLoad="false" />
+    <Asset Name="ViveHMD" Path="Assets/HardwareModels/Prefabs/ViveHMD.prefab" Type="GameObject" Url="HardwareModels/Prefabs/ViveHMD" AutoLoad="false" />
+    <Asset Name="ViveProHMD" Path="Assets/HardwareModels/Prefabs/ViveProHMD.prefab" Type="GameObject" Url="HardwareModels/Prefabs/ViveProHMD" AutoLoad="false" />
+    <Asset Name="ViveTracker" Path="Assets/HardwareModels/Prefabs/ViveTracker.prefab" Type="GameObject" Url="HardwareModels/Prefabs/ViveTracker" AutoLoad="false" />
     <Asset Name="KVR_TeleportPoint" Path="Assets/Prefabs/KVR_TeleportPoint.prefab" Type="GameObject" Url="Prefabs/KVR_TeleportPoint" AutoLoad="false" />
     <Asset Name="KerbalVR/FlatWireframe" Path="Assets/Shaders/FlatWireframeShader.shader" Type="Shader" Url="Shaders/FlatWireframeShader" AutoLoad="false" />
     <Asset Name="vr_glove_left" Path="Assets/SteamVR/Prefabs/vr_glove_left.prefab" Type="GameObject" Url="SteamVR/Prefabs/vr_glove_left" AutoLoad="false" />
