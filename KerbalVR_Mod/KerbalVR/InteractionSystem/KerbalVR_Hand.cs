@@ -48,6 +48,12 @@ namespace KerbalVR {
             get { return fingertipInteraction.FingertipCenter; }
         }
 
+        public bool FingertipEnabled
+        {
+            get { return fingertipInteraction.InteractionsEnabled; }
+            set { fingertipInteraction.InteractionsEnabled = value; }
+        }
+
         protected SkinnedMeshRenderer handRenderer;
         protected SteamVR_Behaviour_Skeleton handSkeleton;
 
@@ -177,6 +183,7 @@ namespace KerbalVR {
                     Vector3 scale = handObject.transform.parent.lossyScale.Reciprocal();
                     scale.Scale(transform.lossyScale);
                     handObject.transform.localScale = scale;
+                    fingertipInteraction.InteractionsEnabled = false;
                 }
             } else {
                 if (heldObject != null) {
@@ -187,6 +194,7 @@ namespace KerbalVR {
                     handObject.transform.localPosition = Vector3.zero;
                     handObject.transform.localRotation = Quaternion.identity;
                     handObject.transform.localScale = Vector3.one;
+                    fingertipInteraction.InteractionsEnabled = true;
                 }
             }
         }

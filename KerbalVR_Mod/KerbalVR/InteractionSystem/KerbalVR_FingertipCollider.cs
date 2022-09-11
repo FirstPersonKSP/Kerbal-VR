@@ -17,6 +17,17 @@ namespace KerbalVR
         {
             get { return fingertipCollider.transform.TransformPoint(fingertipCollider.center); }
         }
+
+        public bool InteractionsEnabled
+        {
+            get { return enabled; }
+            set
+            {
+                fingertipCollider.enabled = value;
+                enabled = value;
+            }
+        }
+
         #endregion
 
         #region Private Members
