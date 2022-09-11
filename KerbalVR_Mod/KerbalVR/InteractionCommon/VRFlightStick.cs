@@ -20,16 +20,16 @@ namespace KerbalVR.InteractionCommon
 		public float twistAngle = 30.0f;
 
 		[Persistent]
-		public float tiltDeadzoneAngle = 3.0f;
+		public float tiltDeadzoneAngle = 1.5f;
 
 		[Persistent]
-		public float twistDeadzoneAngle = 3.0f;
+		public float twistDeadzoneAngle = 1.5f;
 
 		[Persistent]
-		public float tiltExponent = 3.0f;
+		public float tiltExponent = 2.0f;
 
 		[Persistent]
-		public float twistExponent = 3.0f;
+		public float twistExponent = 2.0f;
 
 		[Persistent]
 		public bool twistIsYaw = false;
