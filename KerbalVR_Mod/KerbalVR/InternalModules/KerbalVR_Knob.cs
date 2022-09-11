@@ -59,7 +59,7 @@ namespace KerbalVR.InternalModules
             
             if (customRotationNode != null)
             {
-                customRotation = new VRKnobCustomRotation();
+                customRotation = ScriptableObject.CreateInstance<VRKnobCustomRotation>();
                 ConfigNode.LoadObjectFromConfig(customRotation, customRotationNode);
             }
         }
