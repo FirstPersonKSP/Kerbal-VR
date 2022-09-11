@@ -121,6 +121,7 @@
     <Compile Include="Flight.cs" />
     <Compile Include="Components\KerbalVR_AvionicsComputer.cs" />
     <Compile Include="HapticUtils.cs" />
+    <Compile Include="HardwareUtils.cs" />
     <Compile Include="InteractionCommon\VRFlightStick.cs" />
     <Compile Include="InteractionCommon\VRThrottleLever.cs" />
     <Compile Include="InteractionCommon\VRYoke.cs" />
@@ -154,6 +155,7 @@
     <Compile Include="Loaders\ExternalSeatLoader.cs" />
     <Compile Include="Loaders\InternalModelLoader.cs" />
     <Compile Include="Loaders\PropLoader.cs" />
+    <Compile Include="MainScreenTweaker.cs" />
     <Compile Include="PartModules\ExternalCollider.cs" />
     <Compile Include="PartModules\KerbalVR_ExternalHatch.cs" />
     <Compile Include="KerbalVR_Globals.cs" />
