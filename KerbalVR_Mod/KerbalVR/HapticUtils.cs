@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.XR;
 using Valve.VR;
 
 namespace KerbalVR
@@ -24,7 +23,7 @@ namespace KerbalVR
 		public class HapticProfile
 		{
 			[PersistentField("controller")]
-			public HardwareUtils.ControllerType controller = HardwareUtils.ControllerType.Default;
+			public string controller = "default";
 			[PersistentField("Light")]
 			public PulseSetting light = new PulseSetting();
 			[PersistentField("Heavy")]
@@ -56,7 +55,7 @@ namespace KerbalVR
 				{
 					Debug.Log($"[KerbalVR/HapticUtils] Profile '{profile.controller}' loaded");
 
-					if (HardwareUtils.controllerType == profile.controller)
+					if (HardwareUtils.devices.Contains(profile.controller.ToLower()))
 					{
 						currentProfile = profile;
 					}
@@ -64,7 +63,7 @@ namespace KerbalVR
 
 				if (currentProfile == null) // no device-specific profile found
 				{
-					HapticProfile defaultProfile = hapticProfiles.FirstOrDefault(x => x.controller == HardwareUtils.ControllerType.Default);
+					HapticProfile defaultProfile = hapticProfiles.FirstOrDefault(x => x.controller.ToLower() == "default");
 					if (defaultProfile != null) // if default profile found
 					{
 						currentProfile = defaultProfile;
