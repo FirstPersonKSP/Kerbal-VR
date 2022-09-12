@@ -1,11 +1,8 @@
 ﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace KerbalVR
@@ -52,20 +49,9 @@ namespace KerbalVR
 
 	}
 
-	[HarmonyPatch(typeof(FXCamera), "LateUpdate")]
-	[HarmonyPatch(typeof(FXDepthCamera), "LateUpdate")]
-	[HarmonyPatch(typeof(InternalCamera), nameof(InternalCamera.SetFOV))]
-	[HarmonyPatch(typeof(InternalCamera), nameof(InternalCamera.UpdateState))]
-	[HarmonyPatch(typeof(FlightCamera), nameof(FlightCamera.SetFoV))]
-	[HarmonyPatch(typeof(ScaledCamera), nameof(ScaledCamera.SetFoV))]
-	[HarmonyPatch(typeof(GalaxyCameraControl), nameof(GalaxyCameraControl.SetFoV))]
-	[HarmonyPatch(typeof(InternalSpaceOverlay), nameof(InternalSpaceOverlay.LateUpdate))]
-	[HarmonyPatch(typeof(IVACamera), "UpdateState")]
-	[HarmonyPatch(typeof(VehiclePhysics.CameraFree), nameof(VehiclePhysics.CameraFree.Update))]
-	[HarmonyPatch(typeof(VehiclePhysics.CameraLookAt), nameof(VehiclePhysics.CameraLookAt.Update))]
 	class CameraFOVPatch
 	{
-		private static MethodInfo set_fieldOfView = AccessTools.DeclaredPropertySetter(typeof(Camera), "fieldOfView");
+		private static MethodInfo set_fieldOfView = AccessTools.DeclaredPropertySetter(typeof(Camera), nameof(Camera.fieldOfView));
 
 		static void SetCameraFOV(Camera camera, float fov)
 		{
@@ -79,16 +65,42 @@ namespace KerbalVR
 		{
 			foreach (var instruction in instructions)
 			{
-				if (!KerbalVR.Core.IsVrEnabled)
+				if (instruction.opcode == OpCodes.Callvirt && ReferenceEquals(instruction.operand, set_fieldOfView))
 				{
-					if (instruction.opcode == OpCodes.Callvirt && ReferenceEquals(instruction.operand, set_fieldOfView))
-					{
-						instruction.opcode = OpCodes.Call;
-						instruction.operand = AccessTools.Method(typeof(CameraFOVPatch), nameof(SetCameraFOV));
-					}
+					instruction.opcode = OpCodes.Call;
+					instruction.operand = AccessTools.Method(typeof(CameraFOVPatch), nameof(SetCameraFOV));
 				}
-				
+
 				yield return instruction;
+			}
+		}
+
+		public static void PatchAll(Harmony harmony)
+		{
+			if (Core.IsVrEnabled)
+			{
+				Utils.Log("Patching Camera FOV");
+
+				MethodInfo transpiler = AccessTools.Method(typeof(CameraFOVPatch), nameof(CameraFOVPatch.Transpiler));
+				(Type, string)[] targets =
+				{
+					(typeof(FXCamera), nameof(FXCamera.LateUpdate)),
+					(typeof(FXDepthCamera), nameof(FXDepthCamera.LateUpdate)),
+					(typeof(InternalCamera), nameof(InternalCamera.SetFOV)),
+					(typeof(InternalCamera), nameof(InternalCamera.UpdateState)),
+					(typeof(FlightCamera), nameof(FlightCamera.SetFoV)),
+					(typeof(ScaledCamera), nameof(ScaledCamera.SetFoV)),
+					(typeof(GalaxyCameraControl), nameof(GalaxyCameraControl.SetFoV)),
+					(typeof(InternalSpaceOverlay), nameof(InternalSpaceOverlay.LateUpdate)),
+					(typeof(IVACamera), nameof(IVACamera.UpdateState)),
+					(typeof(VehiclePhysics.CameraFree), nameof(VehiclePhysics.CameraFree.Update)),
+					(typeof(VehiclePhysics.CameraLookAt), nameof(VehiclePhysics.CameraLookAt.Update)),
+				};
+
+				foreach ((Type type, string method) in targets)
+				{
+					harmony.Patch(AccessTools.Method(type, method), transpiler: new HarmonyMethod(transpiler));
+				}
 			}
 		}
 	}
