@@ -43,6 +43,7 @@ namespace KerbalVR
 		SteamVR_Action_Boolean m_jumpAction;
 		SteamVR_Action_Boolean m_sprintAction;
 		SteamVR_Action_Boolean m_swapRollYawAction;
+		SteamVR_Action_Boolean m_plantFlagAction;
 
 		public void Awake()
 		{
@@ -62,12 +63,14 @@ namespace KerbalVR
 			m_jumpAction = SteamVR_Input.GetBooleanAction("Jump");
 			m_sprintAction = SteamVR_Input.GetBooleanAction("Sprint");
 			m_swapRollYawAction = SteamVR_Input.GetBooleanAction("SwapRollYaw");
+			m_plantFlagAction = SteamVR_Input.GetBooleanAction("PlantFlag");
 
 			m_toggleRCSAction.onStateDown += ToggleRCS_OnStateDown;
 			m_toggleLightAction.onStateDown += ToggleLight_OnStateDown;
 			m_sprintAction.onStateDown += Sprint_OnStateDown;
 			m_swapRollYawAction.onStateDown += SwapRollYaw_OnStateDown;
 			m_jumpAction.onStateDown += Jump_OnStateDown;
+			m_plantFlagAction.onStateDown += PlantFlag_OnStateDown;
 		}
 
 		private void OnVesselChange(Vessel data)
@@ -98,19 +101,37 @@ namespace KerbalVR
 			m_sprintAction.onStateDown -= Sprint_OnStateDown;
 			m_swapRollYawAction.onStateDown -= SwapRollYaw_OnStateDown;
 			m_jumpAction.onStateDown -= Jump_OnStateDown;
+			m_plantFlagAction.onStateDown -= PlantFlag_OnStateDown;
 
 			Instance = null;
 		}
 
-		// Note, jumping in EVA isn't handled here; it's hooked into the kerbal FSM
+		// Note, jumping in EVA isn't handled here; it's hooked into the kerbal FSM.  This is just for exiting an external seat or getting off a ladder
 		private void Jump_OnStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
 		{
 			var kerbalEVA = KerbalVR.Scene.GetKerbalEVA();
 
-			if (kerbalEVA != null && kerbalEVA.IsSeated())
+			if (kerbalEVA != null)
 			{
-				kerbalEVA.OnDeboardSeat();
-				KerbalVR.Scene.EnterFirstPerson();
+				if (kerbalEVA.IsSeated())
+				{
+					kerbalEVA.OnDeboardSeat();
+					KerbalVR.Scene.EnterFirstPerson();
+				}
+				else if (kerbalEVA.OnALadder)
+				{
+					kerbalEVA.fsm.RunEvent(kerbalEVA.On_ladderLetGo);
+				}
+			}
+		}
+
+		private void PlantFlag_OnStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
+		{
+			var kerbalEVA = KerbalVR.Scene.GetKerbalEVA();
+
+			if (kerbalEVA != null && kerbalEVA.CanPlantFlag())
+			{
+				kerbalEVA.PlantFlag();
 			}
 		}
 
@@ -482,6 +503,15 @@ namespace KerbalVR
 		static void Postfix()
 		{
 			FirstPersonKerbalFlight.Instance.OnIVACameraKerbalChange();
+		}
+	}
+
+	[HarmonyPatch(typeof(FlagSite), nameof(FlagSite.OnPlacementComplete))]
+	class FlagSitePatch
+	{
+		static void Postfix(FlagSite __instance)
+		{
+			__instance.DismissSiteRename();
 		}
 	}
 }

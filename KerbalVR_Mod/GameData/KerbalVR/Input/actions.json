@@ -65,7 +65,7 @@
     {
       "name": "/actions/EVA/in/Jump",
       "type": "boolean",
-      "requirement": "mandatory"
+      "requirement": "suggested"
     },
     {
       "name": "/actions/EVA/in/ToggleRCS",
@@ -85,7 +85,7 @@
     {
       "name": "/actions/EVA/in/ToggleLight",
       "type": "boolean",
-      "requirement": "mandatory"
+      "requirement": "suggested"
     },
     {
       "name": "/actions/EVA/in/Sprint",
@@ -93,6 +93,10 @@
     },
     {
       "name": "/actions/EVA/in/SwapRollYaw",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/EVA/in/PlantFlag",
       "type": "boolean"
     }
   ],

@@ -5,7 +5,7 @@
       "app_key": "application.generated.unity.kerbalvr_unitysteamvr.exe",
       "launch_type": "url",
       "url": "steam://launch/",
-      "action_manifest_path": "F:\\Users\\jonny\\Documents\\Projects\\KSP\\Kerbal-VR\\KerbalVR_UnitySteamVR\\Assets\\StreamingAssets\\SteamVR\\actions.json",
+      "action_manifest_path": "C:\\Users\\Jon\\source\\repos\\Kerbal-VR\\KerbalVR_UnitySteamVR\\Assets\\StreamingAssets\\SteamVR\\actions.json",
       "strings": {
         "en_us": {
           "name": "KerbalVR_UnitySteamVR [Testing]"
