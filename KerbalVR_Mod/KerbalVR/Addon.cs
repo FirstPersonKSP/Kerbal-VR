@@ -15,9 +15,9 @@ namespace KerbalVR
 		{
 			Utils.Log("Addon Awake");
 
-			ApplyPatches();
-
 			KerbalVR.Core.InitSystems(XRSettings.enabled);
+
+			ApplyPatches();
 
 			// for whatever reason, enabling VR mode during loading makes it super slow (vsync maybe?)
 			KerbalVR.Core.SetVrRunningDesired(false);
@@ -64,6 +64,7 @@ namespace KerbalVR
 		{
 			var harmony = new Harmony("KerbalVR");
 			harmony.PatchAll(Assembly.GetExecutingAssembly());
+			CameraFOVPatch.PatchAll(harmony);
 
 			// I had thought the below code might help with the apparent aliasing issues when using scatterer in vr, but it didn't.
 #if false
