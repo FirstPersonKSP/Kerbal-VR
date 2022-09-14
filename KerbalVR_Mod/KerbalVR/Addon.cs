@@ -99,6 +99,14 @@ namespace KerbalVR
 
 		}
 
+		public void LateUpdate()
+		{
+			if (GameSettings.CAMERA_NEXT.GetKeyDown() && GameSettings.MODIFIER_KEY.GetKey())
+			{
+				KerbalVR.Core.SetVrRunningDesired(!KerbalVR.Core.IsVrRunning);
+			}
+		}
+
 		private void OnGameSceneLoadRequested(GameScenes data)
 		{
 			if (InteractionSystem.Instance != null)
@@ -146,7 +154,6 @@ namespace KerbalVR
 			{
 				if (GameSettings.CAMERA_NEXT.GetKeyDown() && GameSettings.MODIFIER_KEY.GetKey())
 				{
-					KerbalVR.Core.SetVrRunningDesired(!KerbalVR.Core.IsVrRunning);
 					return false;
 				}
 				return true;
