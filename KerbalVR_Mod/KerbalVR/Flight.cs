@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.XR;
 using Valve.VR;
 using HarmonyLib;
+using KSP.UI;
 
 namespace KerbalVR
 {
@@ -166,6 +167,7 @@ namespace KerbalVR
 		private void OnCameraChange(CameraManager.CameraMode mode)
 		{
 			RestoreLastKerbal();
+			UISystem.ModeChanged();
 
 			var kerbalEVA = KerbalVR.Scene.GetKerbalEVA();
 
@@ -191,6 +193,15 @@ namespace KerbalVR
 				// this is mainly for ProbeControlRoom
 				FixInternalCamera();
 			}
+			else if (mode == CameraManager.CameraMode.Flight)
+			{
+				FixFlightCamera();
+			}
+		}
+		
+		private void FixFlightCamera()
+		{
+			KerbalVR.InteractionSystem.Instance.transform.SetParent(FlightCamera.fetch.transform, false);
 		}
 
 		private void FixInternalCamera()

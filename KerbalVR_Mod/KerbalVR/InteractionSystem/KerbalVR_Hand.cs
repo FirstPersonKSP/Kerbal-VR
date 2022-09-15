@@ -74,6 +74,9 @@ namespace KerbalVR {
 
         protected VRLadder ladder;
 
+        // For interacting with the UI
+        internal VRUIHand UIHand { get; private set;}
+
         #endregion
 
 
@@ -153,7 +156,8 @@ namespace KerbalVR {
             pinchCollider.Initialize(this);
 
             ladder = gameObject.AddComponent<VRLadder>();
-            
+
+            UIHand = gameObject.AddComponent<VRUIHand>();
         }
 
         public void Detach()
@@ -211,20 +215,15 @@ namespace KerbalVR {
                         break;
 
                     case GameScenes.FLIGHT:
-                        if (KerbalVR.Scene.IsInEVA() || KerbalVR.Scene.IsInIVA()) {
-                            isRendering = true;
+                        isRendering = true;
 
-                            if (KerbalVR.Scene.IsInIVA()) {
-                                // IVA-specific settings
-                                renderLayerHands.Push(20);
-                            }
-                            if (KerbalVR.Scene.IsInEVA()) {
-                                // EVA-specific settings
-                                renderLayerHands.Push(0);
-                            }
+                        if (KerbalVR.Scene.IsInIVA()) {
+                            // IVA-specific settings
+                            renderLayerHands.Push(20);
                         }
                         else {
-                            isRendering = false;
+                            // EVA-specific settings
+                            renderLayerHands.Push(0);
                         }
                         break;
                 }
