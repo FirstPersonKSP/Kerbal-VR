@@ -184,7 +184,7 @@ namespace KerbalVR
 
 		public override bool ShouldActivateModule()
 		{
-			return m_hand.enabled;
+			return Core.IsVrRunning && m_hand.enabled;
 		}
 
 		public override void Process()

@@ -25,9 +25,8 @@ namespace KerbalVR
 			return anchor;
 		}
 
-		public static T MoveComponent<T>(GameObject from, GameObject to) where T : Component
+		public static T CloneComponent<T>(T oldComponent, GameObject to) where T : Component
 		{
-			var oldComponent = from.GetComponent<T>();
 			if (oldComponent != null)
 			{
 				var newComponent = to.AddComponent<T>();
@@ -38,6 +37,19 @@ namespace KerbalVR
 					object value = field.GetValue(oldComponent);
 					field.SetValue(newComponent, value);
 				}
+
+				return newComponent;
+			}
+
+			return null;
+		}
+
+		public static T MoveComponent<T>(GameObject from, GameObject to) where T : Component
+		{
+			var oldComponent = from.GetComponent<T>();
+			if (oldComponent != null)
+			{
+				var newComponent = CloneComponent<T>(oldComponent, to);
 
 				Component.DestroyImmediate(oldComponent);
 
