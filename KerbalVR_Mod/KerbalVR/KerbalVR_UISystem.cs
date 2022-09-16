@@ -18,8 +18,8 @@ namespace KerbalVR
 			running = running && !Scene.IsInIVA();
 
 			UIMasterController.Instance.uiCamera.stereoTargetEye = running ? StereoTargetEyeMask.Both : StereoTargetEyeMask.None;
-			UIMasterController.Instance.uiCamera.farClipPlane = running ? 5000.0f : 1100.0f;
-			UIMasterController.Instance.uiCamera.nearClipPlane = running ? 1f : -300.0f;
+			UIMasterController.Instance.uiCamera.farClipPlane = running ? 2000.0f : 1100.0f;
+			UIMasterController.Instance.uiCamera.nearClipPlane = running ? 10f : -300.0f;
 			UIMasterController.Instance.uiCamera.orthographic = !running;
 
 			ConfigureCanvas(UIMasterController.Instance.mainCanvas, running);
@@ -74,7 +74,7 @@ namespace KerbalVR
 		SteamVR_Action_Boolean_Source m_interactAction;
 
 		static readonly Vector3 rayDirection = Vector3.Normalize(Vector3.forward - Vector3.up);
-		static readonly float rayDistance = 50.0f;
+		static readonly float rayDistance = 10.0f;
 		static readonly int raycastMask =
 			1 |
 			(1 << 5) | // unity UI
@@ -84,29 +84,48 @@ namespace KerbalVR
 			(1 << 14) | // Screens
 			(1 << 21); // Part triggers
 
+		LineRenderer m_uiLineRenderer;
+
 		public SteamVR_Action_Boolean_Source ClickAction => m_interactAction;
+
+		void SetupLineRenderer(LineRenderer lineRenderer)
+		{
+			lineRenderer.useWorldSpace = false;
+			lineRenderer.SetPositions(new[] { Vector3.zero, rayDirection * rayDistance });
+			lineRenderer.startWidth = 0.001f * rayDistance;
+			lineRenderer.endWidth = 0.0002f * rayDistance;
+			lineRenderer.endColor = new Color(1, 1, 1, 0.8f);
+			lineRenderer.startColor = Color.clear;
+			lineRenderer.material.shader = Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply");
+			lineRenderer.material.SetColor("_Color", Color.white);
+		}
 
 		void Awake()
 		{
 			m_hand = GetComponent<Hand>();
 			m_lineRenderer = gameObject.AddComponent<LineRenderer>();
 
-			m_lineRenderer.useWorldSpace = false;
-			m_lineRenderer.SetPositions(new[] { Vector3.zero, rayDirection * rayDistance });
-			m_lineRenderer.startWidth = 0.001f * rayDistance;
-			m_lineRenderer.endWidth = 0.0002f * rayDistance;
-			m_lineRenderer.endColor = new Color(1, 1, 1, 0.8f);
-			m_lineRenderer.startColor = Color.clear;
-			m_lineRenderer.material.shader = Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply");
-			m_lineRenderer.material.SetColor("_Color", Color.white);
-
-			m_lineRenderer.startColor = Color.magenta;
-			m_lineRenderer.endColor = Color.white;
-			//m_lineRenderer.startWidth = 3;
-			//m_lineRenderer.endWidth = 1;
-			m_lineRenderer.gameObject.layer = 5;
+			SetupLineRenderer(m_lineRenderer);
 
 			m_interactAction = SteamVR_Input.GetAction<SteamVR_Action_Boolean>("InteractUI")[m_hand.handType];
+
+#if false
+			var uiLineObject = new GameObject();
+			m_uiLineRenderer = uiLineObject.AddComponent<LineRenderer>();
+			SetupLineRenderer(m_uiLineRenderer);
+			m_uiLineRenderer.startColor = Color.magenta;
+			uiLineObject.layer = 5;
+			GameObject.DontDestroyOnLoad(uiLineObject);
+#endif
+		}
+
+		public void LateUpdate()
+		{
+			if (m_uiLineRenderer)
+			{
+				m_uiLineRenderer.transform.position = InteractionSystem.Instance.transform.InverseTransformPoint(m_lineRenderer.transform.position);
+				m_uiLineRenderer.transform.rotation = InteractionSystem.Instance.transform.rotation.Inverse() * m_lineRenderer.transform.rotation;
+			}
 		}
 
 		public void VRRunningChanged(bool running)
@@ -189,7 +208,9 @@ namespace KerbalVR
 		{
 			bool isHit = m_hand.CastRay(out var hit);
 
-			var pointerPosition = EventCamera.WorldToScreenPoint(hit.point);
+			Vector3 interactionRelativeHit = InteractionSystem.Instance.transform.InverseTransformPoint(hit.point);
+
+			var pointerPosition = EventCamera.WorldToScreenPoint(interactionRelativeHit);
 
 			if (pointerData == null)
 			{
