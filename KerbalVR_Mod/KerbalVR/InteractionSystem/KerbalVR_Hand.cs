@@ -201,8 +201,7 @@ namespace KerbalVR {
                     Vector3 scale = handObject.transform.parent.lossyScale.Reciprocal();
                     scale.Scale(transform.lossyScale);
                     handObject.transform.localScale = scale;
-                    SetFingerTipActive(false);
-
+                    FingertipEnabled = false;
                 }
             } else {
                 if (heldObject != null) {
@@ -213,19 +212,9 @@ namespace KerbalVR {
                     handObject.transform.localPosition = Vector3.zero;
                     handObject.transform.localRotation = Quaternion.identity;
                     handObject.transform.localScale = Vector3.one;
-                    fingertipCollider.InteractionsEnabled = true;
-                    SetFingerTipActive(true);
+                    FingertipEnabled = true;
                 }
             }
-        }
-
-        /// <summary>
-        /// Enable or disable finger tip interaction
-        /// </summary>
-        /// <param name="active"></param>
-        public void SetFingerTipActive(bool active)
-        {
-            fingertipCollider.InteractionsEnabled = active;
         }
 
         protected void Update() {

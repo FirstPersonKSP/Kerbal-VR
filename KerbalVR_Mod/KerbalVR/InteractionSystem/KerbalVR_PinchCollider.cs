@@ -61,13 +61,13 @@ namespace KerbalVR
             {
                 heldInteractable = hoveredInteractable;
                 heldInteractable.OnPinch(hand);
-                hand.SetFingerTipActive(false);
+                hand.FingertipEnabled = false;
             }
             else if (!isPinching && heldInteractable != null)
             {
                 heldInteractable.OnRelease(hand);
                 heldInteractable = null;
-                hand.SetFingerTipActive(true);
+                hand.FingertipEnabled = true;
             }
         }
 
