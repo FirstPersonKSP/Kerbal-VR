@@ -1,6 +1,7 @@
 using HarmonyLib;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using Valve.VR;
 
 namespace KerbalVR
@@ -48,6 +49,7 @@ namespace KerbalVR
             }
 
 			InitializeHandScripts();
+			EventSystem.current.gameObject.AddComponent<VRUIHandInputModule>();
 		}
         #endregion
 
