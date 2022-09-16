@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
+using static Valve.VR.SteamVR_Events;
 
 namespace KerbalVR {
     /// <summary>
@@ -45,13 +46,13 @@ namespace KerbalVR {
 
         public Vector3 FingertipPosition
         {
-            get { return fingertipInteraction.FingertipCenter; }
+            get { return fingertipCollider.FingertipCenter; }
         }
 
         public bool FingertipEnabled
         {
-            get { return fingertipInteraction.InteractionsEnabled; }
-            set { fingertipInteraction.InteractionsEnabled = value; }
+            get { return fingertipCollider.InteractionsEnabled; }
+            set { fingertipCollider.InteractionsEnabled = value; }
         }
 
         protected SkinnedMeshRenderer handRenderer;
@@ -62,14 +63,17 @@ namespace KerbalVR {
         protected Types.ShiftRegister<int> renderLayerHands = new Types.ShiftRegister<int>(2);
 
         // keep track of held objects
-        protected GameObject handColliderObject;
+        protected Transform handTransform;
         protected HandCollider handCollider;
         protected InteractableBehaviour heldObject;
 
         // interacting with mouse-clickable objects
-        protected FingertipCollider fingertipInteraction;
+        protected Transform fingertipTransform;
+        protected FingertipCollider fingertipCollider;
 
         // interacting with pinchable objects
+        protected Transform thumbTransform;
+        protected Transform pinchTransform;
         protected PinchCollider pinchCollider;
 
         protected VRLadder ladder;
@@ -130,30 +134,38 @@ namespace KerbalVR {
             var pose = gameObject.AddComponent<SteamVR_Behaviour_Pose>();
             pose.inputSource = handType;
 
-            // create a child object for the colider so that it can be on a different layer
-            handColliderObject = new GameObject();
-            handColliderObject.transform.SetParent(handObject.transform, false);
-            handCollider = handColliderObject.AddComponent<HandCollider>();
-
-            // add fingertip collider for "mouse clicks"
-            string fingertipTransformPath = renderModelParentPath + "/Root/wrist_r/finger_index_meta_r/finger_index_0_r/finger_index_1_r/finger_index_2_r/finger_index_r_end";
-            Transform fingertipTransform = handObject.transform.Find(fingertipTransformPath);
-            fingertipInteraction = fingertipTransform.gameObject.AddComponent<FingertipCollider>();
-            fingertipInteraction.inputSource = handType;
-            fingertipInteraction.hand = this;
-
             // set up actions
             var actionGrab = SteamVR_Input.GetBooleanAction("default", "GrabGrip");
             actionGrab[handType].onChange += OnChangeGrab;
 
+            // set up ladder
+            ladder = gameObject.AddComponent<VRLadder>();
+
+            #region Setup Colliders
+
+            // create a child object for the colider so that it can be on a different layer
+            handTransform = new GameObject("handTransform").transform;
+            handTransform.SetParent(handObject.transform, false);
+            handCollider = handTransform.gameObject.AddComponent<HandCollider>();
+            handCollider.Initialize(this);
+
+            // add fingertip collider for "mouse clicks"
+            string fingertipTransformPath = renderModelParentPath + "/Root/wrist_r/finger_index_meta_r/finger_index_0_r/finger_index_1_r/finger_index_2_r/finger_index_r_end";
+            fingertipTransform = handObject.transform.Find(fingertipTransformPath);
+            fingertipCollider = fingertipTransform.gameObject.AddComponent<FingertipCollider>();
+            fingertipCollider.Initialize(this);
+
+            // thumb is used to calculate position of pinch collider
+            string thumbTransformPath = renderModelParentPath + "/Root/wrist_r/finger_thumb_0_r/finger_thumb_1_r/finger_thumb_2_r/finger_thumb_r_end";
+            thumbTransform = handObject.transform.Find(thumbTransformPath);
+
             // set up pinch behavior
-            string pinchTransformPath = renderModelParentPath + "/Root/wrist_r/finger_thumb_0_r/finger_thumb_1_r/finger_thumb_2_r/finger_thumb_r_end";
-            Transform pinchTransform = handObject.transform.Find(pinchTransformPath);
+            pinchTransform = new GameObject("pinchTransform").transform;
+            pinchTransform.SetParent(handObject.transform, false);
             pinchCollider = pinchTransform.gameObject.AddComponent<PinchCollider>();
             pinchCollider.Initialize(this);
 
-            ladder = gameObject.AddComponent<VRLadder>();
-            
+            #endregion
         }
 
         public void Detach()
@@ -183,7 +195,8 @@ namespace KerbalVR {
                     Vector3 scale = handObject.transform.parent.lossyScale.Reciprocal();
                     scale.Scale(transform.lossyScale);
                     handObject.transform.localScale = scale;
-                    fingertipInteraction.InteractionsEnabled = false;
+                    SetFingerTipActive(false);
+
                 }
             } else {
                 if (heldObject != null) {
@@ -194,9 +207,19 @@ namespace KerbalVR {
                     handObject.transform.localPosition = Vector3.zero;
                     handObject.transform.localRotation = Quaternion.identity;
                     handObject.transform.localScale = Vector3.one;
-                    fingertipInteraction.InteractionsEnabled = true;
+                    fingertipCollider.InteractionsEnabled = true;
+                    SetFingerTipActive(true);
                 }
             }
+        }
+
+        /// <summary>
+        /// Enable or disable finger tip interaction
+        /// </summary>
+        /// <param name="active"></param>
+        public void SetFingerTipActive(bool active)
+        {
+            fingertipCollider.InteractionsEnabled = active;
         }
 
         protected void Update() {
@@ -239,7 +262,8 @@ namespace KerbalVR {
                 bool isConnected = handActionPose.GetDeviceIsConnected(handType);
                 if (isConnected)
                 {
-
+                    // update position of the pinch transform to the middle between the tip of the index finger and the tip of the thumb
+                    pinchTransform.position = Vector3.Lerp(fingertipTransform.position, thumbTransform.position, 0.5f);
 #if false
                     // keep this object (Hand script) always tracking the device
                     SteamVR_Utils.RigidTransform handTransform = new SteamVR_Utils.RigidTransform(KerbalVR.Core.GamePoses[deviceIndex].mDeviceToAbsoluteTracking);
@@ -287,7 +311,7 @@ namespace KerbalVR {
                 Utils.SetLayer(this.gameObject, renderLayerHands.Value);
                 Utils.SetLayer(handObject, renderLayerHands.Value);
 
-                handColliderObject.layer = renderLayerHands.Value == 20 ? 20 : 3;
+                handTransform.gameObject.layer = renderLayerHands.Value == 20 ? 20 : 3;
             }
         }
     }
