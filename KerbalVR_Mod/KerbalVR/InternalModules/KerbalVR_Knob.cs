@@ -134,8 +134,6 @@ namespace KerbalVR.InternalModules
             m_grabbedAngle = GetGrabbedAngle(hand);
             knobModule.m_ivaKnob.SetUpdateEnabled(false);
             HapticUtils.Light(hand.handType);
-
-            hand.FingertipEnabled = false;
         }
 
         // reads from knobModule.currentAngle; returns rotation fraction
@@ -169,8 +167,6 @@ namespace KerbalVR.InternalModules
         {
             // SetAngle(0);
             // knobModule.m_ivaKnob.SetUpdateEnabled(true);
-
-            hand.FingertipEnabled = true;
 
             float rotationFraction = CheckForStepChange(hand.handType);
 

@@ -10,7 +10,6 @@ namespace KerbalVR
     {
 
         #region Properties
-        public SteamVR_Input_Sources inputSource;
         public Hand hand;
 
         public Vector3 FingertipCenter
@@ -35,19 +34,20 @@ namespace KerbalVR
         protected Rigidbody fingertipRigidbody;
         #endregion
 
-        protected void Awake()
+        internal void Initialize(Hand hand)
         {
+            this.hand = hand;
+
             fingertipRigidbody = this.gameObject.AddComponent<Rigidbody>();
             fingertipRigidbody.isKinematic = true;
             fingertipCollider = this.gameObject.AddComponent<SphereCollider>();
             fingertipCollider.isTrigger = true;
             fingertipCollider.radius = 0.005f;
 
-
 #if FINGER_GIZMOS
-            //var handGizmo = Utils.CreateGizmo();
-            //handGizmo.transform.SetParent(transform, false);
             gameObject.AddComponent<ColliderVisualizer>();
+            var fingertipGizmo = Utils.CreateGizmo();
+            fingertipGizmo.transform.SetParent(transform, false);
 #endif
         }
 

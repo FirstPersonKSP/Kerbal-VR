@@ -474,7 +474,7 @@ namespace KerbalVR
 
             BoxCollider boxCollider = this.gameObject.GetComponentInChildren<BoxCollider>();
             if (boxCollider != null)
-			{
+            {
                 Utils.Log("ColliderVisualizer found BoxCollider");
 
                 visual = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -483,7 +483,7 @@ namespace KerbalVR
                 visual.transform.localScale = boxCollider.size;
                 visual.transform.localRotation = Quaternion.identity;
                 visual.transform.localPosition = boxCollider.center;
-			}
+            }
 
             if (visual != null) {
                 visual.name = "ColliderVisualizer";

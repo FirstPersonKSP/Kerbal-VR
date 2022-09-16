@@ -9,13 +9,13 @@ namespace KerbalVR
         protected SphereCollider handCollider;
         protected Rigidbody handRigidbody;
 
-        protected void Awake()
+        internal void Initialize(Hand hand)
         {
             // add interactable collider
             handCollider = this.gameObject.AddComponent<SphereCollider>();
             handCollider.isTrigger = true;
             handCollider.center = Hand.GripOffset;
-            handCollider.radius = 0.05f;
+            handCollider.radius = 0.035f;
 
             handRigidbody = this.gameObject.AddComponent<Rigidbody>();
             handRigidbody.useGravity = false;
@@ -23,9 +23,9 @@ namespace KerbalVR
 
             // debugging stuff
 #if HAND_GIZMOS
-            var handGizmo = Utils.CreateGizmo();
-            handGizmo.transform.SetParent(transform, false);
             gameObject.AddComponent<ColliderVisualizer>();
+            //var handGizmo = Utils.CreateGizmo();
+            //handGizmo.transform.SetParent(transform, false);
 #endif
         }
 
@@ -37,11 +37,11 @@ namespace KerbalVR
                 HoveredObject = interactable;
             }
             else if (other.CompareTag(VRLadder.COLLIDER_TAG))
-			{
+            {
                 var vrLadder = gameObject.GetComponentUpwards<VRLadder>();
                 HoveredObject = vrLadder;
                 vrLadder.LadderTransform = other.transform;
-			}
+            }
         }
 
         protected void OnTriggerExit(Collider other)

@@ -32,17 +32,16 @@ namespace KerbalVR
 
             collider = gameObject.AddComponent<SphereCollider>();
             collider.isTrigger = true;
-            collider.radius = 0.02f;
-            collider.center = new Vector3(0.01f, -0.02f, -0.01f);
+            collider.radius = 0.015f;
 
             rigidBody = gameObject.AddComponent<Rigidbody>();
             rigidBody.useGravity = false;
             rigidBody.isKinematic = true;
 
 #if PINCH_GIZMOS
-            var handGizmo = Utils.CreateGizmo();
-            handGizmo.transform.SetParent(transform, false);
             gameObject.AddComponent<ColliderVisualizer>();
+            var pinchGizmo = Utils.CreateGizmo();
+            pinchGizmo.transform.SetParent(transform, false);
 #endif
         }
 
@@ -62,11 +61,13 @@ namespace KerbalVR
             {
                 heldInteractable = hoveredInteractable;
                 heldInteractable.OnPinch(hand);
+                hand.FingertipEnabled = false;
             }
             else if (!isPinching && heldInteractable != null)
             {
                 heldInteractable.OnRelease(hand);
                 heldInteractable = null;
+                hand.FingertipEnabled = true;
             }
         }
 
