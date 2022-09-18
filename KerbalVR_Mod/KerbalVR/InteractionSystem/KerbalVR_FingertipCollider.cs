@@ -42,7 +42,7 @@ namespace KerbalVR
             fingertipRigidbody.isKinematic = true;
             fingertipCollider = this.gameObject.AddComponent<SphereCollider>();
             fingertipCollider.isTrigger = true;
-            fingertipCollider.radius = 0.005f;
+            fingertipCollider.radius = hand.profile.fingertipColliderSize;
 
 #if FINGER_GIZMOS
             gameObject.AddComponent<ColliderVisualizer>();

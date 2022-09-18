@@ -431,7 +431,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2905372130079391305}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c810332fa930abf47a6f12a9365a2382, type: 3}
+  m_Script: {fileID: 11500000, guid: 4750934351facc14aa2f98d845010b44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   wrist:
@@ -1178,6 +1178,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8797515195359882592}
+  - component: {fileID: 6616280527380057848}
   m_Layer: 0
   m_Name: wrist_r
   m_TagString: Untagged
@@ -1204,6 +1205,50 @@ Transform:
   m_Father: {fileID: 2438294816848921755}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6616280527380057848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8627057593846124342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a712abfe15455734182b8c58db92044e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boneShape: 1
+  drawBones: 1
+  drawTripods: 0
+  boneSize: 1
+  tripodSize: 1
+  boneColor: {r: 0, g: 0, b: 1, a: 0.5}
+  m_Transforms:
+  - {fileID: 8797515195359882592}
+  - {fileID: 1174183077027581927}
+  - {fileID: 8955061769693037057}
+  - {fileID: 8983642550677984969}
+  - {fileID: 5400174919818652008}
+  - {fileID: 1276212771594586854}
+  - {fileID: 7085139428722740371}
+  - {fileID: 4491274204327816123}
+  - {fileID: 6540259524862872935}
+  - {fileID: 622513671578548246}
+  - {fileID: 1856057826612177521}
+  - {fileID: 6346833078808531038}
+  - {fileID: 2452067767111639935}
+  - {fileID: 8979568682973223854}
+  - {fileID: 7590561494634025627}
+  - {fileID: 3616174537894577648}
+  - {fileID: 7670342576386433312}
+  - {fileID: 9160789576105538631}
+  - {fileID: 4054522673702080097}
+  - {fileID: 7213322502636450153}
+  - {fileID: 8390244231877449601}
+  - {fileID: 2622023592516029241}
+  - {fileID: 8744660637431520159}
+  - {fileID: 168835757065761740}
+  - {fileID: 6297650137174326652}
 --- !u!1 &8831237302946186054
 GameObject:
   m_ObjectHideFlags: 0
