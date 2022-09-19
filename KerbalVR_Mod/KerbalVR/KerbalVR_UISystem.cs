@@ -19,7 +19,7 @@ namespace KerbalVR
 
 			UIMasterController.Instance.uiCamera.stereoTargetEye = running ? StereoTargetEyeMask.Both : StereoTargetEyeMask.None;
 			UIMasterController.Instance.uiCamera.farClipPlane = running ? 2000.0f : 1100.0f;
-			UIMasterController.Instance.uiCamera.nearClipPlane = running ? 10f : -300.0f;
+			UIMasterController.Instance.uiCamera.nearClipPlane = running ? 1f : -300.0f;
 			UIMasterController.Instance.uiCamera.orthographic = !running;
 
 			ConfigureCanvas(UIMasterController.Instance.mainCanvas, running);
@@ -123,8 +123,13 @@ namespace KerbalVR
 		{
 			if (m_uiLineRenderer)
 			{
-				m_uiLineRenderer.transform.position = InteractionSystem.Instance.transform.InverseTransformPoint(m_lineRenderer.transform.position);
-				m_uiLineRenderer.transform.rotation = InteractionSystem.Instance.transform.rotation.Inverse() * m_lineRenderer.transform.rotation;
+				var uiCameraTransform = UIMasterController.Instance.uiCamera.transform.parent;
+
+				Vector3 cameraPosition = InteractionSystem.Instance.transform.InverseTransformPoint(m_lineRenderer.transform.position);
+				Quaternion cameraDirection = InteractionSystem.Instance.transform.rotation.Inverse() * m_lineRenderer.transform.rotation;
+
+				m_uiLineRenderer.transform.position = uiCameraTransform.TransformPoint(cameraPosition);
+				m_uiLineRenderer.transform.rotation = uiCameraTransform.rotation * cameraDirection;
 			}
 		}
 
@@ -209,8 +214,11 @@ namespace KerbalVR
 			bool isHit = m_hand.CastRay(out var hit);
 
 			Vector3 interactionRelativeHit = InteractionSystem.Instance.transform.InverseTransformPoint(hit.point);
+			Vector3 cameraRelativeHit = EventCamera.transform.parent.TransformPoint(interactionRelativeHit);
 
-			var pointerPosition = EventCamera.WorldToScreenPoint(interactionRelativeHit);
+			var pointerPosition = EventCamera.WorldToScreenPoint(cameraRelativeHit);
+
+			// pointerPosition = new Vector3(Screen.width / 2, Screen.height / 2, 0);
 
 			if (pointerData == null)
 			{
@@ -307,6 +315,48 @@ namespace KerbalVR
 			pointerData.useDragThreshold = true;
 			pointerData.clickCount = 1;
 			pointerData.clickTime = Time.unscaledTime;
+		}
+	}
+
+	internal class VR3DButtonAdapter : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
+	{
+		IMouseEvents m_mouseInterface;
+
+		void Awake()
+		{
+			m_mouseInterface = GetComponent<IMouseEvents>();
+		}
+
+		public void OnPointerEnter(PointerEventData eventData)
+		{
+			if (eventData.currentInputModule == VRUIHandInputModule.Instance)
+			{
+				m_mouseInterface.OnMouseEnter();
+			}
+		}
+
+		public void OnPointerExit(PointerEventData eventData)
+		{
+			if (eventData.currentInputModule == VRUIHandInputModule.Instance)
+			{
+				m_mouseInterface.OnMouseExit();
+			}
+		}
+
+		public void OnPointerUp(PointerEventData eventData)
+		{
+			if (eventData.currentInputModule == VRUIHandInputModule.Instance)
+			{
+				m_mouseInterface.OnMouseUp();
+			}
+		}
+
+		public void OnPointerDown(PointerEventData eventData)
+		{
+			if (eventData.currentInputModule == VRUIHandInputModule.Instance)
+			{
+				m_mouseInterface.OnMouseDown();
+			}
 		}
 	}
 }
