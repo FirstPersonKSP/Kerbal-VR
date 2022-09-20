@@ -102,7 +102,6 @@ namespace KerbalVR {
             handObject.name = "KVR_HandObject_" + handType;
             DontDestroyOnLoad(handObject);
             handObject.SetActive(false); // default to inactive, to match the default in Update
-            Detach();
 
             // cache the hand renderers
             string renderModelParentPath = (handType == SteamVR_Input_Sources.LeftHand) ? "slim_l" : "slim_r";
@@ -149,17 +148,20 @@ namespace KerbalVR {
 
             #region Setup Colliders
 
-            // create a child object for the colider so that it can be on a different layer
-            handTransform = new GameObject("handTransform").transform;
-            handTransform.SetParent(handObject.transform, false);
-            handCollider = handTransform.gameObject.AddComponent<HandCollider>();
-            handCollider.Initialize(this);
-
             // add fingertip collider for "mouse clicks"
             string fingertipTransformPath = renderModelParentPath + "/Root/wrist_r/finger_index_meta_r/finger_index_0_r/finger_index_1_r/finger_index_2_r/finger_index_r_end";
             fingertipTransform = handObject.transform.Find(fingertipTransformPath);
             fingertipCollider = fingertipTransform.gameObject.AddComponent<FingertipCollider>();
             fingertipCollider.Initialize(this);
+
+            // this has to be after the fingertip collider is initialized and before the hand collider is initialized (for ladder setup)
+            Detach();
+
+            // create a child object for the colider so that it can be on a different layer
+            handTransform = new GameObject("handTransform").transform;
+            handTransform.SetParent(handObject.transform, false);
+            handCollider = handTransform.gameObject.AddComponent<HandCollider>();
+            handCollider.Initialize(this);
 
             // thumb is used to calculate position of pinch collider
             string thumbTransformPath = renderModelParentPath + "/Root/wrist_r/finger_thumb_0_r/finger_thumb_1_r/finger_thumb_2_r/finger_thumb_r_end";
@@ -174,12 +176,32 @@ namespace KerbalVR {
             #endregion
         }
 
+        public void Attach(Transform parent)
+        {
+            handObject.transform.SetParent(parent, true);
+            Vector3 scale = handObject.transform.parent.lossyScale.Reciprocal();
+            scale.Scale(transform.lossyScale);
+            handObject.transform.localScale = scale;
+            FingertipEnabled = false;
+
+            var detacher = parent.gameObject.AddComponent<HandDetacher>();
+            detacher.hand = this;
+        }
+
         public void Detach()
         {
+            var handDetacher = handObject.GetComponentInParent<HandDetacher>();
+            if (handDetacher)
+            {
+                Component.Destroy(handDetacher);
+            }
+
+            handSkeleton.BlendToSkeleton();
             handObject.transform.SetParent(transform, false);
             handObject.transform.localPosition = Vector3.zero;
             handObject.transform.localRotation = Quaternion.identity;
             handObject.transform.localScale = Vector3.one;
+            FingertipEnabled = true;
         }
 
         /// <summary>
@@ -197,22 +219,13 @@ namespace KerbalVR {
                     {
                         handSkeleton.BlendToPoser(heldObject.SkeletonPoser);
                     }
-                    handObject.transform.SetParent(heldObject.transform, true);
-                    Vector3 scale = handObject.transform.parent.lossyScale.Reciprocal();
-                    scale.Scale(transform.lossyScale);
-                    handObject.transform.localScale = scale;
-                    FingertipEnabled = false;
+                    Attach(heldObject.transform);
                 }
             } else {
                 if (heldObject != null) {
                     heldObject.GrabbedHand = null;
                     heldObject = null;
-                    handSkeleton.BlendToSkeleton();
-                    handObject.transform.SetParent(transform, false);
-                    handObject.transform.localPosition = Vector3.zero;
-                    handObject.transform.localRotation = Quaternion.identity;
-                    handObject.transform.localScale = Vector3.one;
-                    FingertipEnabled = true;
+                    Detach();
                 }
             }
         }
@@ -302,6 +315,19 @@ namespace KerbalVR {
                 Utils.SetLayer(handObject, renderLayerHands.Value);
 
                 handTransform.gameObject.layer = renderLayerHands.Value == 20 ? 20 : 3;
+            }
+        }
+    }
+
+    class HandDetacher : MonoBehaviour
+    {
+        public Hand hand;
+
+        public void OnDestroy()
+        {
+            if (hand)
+            {
+                hand.Detach();
             }
         }
     }
