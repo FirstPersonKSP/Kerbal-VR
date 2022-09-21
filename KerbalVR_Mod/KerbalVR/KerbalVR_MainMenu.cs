@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KSP.UI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,31 +34,6 @@ namespace KerbalVR
 			followRot.tgt = landscapeCameraAnchor.transform;
 
 			InteractionSystem.Instance.transform.SetParent(m_mainMenuEnvLogic.landscapeCamera.transform, false);
-
-			var raycaster = m_mainMenuEnvLogic.landscapeCamera.gameObject.AddComponent<PhysicsRaycaster>();
-			raycaster.maxRayIntersections = 1;
-
-			foreach (var button in m_mainMenu.stageOneBtn)
-			{
-				button.gameObject.AddComponent<VR3DButtonAdapter>();
-			}
-
-			foreach (var button in m_mainMenu.stageTwoBtn)
-			{
-				button.gameObject.AddComponent<VR3DButtonAdapter>();
-			}
-
-			var unlistedButtons = new[]
-			{
-				m_mainMenu.merchandiseBtn,
-				m_mainMenu.buySerenityBtn,
-				m_mainMenu.buyMakingHistoryBtn
-			};
-
-			foreach (var button in unlistedButtons)
-			{
-				button.gameObject.AddComponent<VR3DButtonAdapter>();
-			}
 		}
 	}
 }

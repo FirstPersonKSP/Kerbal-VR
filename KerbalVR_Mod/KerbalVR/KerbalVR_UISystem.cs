@@ -19,7 +19,7 @@ namespace KerbalVR
 
 			UIMasterController.Instance.uiCamera.stereoTargetEye = running ? StereoTargetEyeMask.Both : StereoTargetEyeMask.None;
 			UIMasterController.Instance.uiCamera.farClipPlane = running ? 2000.0f : 1100.0f;
-			UIMasterController.Instance.uiCamera.nearClipPlane = running ? 1f : -300.0f;
+			UIMasterController.Instance.uiCamera.nearClipPlane = running ? .03f : -300.0f;
 			UIMasterController.Instance.uiCamera.orthographic = !running;
 
 			ConfigureCanvas(UIMasterController.Instance.mainCanvas, running);
@@ -168,6 +168,7 @@ namespace KerbalVR
 		Vector3 lastHeadPose;
 
 		VRUIHand m_hand;
+		Collider m_lastHitCollider = null;
 
 		internal static VRUIHandInputModule Instance;
 
@@ -207,6 +208,22 @@ namespace KerbalVR
 				HandleTrigger();
 			else if (clickUp)
 				HandlePendingClick();
+
+			if (m_lastHitCollider)
+			{
+				if (clickDown)
+				{
+					m_lastHitCollider.gameObject.SendMessage("OnMouseDown");
+				}
+				else if (isClicking)
+				{
+					m_lastHitCollider.gameObject.SendMessage("OnMouseDrag");
+				}
+				else if (clickUp)
+				{
+					m_lastHitCollider.gameObject.SendMessage("OnMouseUp");
+				}
+			}
 		}
 
 		private void CastRay()
@@ -216,9 +233,26 @@ namespace KerbalVR
 			Vector3 interactionRelativeHit = InteractionSystem.Instance.transform.InverseTransformPoint(hit.point);
 			Vector3 cameraRelativeHit = EventCamera.transform.parent.TransformPoint(interactionRelativeHit);
 
-			var pointerPosition = EventCamera.WorldToScreenPoint(cameraRelativeHit);
+			// handle colliders in the world that are listening to mouse events
+			if (hit.collider != m_lastHitCollider)
+			{
+				if (m_lastHitCollider)
+				{
+					m_lastHitCollider.gameObject.SendMessage("OnMouseExit");
+				}
+				if (hit.collider)
+				{
+					hit.collider.gameObject.SendMessage("OnMouseEnter");
+				}
 
-			// pointerPosition = new Vector3(Screen.width / 2, Screen.height / 2, 0);
+				m_lastHitCollider = hit.collider;
+			}
+			else if (m_lastHitCollider)
+			{
+				m_lastHitCollider.gameObject.SendMessage("OnMouseOver");
+			}
+
+			var pointerPosition = EventCamera.WorldToScreenPoint(cameraRelativeHit);
 
 			if (pointerData == null)
 			{
