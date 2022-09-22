@@ -134,7 +134,7 @@ namespace KerbalVR
 					PSystemManager.Instance.OnPSystemReady.Add(OnPSystemReady);
 				}
 
-				KerbalVR.Core.SetVrRunningDesired(gameScene == GameScenes.FLIGHT);
+				KerbalVR.Core.SetVrRunningDesired(Scene.SceneSupportsVR(gameScene));
 			}
 		}
 		private void OnPSystemReady()

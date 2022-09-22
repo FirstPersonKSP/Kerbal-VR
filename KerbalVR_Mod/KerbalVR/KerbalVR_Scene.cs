@@ -34,6 +34,19 @@ namespace KerbalVR
 			fpCameraManager.saveCameraState(FlightCamera.fetch);
 			fpCameraManager.CheckAndSetFirstPerson(FlightGlobals.ActiveVessel);
 		}
+
+		internal static bool SceneSupportsVR(GameScenes scene)
+		{
+			switch (scene)
+			{
+				case GameScenes.MAINMENU:
+				case GameScenes.SPACECENTER:
+				case GameScenes.FLIGHT:
+					return true;
+				default:
+					return false;
+			}
+		}
 	}
 
 #if false
