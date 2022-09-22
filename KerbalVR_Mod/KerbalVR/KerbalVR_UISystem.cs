@@ -1,4 +1,5 @@
-﻿using KSP.UI;
+﻿using HarmonyLib;
+using KSP.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -173,11 +174,12 @@ namespace KerbalVR
 		Camera EventCamera;
 		Vector3 lastHeadPose;
 
-		VRUIHand m_hand;
+		VRUIHand m_hand; // TODO: switch this when a button is pressed on the other hand
 		Collider m_lastHitCollider = null;
 		IVRMouseTarget m_mouseTarget;
 
 		internal static VRUIHandInputModule Instance;
+		internal VRUIHand VRUIHand => m_hand;
 
 		void Awake()
 		{
@@ -378,14 +380,78 @@ namespace KerbalVR
 			pointerData.clickCount = 1;
 			pointerData.clickTime = Time.unscaledTime;
 		}
+
+		// fake some inputs from the VR controllers and store them in the KSP Mouse class
+		internal void UpdateMouse()
+		{
+			UpdateMouseButton(Mouse.Left, m_hand.ClickAction);
+			UpdateMouseButton(Mouse.Right, m_hand.RightClickAction);
+
+			if (m_lastHitCollider != null)
+			{
+				// TODO: see if we need to be calling Mouse.GetValidHoverPart
+				var part = m_lastHitCollider.gameObject.GetComponentUpwards<Part>();
+				if (part != null)
+				{
+					Mouse.HoveredPart = part;
+				}
+			}
+		}
+
+		private void UpdateMouseButton(Mouse.MouseButton button, SteamVR_Action_Boolean_Source action)
+		{
+			button.up = action.stateUp;
+			button.down = action.stateDown;
+			button.button = action.state;
+		}
 	}
 
-
+	// This interface can be added to things that need to listen for right-click actions
+	// Now that the UI System is pushing data into the KSP Mouse class, this is less useful but if we find anything 
+	// This isn't used by anything currently, but leaving it in until I'm more certain that we don't need it
 	interface IVRMouseTarget
 	{
-
 		void OnRightMouseButtonDown();
 		void OnRightMouseButtonUp();
 		void OnRightMouseButtonDrag();
+	}
+
+	[HarmonyPatch(typeof(Mouse), nameof(Mouse.Update))]
+	class Mouse_Update_Patch
+	{
+		public static void Postfix()
+		{
+			VRUIHandInputModule.Instance.UpdateMouse();
+		}
+	}
+
+	[HarmonyPatch(typeof(Mouse), nameof(Mouse.GetAllMouseButtons))]
+	class Mouse_GetAllMouseButtons_Patch
+	{
+		public static void Postfix(ref Mouse.Buttons __result)
+		{
+			if (VRUIHandInputModule.Instance.VRUIHand.ClickAction.state) __result |= Mouse.Buttons.Left;
+			if (VRUIHandInputModule.Instance.VRUIHand.RightClickAction.state) __result |= Mouse.Buttons.Right;
+		}
+	}
+
+	[HarmonyPatch(typeof(Mouse), nameof(Mouse.GetAllMouseButtonsDown))]
+	class Mouse_GetAllMouseButtonsDown_Patch
+	{
+		public static void Postfix(ref Mouse.Buttons __result)
+		{
+			if (VRUIHandInputModule.Instance.VRUIHand.ClickAction.stateDown) __result |= Mouse.Buttons.Left;
+			if (VRUIHandInputModule.Instance.VRUIHand.RightClickAction.stateDown) __result |= Mouse.Buttons.Right;
+		}
+	}
+
+	[HarmonyPatch(typeof(Mouse), nameof(Mouse.GetAllMouseButtonsUp))]
+	class Mouse_GetAllMouseButtonsUp_Patch
+	{
+		public static void Postfix(ref Mouse.Buttons __result)
+		{
+			if (VRUIHandInputModule.Instance.VRUIHand.ClickAction.stateUp) __result |= Mouse.Buttons.Left;
+			if (VRUIHandInputModule.Instance.VRUIHand.RightClickAction.stateUp) __result |= Mouse.Buttons.Right;
+		}
 	}
 }
