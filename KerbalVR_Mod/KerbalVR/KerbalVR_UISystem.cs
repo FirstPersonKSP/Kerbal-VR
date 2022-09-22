@@ -454,4 +454,16 @@ namespace KerbalVR
 			if (VRUIHandInputModule.Instance.VRUIHand.RightClickAction.stateUp) __result |= Mouse.Buttons.Right;
 		}
 	}
+
+	[HarmonyPatch(typeof(UIPartActionController), nameof(UIPartActionController.TrySelect))]
+	class UIPartActionController_TrySelect_Patch
+	{
+		public static void Postfix(UIPartActionController __instance)
+		{
+			if (VRUIHandInputModule.Instance.VRUIHand.RightClickAction.stateDown)
+			{
+				__instance.HandleMouseClick(null, HighLogic.LoadedSceneIsFlight);
+			}
+		}
+	}
 }
