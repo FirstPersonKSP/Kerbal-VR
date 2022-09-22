@@ -72,9 +72,10 @@ namespace KerbalVR
 		Hand m_hand;
 		LineRenderer m_lineRenderer;
 		SteamVR_Action_Boolean_Source m_interactAction;
+		SteamVR_Action_Boolean_Source m_rightClickAction;
 
 		static readonly Vector3 rayDirection = Vector3.Normalize(Vector3.forward - Vector3.up);
-		static readonly float rayDistance = 10.0f;
+		static readonly float rayDistance = 1000.0f;
 		static readonly int raycastMask =
 			1 |
 			(1 << 5) | // unity UI
@@ -82,20 +83,22 @@ namespace KerbalVR
 			(1 << 12) | // UI Vectors
 			(1 << 13) | // UI Mask
 			(1 << 14) | // Screens
+			(1 << 15) | // KSC buildings
 			(1 << 21); // Part triggers
 
 		LineRenderer m_uiLineRenderer;
 
 		public SteamVR_Action_Boolean_Source ClickAction => m_interactAction;
+		public SteamVR_Action_Boolean_Source RightClickAction => m_rightClickAction;
 
 		void SetupLineRenderer(LineRenderer lineRenderer)
 		{
 			lineRenderer.useWorldSpace = false;
-			lineRenderer.SetPositions(new[] { Vector3.zero, rayDirection * rayDistance });
-			lineRenderer.startWidth = 0.001f * rayDistance;
+			lineRenderer.SetPositions(new[] { rayDirection * 0.5f, rayDirection * rayDistance });
+			lineRenderer.startWidth = 0.01f;
 			lineRenderer.endWidth = 0.0002f * rayDistance;
 			lineRenderer.endColor = new Color(1, 1, 1, 0.8f);
-			lineRenderer.startColor = Color.clear;
+			lineRenderer.startColor = new Color(1, 1, 1, 0.05f);
 			lineRenderer.material.shader = Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply");
 			lineRenderer.material.SetColor("_Color", Color.white);
 		}
@@ -108,6 +111,7 @@ namespace KerbalVR
 			SetupLineRenderer(m_lineRenderer);
 
 			m_interactAction = SteamVR_Input.GetAction<SteamVR_Action_Boolean>("InteractUI")[m_hand.handType];
+			m_rightClickAction = SteamVR_Input.GetAction<SteamVR_Action_Boolean>("RightClick")[m_hand.handType];
 
 #if false
 			var uiLineObject = new GameObject();
@@ -149,7 +153,9 @@ namespace KerbalVR
 				rayDistance,
 				raycastMask);
 
-			m_lineRenderer.SetPosition(1, (isHit ? hit.distance : rayDistance) * rayDirection);
+			float hitDistance = isHit ? hit.distance : rayDistance;
+			m_lineRenderer.SetPosition(1, hitDistance * rayDirection);
+			m_lineRenderer.endWidth = 0.0002f * hitDistance;
 
 			if (!isHit)
 			{
@@ -169,6 +175,7 @@ namespace KerbalVR
 
 		VRUIHand m_hand;
 		Collider m_lastHitCollider = null;
+		IVRMouseTarget m_mouseTarget;
 
 		internal static VRUIHandInputModule Instance;
 
@@ -224,6 +231,22 @@ namespace KerbalVR
 					m_lastHitCollider.gameObject.SendMessage("OnMouseUp");
 				}
 			}
+
+			if (m_mouseTarget != null)
+			{
+				if (m_hand.RightClickAction.stateDown)
+				{
+					m_mouseTarget.OnRightMouseButtonDown();
+				}
+				else if (m_hand.RightClickAction.state)
+				{
+					m_mouseTarget.OnRightMouseButtonDrag();
+				}
+				else if (m_hand.RightClickAction.stateUp)
+				{
+					m_mouseTarget.OnRightMouseButtonUp();
+				}
+			}
 		}
 
 		private void CastRay()
@@ -233,24 +256,6 @@ namespace KerbalVR
 			Vector3 interactionRelativeHit = InteractionSystem.Instance.transform.InverseTransformPoint(hit.point);
 			Vector3 cameraRelativeHit = EventCamera.transform.parent.TransformPoint(interactionRelativeHit);
 
-			// handle colliders in the world that are listening to mouse events
-			if (hit.collider != m_lastHitCollider)
-			{
-				if (m_lastHitCollider)
-				{
-					m_lastHitCollider.gameObject.SendMessage("OnMouseExit");
-				}
-				if (hit.collider)
-				{
-					hit.collider.gameObject.SendMessage("OnMouseEnter");
-				}
-
-				m_lastHitCollider = hit.collider;
-			}
-			else if (m_lastHitCollider)
-			{
-				m_lastHitCollider.gameObject.SendMessage("OnMouseOver");
-			}
 
 			var pointerPosition = EventCamera.WorldToScreenPoint(cameraRelativeHit);
 
@@ -268,6 +273,29 @@ namespace KerbalVR
 			m_RaycastResultCache.Clear();
 			pointerData.delta = pointerPosition - lastHeadPose;
 			lastHeadPose = hit.point;
+
+			// handle colliders in the world that are listening to mouse events
+			// If we hit anything on a canvas, ignore this.
+			var hitCollider = pointerData.pointerCurrentRaycast.isValid ? null : hit.collider;
+			if (hitCollider != m_lastHitCollider)
+			{
+				if (m_lastHitCollider)
+				{
+					m_lastHitCollider.gameObject.SendMessage("OnMouseExit");
+				}
+				if (hitCollider)
+				{
+					hitCollider.gameObject.SendMessage("OnMouseEnter");
+				}
+
+				m_lastHitCollider = hitCollider;
+				m_mouseTarget = m_lastHitCollider?.GetComponent<IVRMouseTarget>();
+			}
+
+			if (m_lastHitCollider)
+			{
+				m_lastHitCollider.gameObject.SendMessage("OnMouseOver");
+			}
 		}
 
 		private void UpdateCurrentObject()
@@ -352,45 +380,12 @@ namespace KerbalVR
 		}
 	}
 
-	internal class VR3DButtonAdapter : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
+
+	interface IVRMouseTarget
 	{
-		IMouseEvents m_mouseInterface;
 
-		void Awake()
-		{
-			m_mouseInterface = GetComponent<IMouseEvents>();
-		}
-
-		public void OnPointerEnter(PointerEventData eventData)
-		{
-			if (eventData.currentInputModule == VRUIHandInputModule.Instance)
-			{
-				m_mouseInterface.OnMouseEnter();
-			}
-		}
-
-		public void OnPointerExit(PointerEventData eventData)
-		{
-			if (eventData.currentInputModule == VRUIHandInputModule.Instance)
-			{
-				m_mouseInterface.OnMouseExit();
-			}
-		}
-
-		public void OnPointerUp(PointerEventData eventData)
-		{
-			if (eventData.currentInputModule == VRUIHandInputModule.Instance)
-			{
-				m_mouseInterface.OnMouseUp();
-			}
-		}
-
-		public void OnPointerDown(PointerEventData eventData)
-		{
-			if (eventData.currentInputModule == VRUIHandInputModule.Instance)
-			{
-				m_mouseInterface.OnMouseDown();
-			}
-		}
+		void OnRightMouseButtonDown();
+		void OnRightMouseButtonUp();
+		void OnRightMouseButtonDrag();
 	}
 }

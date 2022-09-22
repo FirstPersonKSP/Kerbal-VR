@@ -153,6 +153,7 @@
     <Compile Include="KerbalVR_Core.cs" />
     <Compile Include="KerbalVR_MainMenu.cs" />
     <Compile Include="KerbalVR_Seat.cs" />
+    <Compile Include="KerbalVR_SpaceCenter.cs" />
     <Compile Include="KerbalVR_UISystem.cs" />
     <Compile Include="Loaders\ExternalSeatLoader.cs" />
     <Compile Include="Loaders\InternalModelLoader.cs" />
