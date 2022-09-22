@@ -1,7 +1,7 @@
 {
    "action_manifest_version" : 0,
    "alias_info" : {},
-   "app_key" : "application.generated.unity.kerbalvr_unitysteamvr.exe",
+   "app_key" : "system.generated.ksp_x64.exe",
    "bindings" : {
       "/actions/buggy" : {
          "chords" : [],
@@ -46,15 +46,6 @@
             {
                "inputs" : {
                   "click" : {
-                     "output" : "/actions/default/in/interactui"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/left/input/trigger"
-            },
-            {
-               "inputs" : {
-                  "click" : {
                      "output" : "/actions/default/in/grabgrip"
                   }
                },
@@ -64,15 +55,6 @@
                   "click_deactivate_threshold" : "0.7"
                },
                "path" : "/user/hand/left/input/grip"
-            },
-            {
-               "inputs" : {
-                  "click" : {
-                     "output" : "/actions/default/in/interactui"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/right/input/trigger"
             },
             {
                "inputs" : {
@@ -136,6 +118,42 @@
                "inputs" : {
                   "click" : {
                      "output" : "/actions/default/in/pinchthumb"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/b"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/default/in/interactui"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/x"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/default/in/rightclick"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/y"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/default/in/interactui"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/a"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/default/in/rightclick"
                   }
                },
                "mode" : "button",
