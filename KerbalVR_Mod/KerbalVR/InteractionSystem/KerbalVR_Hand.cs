@@ -232,31 +232,22 @@ namespace KerbalVR {
 
         protected void Update() {
             // should we render the hands in the current scene?
-            bool isRendering = false;
-            if (KerbalVR.Core.IsVrRunning) {
-                switch (HighLogic.LoadedScene) {
-                    case GameScenes.MAINMENU:
-                    case GameScenes.EDITOR:
-                        isRendering = true;
-                        renderLayerHands.Push(0);
-                        break;
+            bool isRendering = KerbalVR.Core.IsVrRunning;
+            if (isRendering)
+            {
+                int renderLayer = 0;
 
+                switch (HighLogic.LoadedScene) {
                     case GameScenes.FLIGHT:
-                        isRendering = true;
 
                         if (KerbalVR.Scene.IsInIVA()) {
                             // IVA-specific settings
-                            renderLayerHands.Push(20);
-                        }
-                        else {
-                            // EVA-specific settings
-                            renderLayerHands.Push(0);
+                            renderLayer = 20;
                         }
                         break;
                 }
-            }
-            else {
-                isRendering = false;
+
+                renderLayerHands.Push(renderLayer);
             }
 
             // if rendering, update the hand positions
