@@ -88,13 +88,5 @@ namespace Valve.VR
                 return SteamVR_Actions.eVA_SwapRollYaw;
             }
         }
-        
-        public virtual SteamVR_Action_Boolean PlantFlag
-        {
-            get
-            {
-                return SteamVR_Actions.eVA_PlantFlag;
-            }
-        }
     }
 }

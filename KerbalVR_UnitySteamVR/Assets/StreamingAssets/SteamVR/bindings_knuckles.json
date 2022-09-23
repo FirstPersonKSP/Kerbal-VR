@@ -279,15 +279,6 @@
                   "force_input" : ""
                },
                "path" : "/user/hand/left/input/thumbstick"
-            },
-            {
-               "inputs" : {
-                  "long" : {
-                     "output" : "/actions/eva/in/plantflag"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/right/input/b"
             }
          ]
       },

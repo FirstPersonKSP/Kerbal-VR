@@ -98,10 +98,6 @@
     {
       "name": "/actions/EVA/in/SwapRollYaw",
       "type": "boolean"
-    },
-    {
-      "name": "/actions/EVA/in/PlantFlag",
-      "type": "boolean"
     }
   ],
   "action_sets": [

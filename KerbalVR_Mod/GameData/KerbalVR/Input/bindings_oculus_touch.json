@@ -1,7 +1,7 @@
 {
    "action_manifest_version" : 0,
    "alias_info" : {},
-   "app_key" : "system.generated.ksp_x64.exe",
+   "app_key" : "application.generated.unity.kerbalvr_unitysteamvr.exe",
    "bindings" : {
       "/actions/buggy" : {
          "chords" : [],
@@ -267,15 +267,6 @@
                },
                "mode" : "joystick",
                "path" : "/user/hand/left/input/joystick"
-            },
-            {
-               "inputs" : {
-                  "long" : {
-                     "output" : "/actions/eva/in/plantflag"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/right/input/b"
             }
          ]
       },
