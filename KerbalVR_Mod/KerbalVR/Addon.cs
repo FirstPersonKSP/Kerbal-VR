@@ -28,6 +28,9 @@ namespace KerbalVR
 			GameEvents.onLevelWasLoaded.Add(OnLevelWasLoaded);
 			GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
 
+			var uiSystem = new GameObject("VRUISystem").AddComponent<UISystem>();
+			DontDestroyOnLoad(uiSystem);
+
 			DontDestroyOnLoad(this);
 		}
 

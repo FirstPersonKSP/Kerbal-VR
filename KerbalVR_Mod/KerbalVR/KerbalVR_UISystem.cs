@@ -12,8 +12,32 @@ using Valve.VR;
 
 namespace KerbalVR
 {
-	internal static class UISystem
+	internal class UISystem : MonoBehaviour
 	{
+		void Awake()
+		{
+			GameEvents.onPartActionUIShown.Add(OnPartActionUIShown);
+		}
+
+		static Quaternion canvasRotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
+
+		private void OnPartActionUIShown(UIPartActionWindow window, Part part)
+		{
+			var kerbalEVA = Scene.GetKerbalEVA();
+
+			if (Core.IsVrRunning && kerbalEVA != null)
+			{
+				window.gameObject.SetLayerRecursive(0);
+				window.rectTransform.anchoredPosition3D = Vector3.zero;
+				window.rectTransform.localPosition = Vector3.zero;
+				window.rectTransform.localScale = Vector3.one * 0.07f;
+				window.GetComponentInChildren<Graphic>().material.shader = Shader.Find("UI/Default"); // this defaults to "UI/KSP/Color Overlay" which has z-write on, which causes z-fighting when rendered in worldspace
+
+
+				window.rectTransform.localRotation = canvasRotation;
+			}
+		}
+
 		internal static void VRRunningChanged(bool running)
 		{
 			running = running && !Scene.IsInIVA();
@@ -41,10 +65,12 @@ namespace KerbalVR
 			// open the kerbal eva part action window and attach it to the left hand
 			if (Core.IsVrRunning && kerbalEVA != null)
 			{
-				UIPartActionController.Instance.SelectPart(kerbalEVA.part, false, false);
 				UIMasterController.Instance.actionCanvas.transform.SetParent(InteractionSystem.Instance.LeftHand.handObject.transform, false);
 				UIMasterController.Instance.actionCanvas.transform.localPosition = Vector3.zero;
 				UIMasterController.Instance.actionCanvas.transform.localRotation = Quaternion.identity;
+				UIMasterController.Instance.actionCanvas.transform.localScale = Vector3.one * 0.01f;
+				UIMasterController.Instance.actionCanvas.gameObject.layer = 0;
+				UIMasterController.Instance.actionCanvas.worldCamera = FlightCamera.fetch.mainCamera;
 			}
 			else
 			{
