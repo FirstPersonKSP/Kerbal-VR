@@ -193,24 +193,24 @@ namespace KerbalVR
 		}
 	}
 
-	// This class derived from https://github.com/Raicuparta/two-forks-vr/blob/main/TwoForksVr/src/LaserPointer/LaserInputModule.cs
+	// This class derived from https://github.com/Raicuparta/two-forks-vr/blob/main/TwoForksVr/src/LaserPointer/LaserInputModule.cs under MIT license
 	internal class VRUIHandInputModule : BaseInputModule
 	{
 		PointerEventData pointerData;
 		Camera EventCamera;
 		Vector3 lastHeadPose;
 
-		VRUIHand m_hand; // TODO: switch this when a button is pressed on the other hand
+		Hand m_hand; // TODO: switch this when a button is pressed on the other hand
 		Collider m_lastHitCollider = null;
 		IVRMouseTarget m_mouseTarget;
 
 		internal static VRUIHandInputModule Instance;
-		internal VRUIHand VRUIHand => m_hand;
+		internal VRUIHand VRUIHand => m_hand.UIHand;
 
 		void Awake()
 		{
 
-			m_hand = InteractionSystem.Instance.RightHand.UIHand;
+			m_hand = InteractionSystem.Instance.RightHand;
 			
 
 			EventCamera = UIMasterController.Instance.uiCamera;
@@ -233,9 +233,9 @@ namespace KerbalVR
 			CastRay();
 			UpdateCurrentObject();
 
-			var clickDown = m_hand.ClickAction.stateDown;
-			var isClicking = m_hand.ClickAction.state;
-			var clickUp = m_hand.ClickAction.stateUp;
+			var clickDown = m_hand.UIHand.ClickAction.stateDown;
+			var isClicking = m_hand.UIHand.ClickAction.state;
+			var clickUp = m_hand.UIHand.ClickAction.stateUp;
 
 			if (!clickDown && isClicking)
 				HandleDrag();
@@ -262,15 +262,15 @@ namespace KerbalVR
 
 			if (m_mouseTarget != null)
 			{
-				if (m_hand.RightClickAction.stateDown)
+				if (m_hand.UIHand.RightClickAction.stateDown)
 				{
 					m_mouseTarget.OnRightMouseButtonDown();
 				}
-				else if (m_hand.RightClickAction.state)
+				else if (m_hand.UIHand.RightClickAction.state)
 				{
 					m_mouseTarget.OnRightMouseButtonDrag();
 				}
-				else if (m_hand.RightClickAction.stateUp)
+				else if (m_hand.UIHand.RightClickAction.stateUp)
 				{
 					m_mouseTarget.OnRightMouseButtonUp();
 				}
@@ -279,11 +279,10 @@ namespace KerbalVR
 
 		private void CastRay()
 		{
-			bool isHit = m_hand.CastRay(out var hit);
+			bool isHit = m_hand.UIHand.CastRay(out var hit);
 
 			Vector3 interactionRelativeHit = InteractionSystem.Instance.transform.InverseTransformPoint(hit.point);
 			Vector3 cameraRelativeHit = EventCamera.transform.parent.TransformPoint(interactionRelativeHit);
-
 
 			var pointerPosition = EventCamera.WorldToScreenPoint(cameraRelativeHit);
 
@@ -293,14 +292,28 @@ namespace KerbalVR
 				lastHeadPose = pointerPosition;
 			}
 
-			// Cast a ray into the scene
-			pointerData.Reset();
-			pointerData.position = pointerPosition;
-			eventSystem.RaycastAll(pointerData, m_RaycastResultCache);
-			pointerData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
-			m_RaycastResultCache.Clear();
-			pointerData.delta = pointerPosition - lastHeadPose;
-			lastHeadPose = hit.point;
+			// Try the fingertip against the PAW
+			if (UIMasterController.Instance.actionCanvas.gameObject.layer == 0 && UIPartActionController.Instance.windows.Count > 0)
+			{
+				var raycaster = UIMasterController.Instance.actionCanvas.GetComponent<BaseRaycaster>();
+				pointerPosition = raycaster.eventCamera.WorldToScreenPoint(m_hand.FingertipPosition);
+				pointerData.Reset();
+				pointerData.position = pointerPosition;
+				raycaster.Raycast(pointerData, m_RaycastResultCache);
+				pointerData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
+				m_RaycastResultCache.Clear();
+			}
+			else
+			{
+				// Cast a ray into the scene
+				pointerData.Reset();
+				pointerData.position = pointerPosition;
+				eventSystem.RaycastAll(pointerData, m_RaycastResultCache);
+				pointerData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
+				m_RaycastResultCache.Clear();
+				pointerData.delta = pointerPosition - lastHeadPose;
+				lastHeadPose = hit.point;
+			}
 
 			// handle colliders in the world that are listening to mouse events
 			// If we hit anything on a canvas, ignore this.
@@ -410,8 +423,8 @@ namespace KerbalVR
 		// fake some inputs from the VR controllers and store them in the KSP Mouse class
 		internal void UpdateMouse()
 		{
-			UpdateMouseButton(Mouse.Left, m_hand.ClickAction);
-			UpdateMouseButton(Mouse.Right, m_hand.RightClickAction);
+			UpdateMouseButton(Mouse.Left, m_hand.UIHand.ClickAction);
+			UpdateMouseButton(Mouse.Right, m_hand.UIHand.RightClickAction);
 
 			if (m_lastHitCollider != null)
 			{
