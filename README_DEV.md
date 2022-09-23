@@ -36,7 +36,7 @@ Vivero's version of KerbalVR achieved stereoscopic rendering by using custom cam
 
   Open in **Visual Studio 2022**. For each of the KerbalVR and KerbalVR-RPM projects, in the project properties under Reference Paths, add the path to your KSP root directory (where the executable is).  This information is not stored in the csproj so different developers can have different KSP install locations.  To compile,  hit **Build > Build Solution**.
 
-  These projects automatically copy files into the GameData directory.  If you are iterating on code, I suggest making a junction or symlink from your KSP's GameData directory to point at your development directory.
+  These projects automatically copy files into the local repo's GameData directory.  If you are iterating on code, I suggest making a junction or symlink from your KSP's GameData directory to point at your development directory.
 
   If you clone the *KerbalVR* repo, you can build this solution alone **without
   the having to first build the other projects**. The repo will contain the
