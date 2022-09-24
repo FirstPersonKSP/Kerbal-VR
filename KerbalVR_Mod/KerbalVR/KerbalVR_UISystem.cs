@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using KSP.UI;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,18 +15,18 @@ namespace KerbalVR
 {
 	internal class UISystem : MonoBehaviour
 	{
+		internal static UISystem Instance { get; private set; }
 		void Awake()
 		{
 			GameEvents.onPartActionUIShown.Add(OnPartActionUIShown);
+			Instance = this;
 		}
 
 		static Quaternion canvasRotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
 
 		private void OnPartActionUIShown(UIPartActionWindow window, Part part)
 		{
-			var kerbalEVA = Scene.GetKerbalEVA();
-
-			if (Core.IsVrRunning && kerbalEVA != null)
+			if (Core.IsVrRunning && Scene.IsFirstPersonEVA())
 			{
 				window.gameObject.SetLayerRecursive(0);
 				window.rectTransform.anchoredPosition3D = Vector3.zero;
@@ -36,11 +37,26 @@ namespace KerbalVR
 
 				window.rectTransform.localRotation = canvasRotation;
 			}
+			else
+			{
+				window.gameObject.SetLayerRecursive(5);
+				window.rectTransform.localScale = Vector3.one;
+
+				// for some reason, changing the shader back to this will break the rendering of the UI in non-vr mode
+				//var graphic = window.GetComponentInChildren<Graphic>();
+				//graphic.material.shader = Shader.Find("UI/KSP/Color Overlay");
+
+				window.rectTransform.localRotation = Quaternion.identity;
+			}
 		}
 
-		internal static void VRRunningChanged(bool running)
+		internal void VRRunningChanged(bool running)
 		{
 			running = running && !Scene.IsInIVA();
+
+			ConfigureCanvas(UIMasterController.Instance.actionCanvas, running);
+
+#if GUI_ENABLED
 
 			UIMasterController.Instance.uiCamera.stereoTargetEye = running ? StereoTargetEyeMask.Both : StereoTargetEyeMask.None;
 			UIMasterController.Instance.uiCamera.farClipPlane = running ? 2000.0f : 1100.0f;
@@ -48,33 +64,44 @@ namespace KerbalVR
 			UIMasterController.Instance.uiCamera.orthographic = !running;
 
 			ConfigureCanvas(UIMasterController.Instance.mainCanvas, running);
-			ConfigureCanvas(UIMasterController.Instance.actionCanvas, running);
 			ConfigureCanvas(UIMasterController.Instance.appCanvas, running);
 			ConfigureCanvas(UIMasterController.Instance.dialogCanvas, running);
+#endif
 
 			ConfigureHand(InteractionSystem.Instance.LeftHand, running);
 			ConfigureHand(InteractionSystem.Instance.RightHand, running);
+
+			StartCoroutine(ConfigureActionCanvas(running));
 		}
 
-		internal static void ModeChanged()
+		internal void ModeChanged()
 		{
 			VRRunningChanged(Core.IsVrRunning);
+		}
 
-			var kerbalEVA = Scene.GetKerbalEVA();
+		IEnumerator ConfigureActionCanvas(bool running)
+		{
+			yield return null; // wait a frame so that ThroughTheEyes knows whether we are in first person or not
+			var canvas = UIMasterController.Instance.actionCanvas;
+			bool pdaMode = running && Scene.IsFirstPersonEVA();
 
-			// open the kerbal eva part action window and attach it to the left hand
-			if (Core.IsVrRunning && kerbalEVA != null)
+			if (pdaMode)
 			{
-				UIMasterController.Instance.actionCanvas.transform.SetParent(InteractionSystem.Instance.LeftHand.handObject.transform, false);
-				UIMasterController.Instance.actionCanvas.transform.localPosition = Vector3.zero;
-				UIMasterController.Instance.actionCanvas.transform.localRotation = Quaternion.identity;
-				UIMasterController.Instance.actionCanvas.transform.localScale = Vector3.one * 0.01f;
-				UIMasterController.Instance.actionCanvas.gameObject.layer = 0;
-				UIMasterController.Instance.actionCanvas.worldCamera = FlightCamera.fetch.mainCamera;
+				canvas.transform.SetParent(InteractionSystem.Instance.LeftHand.handObject.transform, false);
+				canvas.transform.localPosition = Vector3.zero;
+				canvas.transform.localRotation = Quaternion.identity;
+				canvas.transform.localScale = Vector3.one * 0.01f;
+				canvas.gameObject.layer = 0;
+				canvas.worldCamera = FlightCamera.fetch.mainCamera;
 			}
 			else
 			{
-
+				canvas.transform.SetParent(UIMasterController.Instance.transform, false);
+				canvas.transform.localPosition = new Vector3(0, 0, 500);
+				canvas.transform.localRotation = Quaternion.identity;
+				canvas.transform.localScale = Vector3.one;
+				canvas.gameObject.layer = 5;
+				canvas.worldCamera = UIMasterController.Instance.uiCamera;
 			}
 		}
 
@@ -207,6 +234,10 @@ namespace KerbalVR
 		internal static VRUIHandInputModule Instance;
 		internal VRUIHand VRUIHand => m_hand.UIHand;
 
+		bool m_lastPAWFingertipState;
+		bool m_PAWFingertipState;
+		bool m_PAWFingertipLatched;
+
 		void Awake()
 		{
 
@@ -233,9 +264,11 @@ namespace KerbalVR
 			CastRay();
 			UpdateCurrentObject();
 
-			var clickDown = m_hand.UIHand.ClickAction.stateDown;
-			var isClicking = m_hand.UIHand.ClickAction.state;
-			var clickUp = m_hand.UIHand.ClickAction.stateUp;
+			var clickDown = m_hand.UIHand.ClickAction.stateDown || (m_PAWFingertipState && !m_lastPAWFingertipState);
+			var isClicking = m_hand.UIHand.ClickAction.state || m_PAWFingertipState;
+			var clickUp = m_hand.UIHand.ClickAction.stateUp || (!m_PAWFingertipState && m_lastPAWFingertipState);
+
+			m_lastPAWFingertipState = m_PAWFingertipState;
 
 			if (!clickDown && isClicking)
 				HandleDrag();
@@ -292,14 +325,35 @@ namespace KerbalVR
 				lastHeadPose = pointerPosition;
 			}
 
+			m_PAWFingertipState = false;
+
 			// Try the fingertip against the PAW
 			if (UIMasterController.Instance.actionCanvas.gameObject.layer == 0 && UIPartActionController.Instance.windows.Count > 0)
 			{
-				var raycaster = UIMasterController.Instance.actionCanvas.GetComponent<BaseRaycaster>();
+				var canvas = UIMasterController.Instance.actionCanvas;
+				var raycaster = canvas.GetComponent<BaseRaycaster>();
 				pointerPosition = raycaster.eventCamera.WorldToScreenPoint(m_hand.FingertipPosition);
 				pointerData.Reset();
-				pointerData.position = pointerPosition;
-				raycaster.Raycast(pointerData, m_RaycastResultCache);
+
+				Vector3 toFinger = m_hand.FingertipPosition - canvas.transform.position;
+				float distance = Vector3.Dot(toFinger, canvas.transform.up);
+
+				if (!m_PAWFingertipLatched && distance < m_hand.FingertipRadius && distance > -m_hand.FingertipRadius)
+				{
+					pointerData.position = pointerPosition;
+					raycaster.Raycast(pointerData, m_RaycastResultCache);
+
+					m_PAWFingertipState = distance < 0;
+					if (m_PAWFingertipState)
+					{
+						m_PAWFingertipLatched = true;
+					}
+				}
+				else if (m_PAWFingertipLatched && distance > m_hand.FingertipRadius)
+				{
+					m_PAWFingertipLatched = false;
+				}
+
 				pointerData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
 				m_RaycastResultCache.Clear();
 			}

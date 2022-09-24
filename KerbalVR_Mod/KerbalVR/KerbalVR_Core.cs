@@ -92,7 +92,7 @@ namespace KerbalVR
 					ResetVRPosition();
 				}
 
-				UISystem.VRRunningChanged(running);
+				UISystem.Instance.VRRunningChanged(running);
 			}
 		}
 

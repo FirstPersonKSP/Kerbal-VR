@@ -49,6 +49,7 @@ namespace KerbalVR {
             get { return fingertipCollider.FingertipCenter; }
         }
 
+		public float FingertipRadius => fingertipCollider.FingertipRadius;
         public bool FingertipEnabled
         {
             get { return fingertipCollider.InteractionsEnabled; }
