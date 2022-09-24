@@ -117,7 +117,8 @@ namespace KerbalVR
 
 		static void ConfigureHand(Hand hand, bool running)
 		{
-			hand.UIHand.VRRunningChanged(running);
+			// for now, let's only use the right hand as a laser pointer
+			hand.UIHand.VRRunningChanged(running && hand.handType == SteamVR_Input_Sources.RightHand);
 		}
 	}
 
