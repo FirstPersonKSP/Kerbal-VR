@@ -179,6 +179,7 @@ namespace KerbalVR {
 			// create a child object for the colider so that it can be on a different layer
 			handTransform = new GameObject("handTransform").transform;
 			handTransform.SetParent(handObject.transform.Find(profile.gripTransformPath), false);
+			handTransform.rotation = handObject.transform.rotation;
 			handTransform.localPosition = GripOffset;
 			handCollider = handTransform.gameObject.AddComponent<HandCollider>();
 			handCollider.Initialize(this);
