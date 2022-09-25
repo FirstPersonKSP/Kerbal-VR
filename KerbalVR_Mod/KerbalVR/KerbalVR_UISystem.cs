@@ -262,8 +262,8 @@ namespace KerbalVR
 
 		public override void Process()
 		{
-			CastRay();
-			UpdateCurrentObject();
+			CastRay(out var hitCollider);
+			UpdateCurrentObject(hitCollider);
 
 			var clickDown = m_hand.UIHand.ClickAction.stateDown || (m_PAWFingertipState && !m_lastPAWFingertipState);
 			var isClicking = m_hand.UIHand.ClickAction.state || m_PAWFingertipState;
@@ -311,7 +311,7 @@ namespace KerbalVR
 			}
 		}
 
-		private void CastRay()
+		private void CastRay(out Collider hitCollider)
 		{
 			bool isHit = m_hand.UIHand.CastRay(out var hit);
 
@@ -372,7 +372,11 @@ namespace KerbalVR
 
 			// handle colliders in the world that are listening to mouse events
 			// If we hit anything on a canvas, ignore this.
-			var hitCollider = pointerData.pointerCurrentRaycast.isValid ? null : hit.collider;
+			hitCollider = pointerData.pointerCurrentRaycast.isValid ? null : hit.collider;
+		}
+
+		private void UpdateCurrentObject(Collider hitCollider)
+		{
 			if (hitCollider != m_lastHitCollider)
 			{
 				if (m_lastHitCollider)
@@ -392,10 +396,7 @@ namespace KerbalVR
 			{
 				m_lastHitCollider.gameObject.SendMessage("OnMouseOver");
 			}
-		}
 
-		private void UpdateCurrentObject()
-		{
 			// Send enter events and update the highlight.
 			var go = pointerData.pointerCurrentRaycast.gameObject;
 			HandlePointerExitAndEnter(pointerData, go);
