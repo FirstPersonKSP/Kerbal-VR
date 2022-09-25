@@ -453,12 +453,12 @@ PrefabInstance:
     - target: {fileID: 11401046, guid: dc06161b6d97feb419f45f03b62e14b9, type: 3}
       propertyPath: renderModelPrefab
       value: 
-      objectReference: {fileID: 1518669503752177751, guid: b97c17ce0e0f59144bb31fc25e19909c,
+      objectReference: {fileID: 1518669503752177751, guid: f388733adddc0504d86fb30d3582af53,
         type: 3}
     - target: {fileID: 11450312, guid: dc06161b6d97feb419f45f03b62e14b9, type: 3}
       propertyPath: renderModelPrefab
       value: 
-      objectReference: {fileID: 6148835653059009519, guid: b97227bfef064b24bb9c6ec9d94a76cc,
+      objectReference: {fileID: 1518669503752177751, guid: a16760acddee54c48b080ee69f2ba72b,
         type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dc06161b6d97feb419f45f03b62e14b9, type: 3}

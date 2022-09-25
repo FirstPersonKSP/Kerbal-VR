@@ -45,6 +45,8 @@ namespace KerbalVR
 			public string indexTipTransformPath;
 			[PersistentField("thumbTipTransformPath")]
 			public string thumbTipTransformPath;
+			[PersistentField("gripTransformPath")]
+			public string gripTransformPath;
 
 			[PersistentField("sourceSkeletonRootPath")]
 			public string sourceSkeletonRootPath;
