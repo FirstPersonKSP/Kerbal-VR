@@ -31,22 +31,15 @@ namespace KerbalVR
 				window.gameObject.SetLayerRecursive(0);
 				window.rectTransform.anchoredPosition3D = Vector3.zero;
 				window.rectTransform.localPosition = Vector3.zero;
-				window.rectTransform.localScale = Vector3.one * 0.07f;
 				window.GetComponentInChildren<Graphic>().material.shader = Shader.Find("UI/Default"); // this defaults to "UI/KSP/Color Overlay" which has z-write on, which causes z-fighting when rendered in worldspace
-
-
-				window.rectTransform.localRotation = canvasRotation;
 			}
 			else
 			{
 				window.gameObject.SetLayerRecursive(5);
-				window.rectTransform.localScale = Vector3.one;
 
 				// for some reason, changing the shader back to this will break the rendering of the UI in non-vr mode
 				//var graphic = window.GetComponentInChildren<Graphic>();
 				//graphic.material.shader = Shader.Find("UI/KSP/Color Overlay");
-
-				window.rectTransform.localRotation = Quaternion.identity;
 			}
 		}
 
@@ -55,6 +48,7 @@ namespace KerbalVR
 			running = running && !Scene.IsInIVA();
 
 			ConfigureCanvas(UIMasterController.Instance.actionCanvas, running);
+			ConfigureCanvas(UIMasterController.Instance.dialogCanvas, running);
 
 #if GUI_ENABLED
 
@@ -65,13 +59,17 @@ namespace KerbalVR
 
 			ConfigureCanvas(UIMasterController.Instance.mainCanvas, running);
 			ConfigureCanvas(UIMasterController.Instance.appCanvas, running);
-			ConfigureCanvas(UIMasterController.Instance.dialogCanvas, running);
 #endif
-
 			ConfigureHand(InteractionSystem.Instance.LeftHand, running);
 			ConfigureHand(InteractionSystem.Instance.RightHand, running);
 
-			StartCoroutine(ConfigureActionCanvas(running));
+			var handheldCanvases = new Canvas[]
+			{
+				UIMasterController.Instance.actionCanvas,
+				UIMasterController.Instance.dialogCanvas,
+			};
+
+			StartCoroutine(ConfigureHandheldCanvases(handheldCanvases, running));
 		}
 
 		internal void ModeChanged()
@@ -79,29 +77,31 @@ namespace KerbalVR
 			VRRunningChanged(Core.IsVrRunning);
 		}
 
-		IEnumerator ConfigureActionCanvas(bool running)
+		IEnumerator ConfigureHandheldCanvases(Canvas[] canvases, bool running)
 		{
 			yield return null; // wait a frame so that ThroughTheEyes knows whether we are in first person or not
-			var canvas = UIMasterController.Instance.actionCanvas;
 			bool pdaMode = running && Scene.IsFirstPersonEVA();
 
-			if (pdaMode)
+			foreach (var canvas in canvases)
 			{
-				canvas.transform.SetParent(InteractionSystem.Instance.LeftHand.handObject.transform, false);
-				canvas.transform.localPosition = Vector3.zero;
-				canvas.transform.localRotation = Quaternion.identity;
-				canvas.transform.localScale = Vector3.one * 0.01f;
-				canvas.gameObject.layer = 0;
-				canvas.worldCamera = FlightCamera.fetch.mainCamera;
-			}
-			else
-			{
-				canvas.transform.SetParent(UIMasterController.Instance.transform, false);
-				canvas.transform.localPosition = new Vector3(0, 0, 500);
-				canvas.transform.localRotation = Quaternion.identity;
-				canvas.transform.localScale = Vector3.one;
-				canvas.gameObject.layer = 5;
-				canvas.worldCamera = UIMasterController.Instance.uiCamera;
+				if (pdaMode)
+				{
+					canvas.transform.SetParent(InteractionSystem.Instance.LeftHand.handObject.transform, false);
+					canvas.transform.localPosition = Vector3.zero;
+					canvas.transform.localRotation = canvasRotation;
+					canvas.transform.localScale = Vector3.one * 0.007f; // arbitrary
+					canvas.gameObject.layer = 0;
+					canvas.worldCamera = FlightCamera.fetch.mainCamera;
+				}
+				else
+				{
+					canvas.transform.SetParent(UIMasterController.Instance.transform, false);
+					canvas.transform.localPosition = new Vector3(0, 0, 500); // 500 is the value for the PAW, this might not be correct for other canvases
+					canvas.transform.localRotation = Quaternion.identity;
+					canvas.transform.localScale = Vector3.one;
+					canvas.gameObject.layer = 5;
+					canvas.worldCamera = UIMasterController.Instance.uiCamera;
+				}
 			}
 		}
 
@@ -130,7 +130,7 @@ namespace KerbalVR
 		SteamVR_Action_Boolean_Source m_rightClickAction;
 
 		static readonly Vector3 rayDirection = Vector3.Normalize(Vector3.forward - Vector3.up);
-		static readonly float rayDistance = 1000.0f;
+		static readonly float rayDistance = 1000.0f; // this probably needs to be customized per scene.  This is crazy far for flight scene, but not far enough in KSC
 		static readonly int raycastMask =
 			1 |
 			(1 << 5) | // unity UI
@@ -517,7 +517,7 @@ namespace KerbalVR
 			raycaster.Raycast(pointerData, m_RaycastResultCache);
 
 			Vector3 toFinger = m_hand.FingertipPosition - canvas.transform.position;
-			float distance = Vector3.Dot(toFinger, canvas.transform.up);
+			float distance = Vector3.Dot(toFinger, -canvas.transform.forward);
 
 			if (!m_PAWFingertipLatched && distance < m_hand.FingertipRadius && distance > -m_hand.FingertipRadius)
 			{
