@@ -1,4 +1,5 @@
 using HarmonyLib;
+using KSPAchievements;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -48,8 +49,45 @@ namespace KerbalVR
 		}
 
 		#region Properties
-		public Hand LeftHand { get; private set; }
-		public Hand RightHand { get; private set; }
+
+		private bool useIVAProfile = false;
+		public bool UseIVAProfile
+		{
+			get => useIVAProfile;
+			set
+			{
+				useIVAProfile = value;
+
+				if (useIVAProfile)
+				{
+					LeftHandIVA.gameObject.SetActive(true);
+					RightHandIVA.gameObject.SetActive(true);
+					LeftHandEVA.gameObject.SetActive(false);
+					RightHandEVA.gameObject.SetActive(false);
+				}
+				else
+				{
+					LeftHandIVA.gameObject.SetActive(false);
+					RightHandIVA.gameObject.SetActive(false);
+					LeftHandEVA.gameObject.SetActive(true);
+					RightHandEVA.gameObject.SetActive(true);
+				}
+
+				LeftHandIVA.ChangeGrab(false);
+				RightHandIVA.ChangeGrab(false);
+				LeftHandEVA.ChangeGrab(false);
+				RightHandEVA.ChangeGrab(false);
+			}
+		}
+
+		public Hand LeftHand { get => UseIVAProfile ? LeftHandIVA : LeftHandEVA; }
+		public Hand RightHand { get => UseIVAProfile ? RightHandIVA : RightHandEVA; }
+
+		private Hand LeftHandIVA;
+		private Hand LeftHandEVA;
+		private Hand RightHandIVA;
+		private Hand RightHandEVA;
+
 		//public GameObject HeadUpDisplay { get; private set; }
 		#endregion
 
@@ -62,25 +100,29 @@ namespace KerbalVR
 		protected bool isHandsInitialized = false;
 		#endregion
 
+		private Hand SetupHand(string name)
+		{
+			GameObject handGameObject = new GameObject(name);
+			handGameObject.transform.SetParent(transform, false);
+			DontDestroyOnLoad(handGameObject);
+			return handGameObject.AddComponent<Hand>();
+		}
 
 		protected void InitializeHandScripts() 
 		{
 			HandProfileManager.Instance.LoadAllProfiles();
 
 			// set up the hand objects
-			var lhGameObject = new GameObject("KVR_HandL");
-			lhGameObject.transform.SetParent(transform, false);
-			DontDestroyOnLoad(lhGameObject);
-			LeftHand = lhGameObject.AddComponent<KerbalVR.Hand>();
-
-			var rhGameObject = new GameObject("KVR_HandR");
-			rhGameObject.transform.SetParent(transform, false);
-			DontDestroyOnLoad(rhGameObject);
-			RightHand = rhGameObject.AddComponent<KerbalVR.Hand>();
+			LeftHandIVA = SetupHand("KVR_HandL_IVA");
+			RightHandIVA = SetupHand("KVR_HandR_IVA");
+			LeftHandEVA = SetupHand("KVR_HandL_EVA");
+			RightHandEVA = SetupHand("KVR_HandR_EVA");
 
 			// can init the skeleton behavior now
-			LeftHand.Initialize(SteamVR_Input_Sources.LeftHand, RightHand.gameObject);
-			RightHand.Initialize(SteamVR_Input_Sources.RightHand, LeftHand.gameObject);
+			LeftHandIVA.Initialize(SteamVR_Input_Sources.LeftHand, RightHand.gameObject, true);
+			RightHandIVA.Initialize(SteamVR_Input_Sources.RightHand, LeftHand.gameObject, true);
+			LeftHandEVA.Initialize(SteamVR_Input_Sources.LeftHand, RightHand.gameObject, false);
+			RightHandEVA.Initialize(SteamVR_Input_Sources.RightHand, LeftHand.gameObject, false);
 
 			// init the head up display
 			//HeadUpDisplay = new GameObject("KVR_HeadUpDisplay");

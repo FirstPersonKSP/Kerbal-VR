@@ -87,14 +87,9 @@ namespace KerbalVR
 			}
 			Utils.Log($"IVA profile: \"{ivaProfile}\" EVA profile: \"{evaProfile}\"");
 		}
-		public Profile GetIVAProfile()
+		public Profile GetProfile(bool isIVA)
 		{
-			return profiles.First(x => x.name == ivaProfile) ?? profiles[0];
-		}
-
-		public Profile GetEVAProfile()
-		{
-			return profiles.First(x => x.name == evaProfile) ?? profiles[0];
+			return profiles.First(x => x.name == (isIVA ? ivaProfile : evaProfile)) ?? profiles[0];
 		}
 	}
 }

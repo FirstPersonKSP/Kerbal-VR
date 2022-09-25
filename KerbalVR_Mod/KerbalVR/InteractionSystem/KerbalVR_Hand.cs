@@ -91,7 +91,7 @@ namespace KerbalVR {
 		/// <exception cref="ArgumentException"></exception>
 		/// <exception cref="MissingReferenceException"></exception>
 		/// <exception cref="Exception"></exception>
-		public void Initialize(SteamVR_Input_Sources handType, GameObject otherHand) 
+		public void Initialize(SteamVR_Input_Sources handType, GameObject otherHand, bool isIVA) 
 		{
 			handActionPose = SteamVR_Input.GetPoseAction("default", "Pose");
 			this.handType = handType;
@@ -105,8 +105,7 @@ namespace KerbalVR {
 			bool isRightHand = handType == SteamVR_Input_Sources.RightHand;
 
 			// load hand profile
-			// TODO: different profile in IVA and EVA
-			profile = HandProfileManager.Instance.GetIVAProfile();
+			profile = HandProfileManager.Instance.GetProfile(isIVA);
 
 			GripOffset = profile.gripOffset;
 
@@ -216,9 +215,17 @@ namespace KerbalVR {
 		/// <param name="fromAction">SteamVR action that triggered this callback</param>
 		/// <param name="fromSource">Hand type that triggered this callback</param>
 		/// <param name="newState">New state of this action</param>
-		protected void OnChangeGrab(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource, bool newState) {
-			if (newState) {
-				if (handCollider.HoveredObject != null) {
+		protected void OnChangeGrab(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource, bool newState) 
+		{
+			ChangeGrab(newState);
+		}
+
+		public void ChangeGrab(bool newState)
+		{
+			if (newState)
+			{
+				if (handCollider.HoveredObject != null)
+				{
 					heldObject = handCollider.HoveredObject;
 					heldObject.GrabbedHand = this;
 					if (heldObject.SkeletonPoser != null)
@@ -231,17 +238,20 @@ namespace KerbalVR {
 					handObject.transform.localScale = scale;
 					FingertipEnabled = false;
 				}
-			} else {
-				if (heldObject != null) {
+			}
+			else
+			{
+				if (heldObject != null)
+				{
 					heldObject.GrabbedHand = null;
 					heldObject = null;
-					handSkeleton.BlendToSkeleton();
-					handObject.transform.SetParent(transform, false);
-					handObject.transform.localPosition = Vector3.zero;
-					handObject.transform.localRotation = Quaternion.identity;
-					handObject.transform.localScale = Vector3.one;
-					FingertipEnabled = true;
 				}
+				handSkeleton.BlendToSkeleton();
+				handObject.transform.SetParent(transform, false);
+				handObject.transform.localPosition = Vector3.zero;
+				handObject.transform.localRotation = Quaternion.identity;
+				handObject.transform.localScale = Vector3.one;
+				FingertipEnabled = true;
 			}
 		}
 
