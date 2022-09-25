@@ -226,7 +226,6 @@ namespace KerbalVR
 	{
 		PointerEventData pointerData;
 		Camera EventCamera;
-		Vector3 lastHeadPose;
 
 		Hand m_hand; // TODO: switch this when a button is pressed on the other hand
 		Collider m_lastHitCollider = null;
@@ -239,20 +238,13 @@ namespace KerbalVR
 		bool m_PAWFingertipState;
 		bool m_PAWFingertipLatched;
 
-		void Awake()
+		protected override void Awake()
 		{
-
 			m_hand = InteractionSystem.Instance.RightHand;
-			
-
+			pointerData = new PointerEventData(eventSystem);
 			EventCamera = UIMasterController.Instance.uiCamera;
 
 			Instance = this;
-		}
-
-		void LateUpdate()
-		{
-
 		}
 
 		public override bool ShouldActivateModule()
@@ -320,12 +312,6 @@ namespace KerbalVR
 
 			var pointerPosition = EventCamera.WorldToScreenPoint(cameraRelativeHit);
 
-			if (pointerData == null)
-			{
-				pointerData = new PointerEventData(eventSystem);
-				lastHeadPose = pointerPosition;
-			}
-
 			m_PAWFingertipState = false;
 
 			// Try the fingertip against the PAW
@@ -366,8 +352,9 @@ namespace KerbalVR
 				eventSystem.RaycastAll(pointerData, m_RaycastResultCache);
 				pointerData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
 				m_RaycastResultCache.Clear();
-				pointerData.delta = pointerPosition - lastHeadPose;
-				lastHeadPose = hit.point;
+				
+				// TODO: reimplement dragging
+				// pointerData.delta = pointerPosition - lastHeadPose;
 			}
 
 			// handle colliders in the world that are listening to mouse events
@@ -502,7 +489,7 @@ namespace KerbalVR
 	}
 
 	// This interface can be added to things that need to listen for right-click actions
-	// Now that the UI System is pushing data into the KSP Mouse class, this is less useful but if we find anything 
+	// Now that the UI System is pushing data into the KSP Mouse class, this is less useful but if we find anything that needs it
 	// This isn't used by anything currently, but leaving it in until I'm more certain that we don't need it
 	interface IVRMouseTarget
 	{
