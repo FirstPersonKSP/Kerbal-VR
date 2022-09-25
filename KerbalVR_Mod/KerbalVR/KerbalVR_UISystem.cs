@@ -146,6 +146,12 @@ namespace KerbalVR
 		public SteamVR_Action_Boolean_Source ClickAction => m_interactAction;
 		public SteamVR_Action_Boolean_Source RightClickAction => m_rightClickAction;
 
+		public bool LaserEnabled
+		{
+			get { return m_lineRenderer.enabled; }
+			set { m_lineRenderer.enabled = value; }
+		}
+
 		void SetupLineRenderer(LineRenderer lineRenderer)
 		{
 			lineRenderer.useWorldSpace = false;
@@ -200,68 +206,95 @@ namespace KerbalVR
 
 		public bool CastRay(out RaycastHit hit)
 		{
-			Vector3 dir = transform.TransformDirection(rayDirection);
-			bool isHit = Physics.Raycast(
-				transform.position,
-				dir,
-				out hit,
-				rayDistance,
-				raycastMask);
-
-			float hitDistance = isHit ? hit.distance : rayDistance;
-			m_lineRenderer.SetPosition(1, hitDistance * rayDirection);
-			m_lineRenderer.endWidth = 0.0002f * hitDistance;
-
-			if (!isHit)
+			if (LaserEnabled)
 			{
-				hit.point = transform.position + dir * rayDistance;
-			}
+				Vector3 dir = transform.TransformDirection(rayDirection);
+				bool isHit = Physics.Raycast(
+					transform.position,
+					dir,
+					out hit,
+					rayDistance,
+					raycastMask);
 
-			return isHit;
+				float hitDistance = isHit ? hit.distance : rayDistance;
+				m_lineRenderer.SetPosition(1, hitDistance * rayDirection);
+				m_lineRenderer.endWidth = 0.0002f * hitDistance;
+
+				if (!isHit)
+				{
+					hit.point = transform.position + dir * rayDistance;
+				}
+
+				return isHit;
+			}
+			else
+			{
+				hit = default(RaycastHit);
+				return false;
+			}
 		}
 	}
 
 	// This class derived from https://github.com/Raicuparta/two-forks-vr/blob/main/TwoForksVr/src/LaserPointer/LaserInputModule.cs under MIT license
-	internal class VRUIHandInputModule : BaseInputModule
+	internal abstract class VRBaseInputModule : BaseInputModule
 	{
-		PointerEventData pointerData;
-		Camera EventCamera;
+		static internal VRBaseInputModule ActiveInstance;
 
-		Hand m_hand; // TODO: switch this when a button is pressed on the other hand
+		PointerEventData pointerData;
 		Collider m_lastHitCollider = null;
 		IVRMouseTarget m_mouseTarget;
 
-		internal static VRUIHandInputModule Instance;
+		protected Hand m_hand; // TODO: switch this when a button is pressed on the other hand
 		internal VRUIHand VRUIHand => m_hand.UIHand;
-
-		bool m_lastPAWFingertipState;
-		bool m_PAWFingertipState;
-		bool m_PAWFingertipLatched;
 
 		protected override void Awake()
 		{
+			base.Awake();
+
 			m_hand = InteractionSystem.Instance.RightHand;
 			pointerData = new PointerEventData(eventSystem);
-			EventCamera = UIMasterController.Instance.uiCamera;
-
-			Instance = this;
 		}
 
-		public override bool ShouldActivateModule()
+		public override void ActivateModule()
 		{
-			return Core.IsVrRunning && m_hand.enabled;
+			base.ActivateModule();
+			ActiveInstance = this;
+		}
+
+		public override void DeactivateModule()
+		{
+			base.DeactivateModule();
+			ActiveInstance = null;
+		}
+
+		protected virtual void GetClickStates(Mouse.Buttons button, out bool clickDown, out bool isClicking, out bool clickUp)
+		{
+			if (button == Mouse.Buttons.Left)
+			{
+				clickDown = m_hand.UIHand.ClickAction.stateDown;
+				isClicking = m_hand.UIHand.ClickAction.state;
+				clickUp = m_hand.UIHand.ClickAction.stateUp;
+			}
+			else if (button == Mouse.Buttons.Right)
+			{
+				clickDown = m_hand.UIHand.RightClickAction.stateDown;
+				isClicking = m_hand.UIHand.RightClickAction.state;
+				clickUp = m_hand.UIHand.RightClickAction.stateUp;
+			}
+			else
+			{
+				clickDown = false;
+				isClicking = false;
+				clickUp = false;
+			}
 		}
 
 		public override void Process()
 		{
-			CastRay(out var hitCollider);
+			CastRay(out var hitCollider, ref pointerData);
 			UpdateCurrentObject(hitCollider);
 
-			var clickDown = m_hand.UIHand.ClickAction.stateDown || (m_PAWFingertipState && !m_lastPAWFingertipState);
-			var isClicking = m_hand.UIHand.ClickAction.state || m_PAWFingertipState;
-			var clickUp = m_hand.UIHand.ClickAction.stateUp || (!m_PAWFingertipState && m_lastPAWFingertipState);
-
-			m_lastPAWFingertipState = m_PAWFingertipState;
+			GetClickStates(Mouse.Buttons.Left, out var clickDown, out var isClicking, out var clickUp);
 
 			if (!clickDown && isClicking)
 				HandleDrag();
@@ -288,79 +321,24 @@ namespace KerbalVR
 
 			if (m_mouseTarget != null)
 			{
-				if (m_hand.UIHand.RightClickAction.stateDown)
+				GetClickStates(Mouse.Buttons.Right, out clickDown, out isClicking, out clickUp);
+
+				if (clickDown)
 				{
 					m_mouseTarget.OnRightMouseButtonDown();
 				}
-				else if (m_hand.UIHand.RightClickAction.state)
+				else if (isClicking)
 				{
 					m_mouseTarget.OnRightMouseButtonDrag();
 				}
-				else if (m_hand.UIHand.RightClickAction.stateUp)
+				else if (clickUp)
 				{
 					m_mouseTarget.OnRightMouseButtonUp();
 				}
 			}
 		}
 
-		private void CastRay(out Collider hitCollider)
-		{
-			bool isHit = m_hand.UIHand.CastRay(out var hit);
-
-			Vector3 interactionRelativeHit = InteractionSystem.Instance.transform.InverseTransformPoint(hit.point);
-			Vector3 cameraRelativeHit = EventCamera.transform.parent.TransformPoint(interactionRelativeHit);
-
-			var pointerPosition = EventCamera.WorldToScreenPoint(cameraRelativeHit);
-
-			m_PAWFingertipState = false;
-
-			// Try the fingertip against the PAW
-			if (UIMasterController.Instance.actionCanvas.gameObject.layer == 0 && UIPartActionController.Instance.windows.Count > 0)
-			{
-				var canvas = UIMasterController.Instance.actionCanvas;
-				var raycaster = canvas.GetComponent<BaseRaycaster>();
-				pointerPosition = raycaster.eventCamera.WorldToScreenPoint(m_hand.FingertipPosition);
-				pointerData.Reset();
-
-				Vector3 toFinger = m_hand.FingertipPosition - canvas.transform.position;
-				float distance = Vector3.Dot(toFinger, canvas.transform.up);
-
-				if (!m_PAWFingertipLatched && distance < m_hand.FingertipRadius && distance > -m_hand.FingertipRadius)
-				{
-					pointerData.position = pointerPosition;
-					raycaster.Raycast(pointerData, m_RaycastResultCache);
-
-					m_PAWFingertipState = distance < 0;
-					if (m_PAWFingertipState)
-					{
-						m_PAWFingertipLatched = true;
-					}
-				}
-				else if (m_PAWFingertipLatched && distance > m_hand.FingertipRadius)
-				{
-					m_PAWFingertipLatched = false;
-				}
-
-				pointerData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
-				m_RaycastResultCache.Clear();
-			}
-			else
-			{
-				// Cast a ray into the scene
-				pointerData.Reset();
-				pointerData.position = pointerPosition;
-				eventSystem.RaycastAll(pointerData, m_RaycastResultCache);
-				pointerData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
-				m_RaycastResultCache.Clear();
-				
-				// TODO: reimplement dragging
-				// pointerData.delta = pointerPosition - lastHeadPose;
-			}
-
-			// handle colliders in the world that are listening to mouse events
-			// If we hit anything on a canvas, ignore this.
-			hitCollider = pointerData.pointerCurrentRaycast.isValid ? null : hit.collider;
-		}
+		protected abstract void CastRay(out Collider hitCollider, ref PointerEventData pointerData);
 
 		private void UpdateCurrentObject(Collider hitCollider)
 		{
@@ -488,6 +466,138 @@ namespace KerbalVR
 		}
 	}
 
+	// processes pointer events based on the fingertip vs a canvas
+	internal class VRFingerTipInputModule : VRBaseInputModule
+	{
+		internal static VRFingerTipInputModule Instance;
+
+		bool m_lastPAWFingertipState;
+		bool m_PAWFingertipState;
+		bool m_PAWFingertipLatched;
+
+		protected override void Awake()
+		{
+			base.Awake();
+			Instance = this;
+		}
+
+		public override bool ShouldActivateModule()
+		{
+			// TODO: make this more general so it can work with any canvas
+			return UIPartActionController.Instance && UIPartActionController.Instance.windows.Count > 0;
+		}
+
+		public override void Process()
+		{
+			base.Process();
+			m_lastPAWFingertipState = m_PAWFingertipState;
+		}
+
+		protected override void GetClickStates(Mouse.Buttons button, out bool clickDown, out bool isClicking, out bool clickUp)
+		{
+			base.GetClickStates(button, out clickDown, out isClicking, out clickUp);
+
+			if (button == Mouse.Buttons.Left)
+			{
+				clickDown = clickDown || (m_PAWFingertipState && !m_lastPAWFingertipState);
+				isClicking = isClicking || m_PAWFingertipState;
+				clickUp = clickUp || (!m_PAWFingertipState && m_lastPAWFingertipState);
+			}
+		}
+
+		protected override void CastRay(out Collider hitCollider, ref PointerEventData pointerData)
+		{
+			m_PAWFingertipState = false;
+
+			var canvas = UIMasterController.Instance.actionCanvas; // TODO: eventually we'll want a system to select different canvases
+			var raycaster = canvas.GetComponent<BaseRaycaster>();
+			
+			pointerData.Reset();
+			pointerData.position = raycaster.eventCamera.WorldToScreenPoint(m_hand.FingertipPosition);
+			raycaster.Raycast(pointerData, m_RaycastResultCache);
+
+			Vector3 toFinger = m_hand.FingertipPosition - canvas.transform.position;
+			float distance = Vector3.Dot(toFinger, canvas.transform.up);
+
+			if (!m_PAWFingertipLatched && distance < m_hand.FingertipRadius && distance > -m_hand.FingertipRadius)
+			{
+				m_PAWFingertipState = distance < 0;
+				if (m_PAWFingertipState)
+				{
+					m_PAWFingertipLatched = true;
+				}
+			}
+			else if (m_PAWFingertipLatched && distance > m_hand.FingertipRadius)
+			{
+				m_PAWFingertipLatched = false;
+			}
+
+			pointerData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
+			m_RaycastResultCache.Clear();
+
+			// if we're not over the canvas, use the normal laser raycast to find colliders
+			if (pointerData.pointerCurrentRaycast.isValid)
+			{
+				hitCollider = null;
+				m_hand.UIHand.LaserEnabled = false;
+			}
+			else
+			{
+				m_hand.UIHand.LaserEnabled = true;
+				m_hand.UIHand.CastRay(out var hit);
+				hitCollider = hit.collider;
+			}
+		}
+
+	}
+
+	internal class VRLaserInputModule : VRBaseInputModule
+	{
+		internal static VRLaserInputModule Instance;
+
+		Camera EventCamera;
+
+		protected override void Awake()
+		{
+			base.Awake();
+
+			EventCamera = UIMasterController.Instance.uiCamera;
+
+			Instance = this;
+		}
+
+		public override bool ShouldActivateModule()
+		{
+			return Core.IsVrRunning && m_hand.UIHand.enabled && !VRFingerTipInputModule.Instance.ShouldActivateModule();
+		}
+
+		protected override void CastRay(out Collider hitCollider, ref PointerEventData pointerData)
+		{
+			// I'm not sure it makes sense to do this raycast first, because I don't think it hits canvases.  If there was a collider on the canvas, this would help get a point right on its surface so that the projection from the eventcamera is more precise
+			// as it is right now, I think the canvas raycast is always using the endpoint of this ray
+			bool isHit = m_hand.UIHand.CastRay(out var hit);
+
+			Vector3 interactionRelativeHit = InteractionSystem.Instance.transform.InverseTransformPoint(hit.point);
+			Vector3 cameraRelativeHit = EventCamera.transform.parent.TransformPoint(interactionRelativeHit);
+
+			var pointerPosition = EventCamera.WorldToScreenPoint(cameraRelativeHit);
+
+			// Cast a ray into the scene
+			pointerData.Reset();
+			pointerData.position = pointerPosition;
+			eventSystem.RaycastAll(pointerData, m_RaycastResultCache);
+			pointerData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
+			m_RaycastResultCache.Clear();
+				
+			// TODO: reimplement dragging
+			// pointerData.delta = pointerPosition - lastHeadPose;
+			
+			// handle colliders in the world that are listening to mouse events
+			// If we hit anything on a canvas, ignore this.
+			hitCollider = pointerData.pointerCurrentRaycast.isValid ? null : hit.collider;
+		}
+	}
+
 	// This interface can be added to things that need to listen for right-click actions
 	// Now that the UI System is pushing data into the KSP Mouse class, this is less useful but if we find anything that needs it
 	// This isn't used by anything currently, but leaving it in until I'm more certain that we don't need it
@@ -503,7 +613,10 @@ namespace KerbalVR
 	{
 		public static void Postfix()
 		{
-			VRUIHandInputModule.Instance.UpdateMouse();
+			if (VRBaseInputModule.ActiveInstance)
+			{
+				VRBaseInputModule.ActiveInstance.UpdateMouse();
+			}
 		}
 	}
 
@@ -512,8 +625,11 @@ namespace KerbalVR
 	{
 		public static void Postfix(ref Mouse.Buttons __result)
 		{
-			if (VRUIHandInputModule.Instance.VRUIHand.ClickAction.state) __result |= Mouse.Buttons.Left;
-			if (VRUIHandInputModule.Instance.VRUIHand.RightClickAction.state) __result |= Mouse.Buttons.Right;
+			if (VRBaseInputModule.ActiveInstance)
+			{
+				if (VRBaseInputModule.ActiveInstance.VRUIHand.ClickAction.state) __result |= Mouse.Buttons.Left;
+				if (VRBaseInputModule.ActiveInstance.VRUIHand.RightClickAction.state) __result |= Mouse.Buttons.Right;
+			}
 		}
 	}
 
@@ -522,8 +638,11 @@ namespace KerbalVR
 	{
 		public static void Postfix(ref Mouse.Buttons __result)
 		{
-			if (VRUIHandInputModule.Instance.VRUIHand.ClickAction.stateDown) __result |= Mouse.Buttons.Left;
-			if (VRUIHandInputModule.Instance.VRUIHand.RightClickAction.stateDown) __result |= Mouse.Buttons.Right;
+			if (VRBaseInputModule.ActiveInstance)
+			{
+				if (VRBaseInputModule.ActiveInstance.VRUIHand.ClickAction.stateDown) __result |= Mouse.Buttons.Left;
+				if (VRBaseInputModule.ActiveInstance.VRUIHand.RightClickAction.stateDown) __result |= Mouse.Buttons.Right;
+			}
 		}
 	}
 
@@ -532,8 +651,11 @@ namespace KerbalVR
 	{
 		public static void Postfix(ref Mouse.Buttons __result)
 		{
-			if (VRUIHandInputModule.Instance.VRUIHand.ClickAction.stateUp) __result |= Mouse.Buttons.Left;
-			if (VRUIHandInputModule.Instance.VRUIHand.RightClickAction.stateUp) __result |= Mouse.Buttons.Right;
+			if (VRBaseInputModule.ActiveInstance)
+			{
+				if (VRBaseInputModule.ActiveInstance.VRUIHand.ClickAction.stateUp) __result |= Mouse.Buttons.Left;
+				if (VRBaseInputModule.ActiveInstance.VRUIHand.RightClickAction.stateUp) __result |= Mouse.Buttons.Right;
+			}
 		}
 	}
 
@@ -542,7 +664,7 @@ namespace KerbalVR
 	{
 		public static void Postfix(UIPartActionController __instance)
 		{
-			if (VRUIHandInputModule.Instance.VRUIHand.RightClickAction.stateDown)
+			if (VRBaseInputModule.ActiveInstance && VRBaseInputModule.ActiveInstance.VRUIHand.RightClickAction.stateDown)
 			{
 				__instance.HandleMouseClick(null, HighLogic.LoadedSceneIsFlight);
 			}
