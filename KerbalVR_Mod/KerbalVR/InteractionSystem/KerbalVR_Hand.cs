@@ -48,6 +48,7 @@ namespace KerbalVR {
 			get { return fingertipCollider.FingertipCenter; }
 		}
 
+		public float FingertipRadius => fingertipCollider.FingertipRadius;
 		public bool FingertipEnabled
 		{
 			get { return fingertipCollider.InteractionsEnabled; }
@@ -202,12 +203,32 @@ namespace KerbalVR {
 			#endregion
 		}
 
+		public void Attach(Transform parent)
+		{
+			handObject.transform.SetParent(parent, true);
+			Vector3 scale = handObject.transform.parent.lossyScale.Reciprocal();
+			scale.Scale(transform.lossyScale);
+			handObject.transform.localScale = scale;
+			FingertipEnabled = false;
+
+			var detacher = parent.gameObject.AddComponent<HandDetacher>();
+			detacher.hand = this;
+		}
+
 		public void Detach()
 		{
+			var handDetacher = handObject.GetComponentInParent<HandDetacher>();
+			if (handDetacher)
+			{
+				Component.Destroy(handDetacher);
+			}
+
+			handSkeleton.BlendToSkeleton();
 			handObject.transform.SetParent(transform, false);
 			handObject.transform.localPosition = Vector3.zero;
 			handObject.transform.localRotation = Quaternion.identity;
 			handObject.transform.localScale = Vector3.one;
+			FingertipEnabled = true;
 		}
 
 		/// <summary>
@@ -216,11 +237,11 @@ namespace KerbalVR {
 		/// <param name="fromAction">SteamVR action that triggered this callback</param>
 		/// <param name="fromSource">Hand type that triggered this callback</param>
 		/// <param name="newState">New state of this action</param>
-		protected void OnChangeGrab(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource, bool newState) 
+		protected void OnChangeGrab(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource, bool newState)
 		{
 			ChangeGrab(newState);
 		}
-
+		
 		public void ChangeGrab(bool newState)
 		{
 			if (newState)
@@ -233,11 +254,7 @@ namespace KerbalVR {
 					{
 						handSkeleton.BlendToPoser(heldObject.SkeletonPoser);
 					}
-					handObject.transform.SetParent(heldObject.transform, true);
-					Vector3 scale = handObject.transform.parent.lossyScale.Reciprocal();
-					scale.Scale(transform.lossyScale);
-					handObject.transform.localScale = scale;
-					FingertipEnabled = false;
+					Attach(heldObject.transform);
 				}
 			}
 			else
@@ -246,43 +263,32 @@ namespace KerbalVR {
 				{
 					heldObject.GrabbedHand = null;
 					heldObject = null;
+					Detach();
 				}
-				handSkeleton.BlendToSkeleton();
-				handObject.transform.SetParent(transform, false);
-				handObject.transform.localPosition = Vector3.zero;
-				handObject.transform.localRotation = Quaternion.identity;
-				handObject.transform.localScale = Vector3.one;
-				FingertipEnabled = true;
 			}
 		}
 
-		protected void Update() {
+		protected void Update()
+		{
 			// should we render the hands in the current scene?
-			bool isRendering = false;
-			if (KerbalVR.Core.IsVrRunning) {
-				switch (HighLogic.LoadedScene) {
-					case GameScenes.MAINMENU:
-					case GameScenes.EDITOR:
-						isRendering = true;
-						renderLayerHands.Push(0);
-						break;
+			bool isRendering = KerbalVR.Core.IsVrRunning;
+			if (isRendering)
+			{
+				int renderLayer = 0;
 
+				switch (HighLogic.LoadedScene)
+				{
 					case GameScenes.FLIGHT:
-						isRendering = true;
 
-						if (KerbalVR.Scene.IsInIVA()) {
+						if (KerbalVR.Scene.IsInIVA())
+						{
 							// IVA-specific settings
-							renderLayerHands.Push(20);
-						}
-						else {
-							// EVA-specific settings
-							renderLayerHands.Push(0);
+							renderLayer = 20;
 						}
 						break;
 				}
-			}
-			else {
-				isRendering = false;
+
+				renderLayerHands.Push(renderLayer);
 			}
 
 			// if rendering, update the hand positions
@@ -341,6 +347,19 @@ namespace KerbalVR {
 				Utils.SetLayer(handObject, renderLayerHands.Value);
 
 				handTransform.gameObject.layer = renderLayerHands.Value == 20 ? 20 : 3;
+			}
+		}
+	}
+
+	class HandDetacher : MonoBehaviour
+	{
+		public Hand hand;
+
+		public void OnDestroy()
+		{
+			if (hand)
+			{
+				hand.Detach();
 			}
 		}
 	}

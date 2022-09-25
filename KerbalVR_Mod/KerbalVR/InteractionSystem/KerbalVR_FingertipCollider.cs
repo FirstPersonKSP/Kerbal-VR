@@ -17,6 +17,8 @@ namespace KerbalVR
             get { return fingertipCollider.transform.TransformPoint(fingertipCollider.center); }
         }
 
+		public float FingertipRadius => fingertipCollider.radius;
+
         public bool InteractionsEnabled
         {
             get { return enabled; }

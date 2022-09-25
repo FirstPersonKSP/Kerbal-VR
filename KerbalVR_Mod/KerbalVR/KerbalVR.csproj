@@ -22,7 +22,7 @@
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;UNITY_5_3_OR_NEWER; UNITY_2017_2_OR_NEWER;PINCH_GIZMOS;PROP_GIZMOS;HAND_GIZMOS;FINGER_GIZMOS;</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;UNITY_5_3_OR_NEWER; UNITY_2017_2_OR_NEWER;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -155,6 +155,7 @@
     <Compile Include="KerbalVR_Core.cs" />
     <Compile Include="KerbalVR_MainMenu.cs" />
     <Compile Include="KerbalVR_Seat.cs" />
+    <Compile Include="KerbalVR_SpaceCenter.cs" />
     <Compile Include="KerbalVR_UISystem.cs" />
     <Compile Include="Loaders\ExternalSeatLoader.cs" />
     <Compile Include="Loaders\InternalModelLoader.cs" />

@@ -1,5 +1,7 @@
-﻿using KSP.UI;
+﻿using HarmonyLib;
+using KSP.UI;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,43 +13,95 @@ using Valve.VR;
 
 namespace KerbalVR
 {
-	internal static class UISystem
+	internal class UISystem : MonoBehaviour
 	{
-		internal static void VRRunningChanged(bool running)
+		internal static UISystem Instance { get; private set; }
+		void Awake()
 		{
-			running = running && !Scene.IsInIVA();
-
-			UIMasterController.Instance.uiCamera.stereoTargetEye = running ? StereoTargetEyeMask.Both : StereoTargetEyeMask.None;
-			UIMasterController.Instance.uiCamera.farClipPlane = running ? 2000.0f : 1100.0f;
-			UIMasterController.Instance.uiCamera.nearClipPlane = running ? 10f : -300.0f;
-			UIMasterController.Instance.uiCamera.orthographic = !running;
-
-			ConfigureCanvas(UIMasterController.Instance.mainCanvas, running);
-			ConfigureCanvas(UIMasterController.Instance.actionCanvas, running);
-			ConfigureCanvas(UIMasterController.Instance.appCanvas, running);
-			ConfigureCanvas(UIMasterController.Instance.dialogCanvas, running);
-
-			ConfigureHand(InteractionSystem.Instance.LeftHand, running);
-			ConfigureHand(InteractionSystem.Instance.RightHand, running);
+			GameEvents.onPartActionUIShown.Add(OnPartActionUIShown);
+			Instance = this;
 		}
 
-		internal static void ModeChanged()
+		static Quaternion canvasRotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
+
+		private void OnPartActionUIShown(UIPartActionWindow window, Part part)
 		{
-			VRRunningChanged(Core.IsVrRunning);
-
-			var kerbalEVA = Scene.GetKerbalEVA();
-
-			// open the kerbal eva part action window and attach it to the left hand
-			if (Core.IsVrRunning && kerbalEVA != null)
+			if (Core.IsVrRunning && Scene.IsFirstPersonEVA())
 			{
-				UIPartActionController.Instance.SelectPart(kerbalEVA.part, false, false);
-				UIMasterController.Instance.actionCanvas.transform.SetParent(InteractionSystem.Instance.LeftHand.handObject.transform, false);
-				UIMasterController.Instance.actionCanvas.transform.localPosition = Vector3.zero;
-				UIMasterController.Instance.actionCanvas.transform.localRotation = Quaternion.identity;
+				window.gameObject.SetLayerRecursive(0);
+				window.rectTransform.anchoredPosition3D = Vector3.zero;
+				window.rectTransform.localPosition = Vector3.zero;
+				window.rectTransform.localScale = Vector3.one * 0.07f;
+				window.GetComponentInChildren<Graphic>().material.shader = Shader.Find("UI/Default"); // this defaults to "UI/KSP/Color Overlay" which has z-write on, which causes z-fighting when rendered in worldspace
+
+
+				window.rectTransform.localRotation = canvasRotation;
 			}
 			else
 			{
+				window.gameObject.SetLayerRecursive(5);
+				window.rectTransform.localScale = Vector3.one;
 
+				// for some reason, changing the shader back to this will break the rendering of the UI in non-vr mode
+				//var graphic = window.GetComponentInChildren<Graphic>();
+				//graphic.material.shader = Shader.Find("UI/KSP/Color Overlay");
+
+				window.rectTransform.localRotation = Quaternion.identity;
+			}
+		}
+
+		internal void VRRunningChanged(bool running)
+		{
+			running = running && !Scene.IsInIVA();
+
+			ConfigureCanvas(UIMasterController.Instance.actionCanvas, running);
+
+#if GUI_ENABLED
+
+			UIMasterController.Instance.uiCamera.stereoTargetEye = running ? StereoTargetEyeMask.Both : StereoTargetEyeMask.None;
+			UIMasterController.Instance.uiCamera.farClipPlane = running ? 2000.0f : 1100.0f;
+			UIMasterController.Instance.uiCamera.nearClipPlane = running ? .03f : -300.0f;
+			UIMasterController.Instance.uiCamera.orthographic = !running;
+
+			ConfigureCanvas(UIMasterController.Instance.mainCanvas, running);
+			ConfigureCanvas(UIMasterController.Instance.appCanvas, running);
+			ConfigureCanvas(UIMasterController.Instance.dialogCanvas, running);
+#endif
+
+			ConfigureHand(InteractionSystem.Instance.LeftHand, running);
+			ConfigureHand(InteractionSystem.Instance.RightHand, running);
+
+			StartCoroutine(ConfigureActionCanvas(running));
+		}
+
+		internal void ModeChanged()
+		{
+			VRRunningChanged(Core.IsVrRunning);
+		}
+
+		IEnumerator ConfigureActionCanvas(bool running)
+		{
+			yield return null; // wait a frame so that ThroughTheEyes knows whether we are in first person or not
+			var canvas = UIMasterController.Instance.actionCanvas;
+			bool pdaMode = running && Scene.IsFirstPersonEVA();
+
+			if (pdaMode)
+			{
+				canvas.transform.SetParent(InteractionSystem.Instance.LeftHand.handObject.transform, false);
+				canvas.transform.localPosition = Vector3.zero;
+				canvas.transform.localRotation = Quaternion.identity;
+				canvas.transform.localScale = Vector3.one * 0.01f;
+				canvas.gameObject.layer = 0;
+				canvas.worldCamera = FlightCamera.fetch.mainCamera;
+			}
+			else
+			{
+				canvas.transform.SetParent(UIMasterController.Instance.transform, false);
+				canvas.transform.localPosition = new Vector3(0, 0, 500);
+				canvas.transform.localRotation = Quaternion.identity;
+				canvas.transform.localScale = Vector3.one;
+				canvas.gameObject.layer = 5;
+				canvas.worldCamera = UIMasterController.Instance.uiCamera;
 			}
 		}
 
@@ -63,7 +117,8 @@ namespace KerbalVR
 
 		static void ConfigureHand(Hand hand, bool running)
 		{
-			hand.UIHand.VRRunningChanged(running);
+			// for now, let's only use the right hand as a laser pointer
+			hand.UIHand.VRRunningChanged(running && hand.handType == SteamVR_Input_Sources.RightHand);
 		}
 	}
 
@@ -72,9 +127,10 @@ namespace KerbalVR
 		Hand m_hand;
 		LineRenderer m_lineRenderer;
 		SteamVR_Action_Boolean_Source m_interactAction;
+		SteamVR_Action_Boolean_Source m_rightClickAction;
 
 		static readonly Vector3 rayDirection = Vector3.Normalize(Vector3.forward - Vector3.up);
-		static readonly float rayDistance = 10.0f;
+		static readonly float rayDistance = 1000.0f;
 		static readonly int raycastMask =
 			1 |
 			(1 << 5) | // unity UI
@@ -82,20 +138,28 @@ namespace KerbalVR
 			(1 << 12) | // UI Vectors
 			(1 << 13) | // UI Mask
 			(1 << 14) | // Screens
+			(1 << 15) | // KSC buildings
 			(1 << 21); // Part triggers
 
 		LineRenderer m_uiLineRenderer;
 
 		public SteamVR_Action_Boolean_Source ClickAction => m_interactAction;
+		public SteamVR_Action_Boolean_Source RightClickAction => m_rightClickAction;
+
+		public bool LaserEnabled
+		{
+			get { return m_lineRenderer.enabled; }
+			set { m_lineRenderer.enabled = value; }
+		}
 
 		void SetupLineRenderer(LineRenderer lineRenderer)
 		{
 			lineRenderer.useWorldSpace = false;
-			lineRenderer.SetPositions(new[] { Vector3.zero, rayDirection * rayDistance });
-			lineRenderer.startWidth = 0.001f * rayDistance;
+			lineRenderer.SetPositions(new[] { rayDirection * 0.5f, rayDirection * rayDistance });
+			lineRenderer.startWidth = 0.01f;
 			lineRenderer.endWidth = 0.0002f * rayDistance;
 			lineRenderer.endColor = new Color(1, 1, 1, 0.8f);
-			lineRenderer.startColor = Color.clear;
+			lineRenderer.startColor = new Color(1, 1, 1, 0.05f);
 			lineRenderer.material.shader = Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply");
 			lineRenderer.material.SetColor("_Color", Color.white);
 		}
@@ -108,6 +172,7 @@ namespace KerbalVR
 			SetupLineRenderer(m_lineRenderer);
 
 			m_interactAction = SteamVR_Input.GetAction<SteamVR_Action_Boolean>("InteractUI")[m_hand.handType];
+			m_rightClickAction = SteamVR_Input.GetAction<SteamVR_Action_Boolean>("RightClick")[m_hand.handType];
 
 #if false
 			var uiLineObject = new GameObject();
@@ -123,8 +188,13 @@ namespace KerbalVR
 		{
 			if (m_uiLineRenderer)
 			{
-				m_uiLineRenderer.transform.position = InteractionSystem.Instance.transform.InverseTransformPoint(m_lineRenderer.transform.position);
-				m_uiLineRenderer.transform.rotation = InteractionSystem.Instance.transform.rotation.Inverse() * m_lineRenderer.transform.rotation;
+				var uiCameraTransform = UIMasterController.Instance.uiCamera.transform.parent;
+
+				Vector3 cameraPosition = InteractionSystem.Instance.transform.InverseTransformPoint(m_lineRenderer.transform.position);
+				Quaternion cameraDirection = InteractionSystem.Instance.transform.rotation.Inverse() * m_lineRenderer.transform.rotation;
+
+				m_uiLineRenderer.transform.position = uiCameraTransform.TransformPoint(cameraPosition);
+				m_uiLineRenderer.transform.rotation = uiCameraTransform.rotation * cameraDirection;
 			}
 		}
 
@@ -136,65 +206,95 @@ namespace KerbalVR
 
 		public bool CastRay(out RaycastHit hit)
 		{
-			Vector3 dir = transform.TransformDirection(rayDirection);
-			bool isHit = Physics.Raycast(
-				transform.position,
-				dir,
-				out hit,
-				rayDistance,
-				raycastMask);
-
-			m_lineRenderer.SetPosition(1, (isHit ? hit.distance : rayDistance) * rayDirection);
-
-			if (!isHit)
+			if (LaserEnabled)
 			{
-				hit.point = transform.position + dir * rayDistance;
-			}
+				Vector3 dir = transform.TransformDirection(rayDirection);
+				bool isHit = Physics.Raycast(
+					transform.position,
+					dir,
+					out hit,
+					rayDistance,
+					raycastMask);
 
-			return isHit;
+				float hitDistance = isHit ? hit.distance : rayDistance;
+				m_lineRenderer.SetPosition(1, hitDistance * rayDirection);
+				m_lineRenderer.endWidth = 0.0002f * hitDistance;
+
+				if (!isHit)
+				{
+					hit.point = transform.position + dir * rayDistance;
+				}
+
+				return isHit;
+			}
+			else
+			{
+				hit = default(RaycastHit);
+				return false;
+			}
 		}
 	}
 
-	// This class derived from https://github.com/Raicuparta/two-forks-vr/blob/main/TwoForksVr/src/LaserPointer/LaserInputModule.cs
-	internal class VRUIHandInputModule : BaseInputModule
+	// This class derived from https://github.com/Raicuparta/two-forks-vr/blob/main/TwoForksVr/src/LaserPointer/LaserInputModule.cs under MIT license
+	internal abstract class VRBaseInputModule : BaseInputModule
 	{
+		static internal VRBaseInputModule ActiveInstance;
+
 		PointerEventData pointerData;
-		Camera EventCamera;
-		Vector3 lastHeadPose;
+		Collider m_lastHitCollider = null;
+		IVRMouseTarget m_mouseTarget;
 
-		VRUIHand m_hand;
+		protected Hand m_hand; // TODO: switch this when a button is pressed on the other hand
+		internal VRUIHand VRUIHand => m_hand.UIHand;
 
-		internal static VRUIHandInputModule Instance;
-
-		void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
 
-			m_hand = InteractionSystem.Instance.RightHand.UIHand;
-			
-
-			EventCamera = UIMasterController.Instance.uiCamera;
-
-			Instance = this;
+			m_hand = InteractionSystem.Instance.RightHand;
+			pointerData = new PointerEventData(eventSystem);
 		}
 
-		void LateUpdate()
+		public override void ActivateModule()
 		{
-
+			base.ActivateModule();
+			ActiveInstance = this;
 		}
 
-		public override bool ShouldActivateModule()
+		public override void DeactivateModule()
 		{
-			return Core.IsVrRunning && m_hand.enabled;
+			base.DeactivateModule();
+			ActiveInstance = null;
+		}
+
+		protected virtual void GetClickStates(Mouse.Buttons button, out bool clickDown, out bool isClicking, out bool clickUp)
+		{
+			if (button == Mouse.Buttons.Left)
+			{
+				clickDown = m_hand.UIHand.ClickAction.stateDown;
+				isClicking = m_hand.UIHand.ClickAction.state;
+				clickUp = m_hand.UIHand.ClickAction.stateUp;
+			}
+			else if (button == Mouse.Buttons.Right)
+			{
+				clickDown = m_hand.UIHand.RightClickAction.stateDown;
+				isClicking = m_hand.UIHand.RightClickAction.state;
+				clickUp = m_hand.UIHand.RightClickAction.stateUp;
+			}
+			else
+			{
+				clickDown = false;
+				isClicking = false;
+				clickUp = false;
+			}
 		}
 
 		public override void Process()
 		{
-			CastRay();
-			UpdateCurrentObject();
+			CastRay(out var hitCollider, ref pointerData);
+			UpdateCurrentObject(hitCollider);
 
-			var clickDown = m_hand.ClickAction.stateDown;
-			var isClicking = m_hand.ClickAction.state;
-			var clickUp = m_hand.ClickAction.stateUp;
+			GetClickStates(Mouse.Buttons.Left, out var clickDown, out var isClicking, out var clickUp);
 
 			if (!clickDown && isClicking)
 				HandleDrag();
@@ -202,34 +302,66 @@ namespace KerbalVR
 				HandleTrigger();
 			else if (clickUp)
 				HandlePendingClick();
-		}
 
-		private void CastRay()
-		{
-			bool isHit = m_hand.CastRay(out var hit);
-
-			Vector3 interactionRelativeHit = InteractionSystem.Instance.transform.InverseTransformPoint(hit.point);
-
-			var pointerPosition = EventCamera.WorldToScreenPoint(interactionRelativeHit);
-
-			if (pointerData == null)
+			if (m_lastHitCollider)
 			{
-				pointerData = new PointerEventData(eventSystem);
-				lastHeadPose = pointerPosition;
+				if (clickDown)
+				{
+					m_lastHitCollider.gameObject.SendMessage("OnMouseDown");
+				}
+				else if (isClicking)
+				{
+					m_lastHitCollider.gameObject.SendMessage("OnMouseDrag");
+				}
+				else if (clickUp)
+				{
+					m_lastHitCollider.gameObject.SendMessage("OnMouseUp");
+				}
 			}
 
-			// Cast a ray into the scene
-			pointerData.Reset();
-			pointerData.position = pointerPosition;
-			eventSystem.RaycastAll(pointerData, m_RaycastResultCache);
-			pointerData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
-			m_RaycastResultCache.Clear();
-			pointerData.delta = pointerPosition - lastHeadPose;
-			lastHeadPose = hit.point;
+			if (m_mouseTarget != null)
+			{
+				GetClickStates(Mouse.Buttons.Right, out clickDown, out isClicking, out clickUp);
+
+				if (clickDown)
+				{
+					m_mouseTarget.OnRightMouseButtonDown();
+				}
+				else if (isClicking)
+				{
+					m_mouseTarget.OnRightMouseButtonDrag();
+				}
+				else if (clickUp)
+				{
+					m_mouseTarget.OnRightMouseButtonUp();
+				}
+			}
 		}
 
-		private void UpdateCurrentObject()
+		protected abstract void CastRay(out Collider hitCollider, ref PointerEventData pointerData);
+
+		private void UpdateCurrentObject(Collider hitCollider)
 		{
+			if (hitCollider != m_lastHitCollider)
+			{
+				if (m_lastHitCollider)
+				{
+					m_lastHitCollider.gameObject.SendMessage("OnMouseExit");
+				}
+				if (hitCollider)
+				{
+					hitCollider.gameObject.SendMessage("OnMouseEnter");
+				}
+
+				m_lastHitCollider = hitCollider;
+				m_mouseTarget = m_lastHitCollider?.GetComponent<IVRMouseTarget>();
+			}
+
+			if (m_lastHitCollider)
+			{
+				m_lastHitCollider.gameObject.SendMessage("OnMouseOver");
+			}
+
 			// Send enter events and update the highlight.
 			var go = pointerData.pointerCurrentRaycast.gameObject;
 			HandlePointerExitAndEnter(pointerData, go);
@@ -307,6 +439,235 @@ namespace KerbalVR
 			pointerData.useDragThreshold = true;
 			pointerData.clickCount = 1;
 			pointerData.clickTime = Time.unscaledTime;
+		}
+
+		// fake some inputs from the VR controllers and store them in the KSP Mouse class
+		internal void UpdateMouse()
+		{
+			UpdateMouseButton(Mouse.Left, m_hand.UIHand.ClickAction);
+			UpdateMouseButton(Mouse.Right, m_hand.UIHand.RightClickAction);
+
+			if (m_lastHitCollider != null)
+			{
+				// TODO: see if we need to be calling Mouse.GetValidHoverPart
+				var part = m_lastHitCollider.gameObject.GetComponentUpwards<Part>();
+				if (part != null)
+				{
+					Mouse.HoveredPart = part;
+				}
+			}
+		}
+
+		private void UpdateMouseButton(Mouse.MouseButton button, SteamVR_Action_Boolean_Source action)
+		{
+			button.up = action.stateUp;
+			button.down = action.stateDown;
+			button.button = action.state;
+		}
+	}
+
+	// processes pointer events based on the fingertip vs a canvas
+	internal class VRFingerTipInputModule : VRBaseInputModule
+	{
+		internal static VRFingerTipInputModule Instance;
+
+		bool m_lastPAWFingertipState;
+		bool m_PAWFingertipState;
+		bool m_PAWFingertipLatched;
+
+		protected override void Awake()
+		{
+			base.Awake();
+			Instance = this;
+		}
+
+		public override bool ShouldActivateModule()
+		{
+			// TODO: make this more general so it can work with any canvas
+			return UIPartActionController.Instance && UIPartActionController.Instance.windows.Count > 0;
+		}
+
+		public override void Process()
+		{
+			base.Process();
+			m_lastPAWFingertipState = m_PAWFingertipState;
+		}
+
+		protected override void GetClickStates(Mouse.Buttons button, out bool clickDown, out bool isClicking, out bool clickUp)
+		{
+			base.GetClickStates(button, out clickDown, out isClicking, out clickUp);
+
+			if (button == Mouse.Buttons.Left)
+			{
+				clickDown = clickDown || (m_PAWFingertipState && !m_lastPAWFingertipState);
+				isClicking = isClicking || m_PAWFingertipState;
+				clickUp = clickUp || (!m_PAWFingertipState && m_lastPAWFingertipState);
+			}
+		}
+
+		protected override void CastRay(out Collider hitCollider, ref PointerEventData pointerData)
+		{
+			m_PAWFingertipState = false;
+
+			var canvas = UIMasterController.Instance.actionCanvas; // TODO: eventually we'll want a system to select different canvases
+			var raycaster = canvas.GetComponent<BaseRaycaster>();
+			
+			pointerData.Reset();
+			pointerData.position = raycaster.eventCamera.WorldToScreenPoint(m_hand.FingertipPosition);
+			raycaster.Raycast(pointerData, m_RaycastResultCache);
+
+			Vector3 toFinger = m_hand.FingertipPosition - canvas.transform.position;
+			float distance = Vector3.Dot(toFinger, canvas.transform.up);
+
+			if (!m_PAWFingertipLatched && distance < m_hand.FingertipRadius && distance > -m_hand.FingertipRadius)
+			{
+				m_PAWFingertipState = distance < 0;
+				if (m_PAWFingertipState)
+				{
+					m_PAWFingertipLatched = true;
+				}
+			}
+			else if (m_PAWFingertipLatched && distance > m_hand.FingertipRadius)
+			{
+				m_PAWFingertipLatched = false;
+			}
+
+			pointerData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
+			m_RaycastResultCache.Clear();
+
+			// if we're not over the canvas, use the normal laser raycast to find colliders
+			if (pointerData.pointerCurrentRaycast.isValid)
+			{
+				hitCollider = null;
+				m_hand.UIHand.LaserEnabled = false;
+			}
+			else
+			{
+				m_hand.UIHand.LaserEnabled = true;
+				m_hand.UIHand.CastRay(out var hit);
+				hitCollider = hit.collider;
+			}
+		}
+
+	}
+
+	internal class VRLaserInputModule : VRBaseInputModule
+	{
+		internal static VRLaserInputModule Instance;
+
+		Camera EventCamera;
+
+		protected override void Awake()
+		{
+			base.Awake();
+
+			EventCamera = UIMasterController.Instance.uiCamera;
+
+			Instance = this;
+		}
+
+		public override bool ShouldActivateModule()
+		{
+			return Core.IsVrRunning && m_hand.UIHand.enabled && !VRFingerTipInputModule.Instance.ShouldActivateModule();
+		}
+
+		protected override void CastRay(out Collider hitCollider, ref PointerEventData pointerData)
+		{
+			// I'm not sure it makes sense to do this raycast first, because I don't think it hits canvases.  If there was a collider on the canvas, this would help get a point right on its surface so that the projection from the eventcamera is more precise
+			// as it is right now, I think the canvas raycast is always using the endpoint of this ray
+			bool isHit = m_hand.UIHand.CastRay(out var hit);
+
+			Vector3 interactionRelativeHit = InteractionSystem.Instance.transform.InverseTransformPoint(hit.point);
+			Vector3 cameraRelativeHit = EventCamera.transform.parent.TransformPoint(interactionRelativeHit);
+
+			var pointerPosition = EventCamera.WorldToScreenPoint(cameraRelativeHit);
+
+			// Cast a ray into the scene
+			pointerData.Reset();
+			pointerData.position = pointerPosition;
+			eventSystem.RaycastAll(pointerData, m_RaycastResultCache);
+			pointerData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
+			m_RaycastResultCache.Clear();
+				
+			// TODO: reimplement dragging
+			// pointerData.delta = pointerPosition - lastHeadPose;
+			
+			// handle colliders in the world that are listening to mouse events
+			// If we hit anything on a canvas, ignore this.
+			hitCollider = pointerData.pointerCurrentRaycast.isValid ? null : hit.collider;
+		}
+	}
+
+	// This interface can be added to things that need to listen for right-click actions
+	// Now that the UI System is pushing data into the KSP Mouse class, this is less useful but if we find anything that needs it
+	// This isn't used by anything currently, but leaving it in until I'm more certain that we don't need it
+	interface IVRMouseTarget
+	{
+		void OnRightMouseButtonDown();
+		void OnRightMouseButtonUp();
+		void OnRightMouseButtonDrag();
+	}
+
+	[HarmonyPatch(typeof(Mouse), nameof(Mouse.Update))]
+	class Mouse_Update_Patch
+	{
+		public static void Postfix()
+		{
+			if (VRBaseInputModule.ActiveInstance)
+			{
+				VRBaseInputModule.ActiveInstance.UpdateMouse();
+			}
+		}
+	}
+
+	[HarmonyPatch(typeof(Mouse), nameof(Mouse.GetAllMouseButtons))]
+	class Mouse_GetAllMouseButtons_Patch
+	{
+		public static void Postfix(ref Mouse.Buttons __result)
+		{
+			if (VRBaseInputModule.ActiveInstance)
+			{
+				if (VRBaseInputModule.ActiveInstance.VRUIHand.ClickAction.state) __result |= Mouse.Buttons.Left;
+				if (VRBaseInputModule.ActiveInstance.VRUIHand.RightClickAction.state) __result |= Mouse.Buttons.Right;
+			}
+		}
+	}
+
+	[HarmonyPatch(typeof(Mouse), nameof(Mouse.GetAllMouseButtonsDown))]
+	class Mouse_GetAllMouseButtonsDown_Patch
+	{
+		public static void Postfix(ref Mouse.Buttons __result)
+		{
+			if (VRBaseInputModule.ActiveInstance)
+			{
+				if (VRBaseInputModule.ActiveInstance.VRUIHand.ClickAction.stateDown) __result |= Mouse.Buttons.Left;
+				if (VRBaseInputModule.ActiveInstance.VRUIHand.RightClickAction.stateDown) __result |= Mouse.Buttons.Right;
+			}
+		}
+	}
+
+	[HarmonyPatch(typeof(Mouse), nameof(Mouse.GetAllMouseButtonsUp))]
+	class Mouse_GetAllMouseButtonsUp_Patch
+	{
+		public static void Postfix(ref Mouse.Buttons __result)
+		{
+			if (VRBaseInputModule.ActiveInstance)
+			{
+				if (VRBaseInputModule.ActiveInstance.VRUIHand.ClickAction.stateUp) __result |= Mouse.Buttons.Left;
+				if (VRBaseInputModule.ActiveInstance.VRUIHand.RightClickAction.stateUp) __result |= Mouse.Buttons.Right;
+			}
+		}
+	}
+
+	[HarmonyPatch(typeof(UIPartActionController), nameof(UIPartActionController.TrySelect))]
+	class UIPartActionController_TrySelect_Patch
+	{
+		public static void Postfix(UIPartActionController __instance)
+		{
+			if (VRBaseInputModule.ActiveInstance && VRBaseInputModule.ActiveInstance.VRUIHand.RightClickAction.stateDown)
+			{
+				__instance.HandleMouseClick(null, HighLogic.LoadedSceneIsFlight);
+			}
 		}
 	}
 }

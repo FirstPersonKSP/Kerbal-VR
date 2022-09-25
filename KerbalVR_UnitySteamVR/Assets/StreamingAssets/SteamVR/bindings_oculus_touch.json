@@ -46,15 +46,6 @@
             {
                "inputs" : {
                   "click" : {
-                     "output" : "/actions/default/in/interactui"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/left/input/trigger"
-            },
-            {
-               "inputs" : {
-                  "click" : {
                      "output" : "/actions/default/in/grabgrip"
                   }
                },
@@ -64,15 +55,6 @@
                   "click_deactivate_threshold" : "0.7"
                },
                "path" : "/user/hand/left/input/grip"
-            },
-            {
-               "inputs" : {
-                  "click" : {
-                     "output" : "/actions/default/in/interactui"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/right/input/trigger"
             },
             {
                "inputs" : {
@@ -136,6 +118,42 @@
                "inputs" : {
                   "click" : {
                      "output" : "/actions/default/in/pinchthumb"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/b"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/default/in/interactui"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/x"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/default/in/rightclick"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/y"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/default/in/interactui"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/a"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/default/in/rightclick"
                   }
                },
                "mode" : "button",
@@ -249,15 +267,6 @@
                },
                "mode" : "joystick",
                "path" : "/user/hand/left/input/joystick"
-            },
-            {
-               "inputs" : {
-                  "long" : {
-                     "output" : "/actions/eva/in/plantflag"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/right/input/b"
             }
          ]
       },

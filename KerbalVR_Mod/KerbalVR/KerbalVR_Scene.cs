@@ -22,6 +22,16 @@ namespace KerbalVR
 			return null;
 		}
 
+		/// <summary>
+		/// WARNING: on certain transitions this value will be incorrect because it gets set inside Update
+		/// </summary>
+		/// <returns></returns>
+		public static bool IsFirstPersonEVA()
+		{
+			var cameraManager = FirstPerson.FirstPersonEVA.instance?.fpCameraManager;
+			return cameraManager == null ? false : cameraManager.isFirstPerson;
+		}
+
         public static bool IsInEVA()
         {
 			return GetKerbalEVA() != null;
@@ -33,6 +43,19 @@ namespace KerbalVR
 			fpCameraManager.isFirstPerson = false;
 			fpCameraManager.saveCameraState(FlightCamera.fetch);
 			fpCameraManager.CheckAndSetFirstPerson(FlightGlobals.ActiveVessel);
+		}
+
+		internal static bool SceneSupportsVR(GameScenes scene)
+		{
+			switch (scene)
+			{
+				case GameScenes.MAINMENU:
+				case GameScenes.SPACECENTER:
+				case GameScenes.FLIGHT:
+					return true;
+				default:
+					return false;
+			}
 		}
 	}
 

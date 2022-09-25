@@ -41,6 +41,10 @@
       "type": "boolean"
     },
     {
+      "name": "/actions/default/in/RightClick",
+      "type": "boolean"
+    },
+    {
       "name": "/actions/default/out/Haptic",
       "type": "vibration"
     },
@@ -93,10 +97,6 @@
     },
     {
       "name": "/actions/EVA/in/SwapRollYaw",
-      "type": "boolean"
-    },
-    {
-      "name": "/actions/EVA/in/PlantFlag",
       "type": "boolean"
     }
   ],

@@ -19,6 +19,10 @@ namespace KerbalVR
 
 			ApplyPatches();
 
+			// must occur before we call SetVrRunningDesired
+			var uiSystem = new GameObject("VRUISystem").AddComponent<UISystem>();
+			DontDestroyOnLoad(uiSystem);
+
 			// for whatever reason, enabling VR mode during loading makes it super slow (vsync maybe?)
 			KerbalVR.Core.SetVrRunningDesired(false);
 			
@@ -134,7 +138,7 @@ namespace KerbalVR
 					PSystemManager.Instance.OnPSystemReady.Add(OnPSystemReady);
 				}
 
-				KerbalVR.Core.SetVrRunningDesired(gameScene == GameScenes.FLIGHT);
+				KerbalVR.Core.SetVrRunningDesired(Core.IsVrRunning && Scene.SceneSupportsVR(gameScene));
 			}
 		}
 		private void OnPSystemReady()

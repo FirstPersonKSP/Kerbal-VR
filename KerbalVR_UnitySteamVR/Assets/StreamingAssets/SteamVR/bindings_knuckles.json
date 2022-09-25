@@ -45,15 +45,6 @@
          "sources" : [
             {
                "inputs" : {
-                  "click" : {
-                     "output" : "/actions/default/in/interactui"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/left/input/trigger"
-            },
-            {
-               "inputs" : {
                   "force" : {
                      "output" : "/actions/default/in/squeeze"
                   }
@@ -136,6 +127,42 @@
                "inputs" : {
                   "click" : {
                      "output" : "/actions/default/in/pinchthumb"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/b"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/default/in/interactui"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/a"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/default/in/rightclick"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/b"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/default/in/interactui"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/a"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/default/in/rightclick"
                   }
                },
                "mode" : "button",
@@ -252,15 +279,6 @@
                   "force_input" : ""
                },
                "path" : "/user/hand/left/input/thumbstick"
-            },
-            {
-               "inputs" : {
-                  "long" : {
-                     "output" : "/actions/eva/in/plantflag"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/right/input/b"
             }
          ]
       },

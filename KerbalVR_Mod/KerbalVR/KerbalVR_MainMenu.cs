@@ -1,9 +1,11 @@
-﻿using System;
+﻿using KSP.UI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace KerbalVR
 {
@@ -24,6 +26,12 @@ namespace KerbalVR
 			var dummyCamera = CameraUtils.CloneComponent(m_mainMenuEnvLogic.landscapeCamera, landscapeCameraAnchor);
 			dummyCamera.enabled = false;
 			m_mainMenuEnvLogic.landscapeCamera = dummyCamera;
+
+			var skySphereCamera = Camera.allCameras.FirstOrDefault(c => c.gameObject.name == "SkySphere Cam");
+			var skySphereVRAnchor = CameraUtils.CreateVRAnchor(skySphereCamera);
+			skySphereVRAnchor.transform.localScale = Vector3.zero;
+			var followRot = CameraUtils.MoveComponent<FollowRot>(skySphereCamera.gameObject, skySphereVRAnchor);
+			followRot.tgt = landscapeCameraAnchor.transform;
 
 			InteractionSystem.Instance.transform.SetParent(m_mainMenuEnvLogic.landscapeCamera.transform, false);
 		}

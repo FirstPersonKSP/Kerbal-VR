@@ -39,7 +39,8 @@ namespace KerbalVR
 		private void Initialize() 
 		{
 			InitializeHandScripts();
-			EventSystem.current.gameObject.AddComponent<VRUIHandInputModule>();
+			EventSystem.current.gameObject.AddComponent<VRLaserInputModule>();
+			EventSystem.current.gameObject.AddComponent<VRFingerTipInputModule>();
 		}
 		#endregion
 

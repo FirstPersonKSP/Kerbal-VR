@@ -167,7 +167,7 @@ namespace KerbalVR
 		private void OnCameraChange(CameraManager.CameraMode mode)
 		{
 			RestoreLastKerbal();
-			UISystem.ModeChanged();
+			UISystem.Instance.ModeChanged();
 
 			var kerbalEVA = KerbalVR.Scene.GetKerbalEVA();
 
