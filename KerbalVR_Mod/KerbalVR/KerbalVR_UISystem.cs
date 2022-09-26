@@ -110,10 +110,6 @@ namespace KerbalVR
 			}
 		}
 
-		static Vector3 pdaPosition = new Vector3(0.025f, 0.0f, 0.0f);
-		static Quaternion pdaRotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
-		static float pdaScale = 0.0005f; // arbitrary
-
 		IEnumerator ConfigureHandheldCanvases(Canvas[] canvases, bool running)
 		{
 			yield return null; // wait a frame so that ThroughTheEyes knows whether we are in first person or not
@@ -123,10 +119,8 @@ namespace KerbalVR
 			{
 				if (pdaMode)
 				{
-					canvas.transform.SetParent(InteractionSystem.Instance.LeftHand.handObject.transform, false);
-					canvas.transform.localPosition = pdaPosition;
-					canvas.transform.localRotation = pdaRotation;
-					canvas.transform.localScale = Vector3.one * pdaScale;
+					canvas.transform.SetParent(InteractionSystem.Instance.LeftHand.UIHand.CanvasAnchor, false);
+					canvas.transform.localPosition = Vector3.zero;
 					canvas.gameObject.layer = 0;
 					canvas.worldCamera = FlightCamera.fetch.mainCamera;
 				}
@@ -134,12 +128,12 @@ namespace KerbalVR
 				{
 					canvas.transform.SetParent(UIMasterController.Instance.transform, false);
 					canvas.transform.localPosition = new Vector3(0, 0, 500); // 500 is the value for the PAW, this might not be correct for other canvases
-					canvas.transform.localRotation = Quaternion.identity;
-					canvas.transform.localScale = Vector3.one;
 					canvas.gameObject.layer = 5;
 					canvas.worldCamera = UIMasterController.Instance.uiCamera;
 				}
 			}
+
+			InteractionSystem.Instance.RightHand.UIHand.LaserEnabled = !pdaMode;
 		}
 
 		static Quaternion hudRotation = Quaternion.identity;
@@ -203,6 +197,7 @@ namespace KerbalVR
 		LineRenderer m_lineRenderer;
 		SteamVR_Action_Boolean_Source m_interactAction;
 		SteamVR_Action_Boolean_Source m_rightClickAction;
+		Transform m_canvasAnchor;
 
 		static readonly Vector3 rayDirection = Vector3.Normalize(Vector3.forward - Vector3.up);
 		static readonly float rayDistance = 1000.0f; // this probably needs to be customized per scene.  This is crazy far for flight scene, but not far enough in KSC
@@ -216,10 +211,16 @@ namespace KerbalVR
 			(1 << 15) | // KSC buildings
 			(1 << 21); // Part triggers
 
+		static Vector3 pdaPosition = new Vector3(0.025f, 0.0f, 0.0f);
+		static Quaternion pdaRotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
+		static float pdaScale = 0.001f; // arbitrary
+
 		LineRenderer m_uiLineRenderer;
 
 		public SteamVR_Action_Boolean_Source ClickAction => m_interactAction;
 		public SteamVR_Action_Boolean_Source RightClickAction => m_rightClickAction;
+
+		public Transform CanvasAnchor => m_canvasAnchor;
 
 		public bool LaserEnabled
 		{
@@ -248,6 +249,12 @@ namespace KerbalVR
 
 			m_interactAction = SteamVR_Input.GetAction<SteamVR_Action_Boolean>("InteractUI")[m_hand.handType];
 			m_rightClickAction = SteamVR_Input.GetAction<SteamVR_Action_Boolean>("RightClick")[m_hand.handType];
+
+			m_canvasAnchor = new GameObject("VR PDA Canvas Anchor").transform;
+			m_canvasAnchor.SetParent(transform, false);
+			m_canvasAnchor.localPosition = pdaPosition;
+			m_canvasAnchor.localRotation = pdaRotation;
+			m_canvasAnchor.localScale = Vector3.one * pdaScale;
 
 #if false
 			var uiLineObject = new GameObject();
@@ -571,7 +578,40 @@ namespace KerbalVR
 
 		public override bool ShouldActivateModule()
 		{
-			return Core.IsVrRunning && m_canvasStack.Count > 0;
+			return Core.IsVrRunning && InteractionSystem.Instance.LeftHand.UIHand.RightClickAction.state;
+		}
+
+		public override void ActivateModule()
+		{
+			base.ActivateModule();
+			m_hand.otherHand.UIHand.CanvasAnchor.gameObject.SetActive(true);
+			m_hand.UIHand.LaserEnabled = true;
+
+			// the rest of this feels like a hack; maybe should be in a derived class somewhere
+			// most of this class is game and situation agnostic, but this code isn't
+
+			// force a refresh because the PAWs won't look correct if they were created while the canvas was deactivated
+			foreach (var window in m_hand.otherHand.UIHand.CanvasAnchor.GetComponentsInChildren<UIPartActionWindow>())
+			{
+				window.CreatePartList(false);
+			}
+
+			// if there are no PAWs open, activate the one for the kerbal
+			if (UIPartActionController.Instance.windows.Count == 0)
+			{
+				var eva = Scene.GetKerbalEVA();
+				if (eva != null)
+				{
+					UIPartActionController.Instance.SelectPart(eva.part, false, false);
+				}
+			}
+		}
+
+		public override void DeactivateModule()
+		{
+			base.DeactivateModule();
+			m_hand.otherHand.UIHand.CanvasAnchor.gameObject.SetActive(false);
+			m_hand.UIHand.LaserEnabled = false;
 		}
 
 		public override void Process()

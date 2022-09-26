@@ -89,7 +89,7 @@
     {
       "name": "/actions/EVA/in/ToggleLight",
       "type": "boolean",
-      "requirement": "suggested"
+      "requirement": "optional"
     },
     {
       "name": "/actions/EVA/in/Sprint",

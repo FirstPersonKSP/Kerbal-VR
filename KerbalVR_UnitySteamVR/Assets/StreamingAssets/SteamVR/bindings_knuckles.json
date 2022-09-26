@@ -262,15 +262,6 @@
             {
                "inputs" : {
                   "click" : {
-                     "output" : "/actions/eva/in/togglelight"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/left/input/b"
-            },
-            {
-               "inputs" : {
-                  "click" : {
                      "output" : "/actions/eva/in/sprint"
                   }
                },
