@@ -280,6 +280,8 @@ namespace KerbalVR
 
 			KerbalVR.InteractionSystem.Instance.transform.SetParent(FlightCamera.fetch.transform, false);
 
+			Utils.GetOrAddComponent<KerbalVR_ArmScaler>(kerbalEVA.gameObject);
+
 			if (!kerbalEVA.IsSeated())
 			{
 				// force ThroughTheEyes to run its modifications on the kerbal's FSM.  These should be safe to run more than once

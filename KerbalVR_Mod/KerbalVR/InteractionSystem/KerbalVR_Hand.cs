@@ -25,12 +25,8 @@ namespace KerbalVR {
 		/// <summary>
 		/// The other hand's GameObject
 		/// </summary>
-		public GameObject otherHand;
+		public Hand otherHand;
 
-		/// <summary>
-		/// Hand profile
-		/// </summary>
-		public HandProfileManager.Profile profile;
 		#endregion
 
 
@@ -92,7 +88,7 @@ namespace KerbalVR {
 		/// <exception cref="ArgumentException"></exception>
 		/// <exception cref="MissingReferenceException"></exception>
 		/// <exception cref="Exception"></exception>
-		public void Initialize(SteamVR_Input_Sources handType, GameObject otherHand, bool isIVA) 
+		public void Initialize(SteamVR_Input_Sources handType, Hand otherHand, bool isIVA) 
 		{
 			handActionPose = SteamVR_Input.GetPoseAction("default", "Pose");
 			this.handType = handType;
@@ -127,7 +123,6 @@ namespace KerbalVR {
 			handObject.name = "KVR_HandObject_" + handType;
 			DontDestroyOnLoad(handObject);
 			handObject.SetActive(false); // default to inactive, to match the default in Update
-			Detach();
 
 			// cache the hand renderers
 			handRenderer = handObject.transform.Find(profile.renderModelPath).gameObject.GetComponent<SkinnedMeshRenderer>();
@@ -169,7 +164,7 @@ namespace KerbalVR {
 				kerbalSkeletonHelper.destinationSkeletonRoot = handObject.transform.Find(profile.retargetableSetting.destinationSkeletonRootPath);
 			}
 
-			// set up ladder
+  		// set up ladder
 			ladder = gameObject.AddComponent<VRLadder>();
 			
 			// set up UI hand  
@@ -177,19 +172,22 @@ namespace KerbalVR {
 
 			#region Setup Colliders
 
-			// create a child object for the colider so that it can be on a different layer
+			// add fingertip collider for "mouse clicks"
+			fingertipTransform = handObject.transform.Find(profile.indexTipTransformPath);
+			fingertipTransform.localPosition += profile.fingertipOffset;
+			fingertipCollider = fingertipTransform.gameObject.AddComponent<FingertipCollider>();
+			fingertipCollider.Initialize(this);
+
+      // this has to be after the fingertip collider is initialized and before the hand collider is initialized (for ladder setup)
+			Detach();
+      
+      // create a child object for the colider so that it can be on a different layer
 			handTransform = new GameObject("handTransform").transform;
 			handTransform.SetParent(handObject.transform.Find(profile.gripTransformPath), false);
 			handTransform.rotation = handObject.transform.rotation;
 			handTransform.localPosition = GripOffset;
 			handCollider = handTransform.gameObject.AddComponent<HandCollider>();
 			handCollider.Initialize(this);
-
-			// add fingertip collider for "mouse clicks"
-			fingertipTransform = handObject.transform.Find(profile.indexTipTransformPath);
-			fingertipTransform.localPosition += profile.fingertipOffset;
-			fingertipCollider = fingertipTransform.gameObject.AddComponent<FingertipCollider>();
-			fingertipCollider.Initialize(this);
 
 			// thumb is used to calculate position of pinch collider
 			thumbTransform = handObject.transform.Find(profile.thumbTipTransformPath);
