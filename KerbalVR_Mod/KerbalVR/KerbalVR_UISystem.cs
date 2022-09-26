@@ -31,8 +31,6 @@ namespace KerbalVR
 			}
 		}
 
-		static Quaternion canvasRotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
-
 		private void OnPartActionUIShown(UIPartActionWindow window, Part part)
 		{
 			if (Core.IsVrRunning && Scene.IsFirstPersonEVA())
@@ -112,6 +110,10 @@ namespace KerbalVR
 			}
 		}
 
+		static Vector3 pdaPosition = new Vector3(0.025f, 0.0f, 0.0f);
+		static Quaternion pdaRotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
+		static float pdaScale = 0.0005f; // arbitrary
+
 		IEnumerator ConfigureHandheldCanvases(Canvas[] canvases, bool running)
 		{
 			yield return null; // wait a frame so that ThroughTheEyes knows whether we are in first person or not
@@ -122,9 +124,9 @@ namespace KerbalVR
 				if (pdaMode)
 				{
 					canvas.transform.SetParent(InteractionSystem.Instance.LeftHand.handObject.transform, false);
-					canvas.transform.localPosition = Vector3.zero;
-					canvas.transform.localRotation = canvasRotation;
-					canvas.transform.localScale = Vector3.one * 0.0005f; // arbitrary
+					canvas.transform.localPosition = pdaPosition;
+					canvas.transform.localRotation = pdaRotation;
+					canvas.transform.localScale = Vector3.one * pdaScale;
 					canvas.gameObject.layer = 0;
 					canvas.worldCamera = FlightCamera.fetch.mainCamera;
 				}
@@ -148,6 +150,8 @@ namespace KerbalVR
 		{
 			yield return null; // wait a frame so that ThroughTheEyes knows whether we are in first person or not
 			bool hudMode= running && Scene.IsFirstPersonEVA();
+
+			if (canvas == null) yield break;
 
 			if (hudMode)
 			{
@@ -174,6 +178,8 @@ namespace KerbalVR
 
 		static void ConfigureCanvas(Canvas canvas, bool running)
 		{
+			if (canvas == null) return;
+
 			canvas.renderMode = running ? RenderMode.WorldSpace : RenderMode.ScreenSpaceCamera;
 
 			float scaleFactor = running ? 0.5f : 1.0f;
