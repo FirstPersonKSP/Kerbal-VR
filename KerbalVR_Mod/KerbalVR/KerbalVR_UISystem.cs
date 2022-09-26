@@ -19,7 +19,16 @@ namespace KerbalVR
 		void Awake()
 		{
 			GameEvents.onPartActionUIShown.Add(OnPartActionUIShown);
+			GameEvents.onPartActionUIDismiss.Add(OnPartActionUIDismiss);
 			Instance = this;
+		}
+
+		private void OnPartActionUIDismiss(Part data)
+		{
+			if (UIPartActionController.Instance.windows.Count == 0)
+			{
+				VRFingerTipInputModule.Instance.RemoveCanvas(UIMasterController.Instance.actionCanvas);
+			}
 		}
 
 		static Quaternion canvasRotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
@@ -32,6 +41,8 @@ namespace KerbalVR
 				window.rectTransform.anchoredPosition3D = Vector3.zero;
 				window.rectTransform.localPosition = Vector3.zero;
 				window.GetComponentInChildren<Graphic>().material.shader = Shader.Find("UI/Default"); // this defaults to "UI/KSP/Color Overlay" which has z-write on, which causes z-fighting when rendered in worldspace
+
+				VRFingerTipInputModule.Instance.PushCanvas(UIMasterController.Instance.actionCanvas);
 			}
 			else
 			{
@@ -77,6 +88,28 @@ namespace KerbalVR
 			VRRunningChanged(Core.IsVrRunning);
 		}
 
+		void LateUpdate()
+		{
+			bool anydialogsActive = false;
+			for (int i = 0; i < UIMasterController.Instance.dialogCanvas.gameObject.transform.childCount; ++i)
+			{
+				if (UIMasterController.Instance.dialogCanvas.gameObject.transform.GetChild(i).gameObject.activeInHierarchy)
+				{
+					anydialogsActive = true;
+					break;
+				}
+			}
+
+			if (anydialogsActive)
+			{
+				VRFingerTipInputModule.Instance.PushCanvas(UIMasterController.Instance.dialogCanvas);
+			}
+			else
+			{
+				VRFingerTipInputModule.Instance.RemoveCanvas(UIMasterController.Instance.dialogCanvas);
+			}
+		}
+
 		IEnumerator ConfigureHandheldCanvases(Canvas[] canvases, bool running)
 		{
 			yield return null; // wait a frame so that ThroughTheEyes knows whether we are in first person or not
@@ -89,7 +122,7 @@ namespace KerbalVR
 					canvas.transform.SetParent(InteractionSystem.Instance.LeftHand.handObject.transform, false);
 					canvas.transform.localPosition = Vector3.zero;
 					canvas.transform.localRotation = canvasRotation;
-					canvas.transform.localScale = Vector3.one * 0.007f; // arbitrary
+					canvas.transform.localScale = Vector3.one * 0.0005f; // arbitrary
 					canvas.gameObject.layer = 0;
 					canvas.worldCamera = FlightCamera.fetch.mainCamera;
 				}
@@ -471,6 +504,8 @@ namespace KerbalVR
 	{
 		internal static VRFingerTipInputModule Instance;
 
+		List<Canvas> m_canvasStack = new List<Canvas>();
+
 		bool m_lastPAWFingertipState;
 		bool m_PAWFingertipState;
 		bool m_PAWFingertipLatched;
@@ -481,10 +516,20 @@ namespace KerbalVR
 			Instance = this;
 		}
 
+		public void PushCanvas(Canvas canvas)
+		{
+			m_canvasStack.Remove(canvas);
+			m_canvasStack.Add(canvas);
+		}
+
+		public void RemoveCanvas(Canvas canvas)
+		{
+			m_canvasStack.Remove(canvas);
+		}
+
 		public override bool ShouldActivateModule()
 		{
-			// TODO: make this more general so it can work with any canvas
-			return UIPartActionController.Instance && UIPartActionController.Instance.windows.Count > 0;
+			return m_canvasStack.Count > 0;
 		}
 
 		public override void Process()
@@ -509,7 +554,7 @@ namespace KerbalVR
 		{
 			m_PAWFingertipState = false;
 
-			var canvas = UIMasterController.Instance.actionCanvas; // TODO: eventually we'll want a system to select different canvases
+			var canvas = m_canvasStack.Last();
 			var raycaster = canvas.GetComponent<BaseRaycaster>();
 			
 			pointerData.Reset();
