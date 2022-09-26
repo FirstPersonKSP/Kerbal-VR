@@ -197,6 +197,8 @@ namespace KerbalVR
 			{
 				FixFlightCamera();
 			}
+
+			InteractionSystem.Instance.UseIVAProfile = (mode == CameraManager.CameraMode.IVA);
 		}
 		
 		private void FixFlightCamera()

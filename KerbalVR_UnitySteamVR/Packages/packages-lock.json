@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.unity.bonevisualizer": {
+      "version": "https://github.com/Shaun-Fong/UnityBoneVisualizer.git?path=UnityBoneVisualizer",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "f45d44e79f555303f7b8a4a8eeb5a1d6a40146f1"
+    },
     "com.unity.collab-proxy": {
       "version": "1.2.16",
       "depth": 0,

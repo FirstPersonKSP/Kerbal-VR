@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using Valve.VR;
 
 namespace KerbalVR
@@ -32,7 +31,7 @@ namespace KerbalVR
 
             collider = gameObject.AddComponent<SphereCollider>();
             collider.isTrigger = true;
-            collider.radius = 0.015f;
+            collider.radius = hand.profile.pinchColliderSize;
 
             rigidBody = gameObject.AddComponent<Rigidbody>();
             rigidBody.useGravity = false;

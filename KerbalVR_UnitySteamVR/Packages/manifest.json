@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.unity.bonevisualizer": "https://github.com/Shaun-Fong/UnityBoneVisualizer.git?path=UnityBoneVisualizer",
     "com.unity.collab-proxy": "1.2.16",
     "com.unity.ext.nunit": "1.0.6",
     "com.unity.ide.rider": "1.1.4",

@@ -125,6 +125,8 @@
     <Compile Include="InteractionCommon\VRFlightStick.cs" />
     <Compile Include="InteractionCommon\VRThrottleLever.cs" />
     <Compile Include="InteractionCommon\VRYoke.cs" />
+    <Compile Include="InteractionSystem\HandProfileManager.cs" />
+    <Compile Include="InteractionSystem\KerbalSkeletonHelper.cs" />
     <Compile Include="InteractionSystem\KerbalVR_FingertipCollider.cs" />
     <Compile Include="InteractionSystem\KerbalVR_FingertipInteractable.cs" />
     <Compile Include="InteractionSystem\KerbalVR_Hand.cs" />
