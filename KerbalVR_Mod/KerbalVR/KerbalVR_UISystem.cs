@@ -60,6 +60,7 @@ namespace KerbalVR
 
 			ConfigureCanvas(UIMasterController.Instance.actionCanvas, running);
 			ConfigureCanvas(UIMasterController.Instance.dialogCanvas, running);
+			ConfigureCanvas(UIMasterController.Instance.screenMessageCanvas, running);
 
 #if GUI_ENABLED
 
@@ -81,6 +82,7 @@ namespace KerbalVR
 			};
 
 			StartCoroutine(ConfigureHandheldCanvases(handheldCanvases, running));
+			StartCoroutine(ConfigureHeadsUpCanvas(UIMasterController.Instance.screenMessageCanvas, running));
 		}
 
 		internal void ModeChanged()
@@ -135,6 +137,38 @@ namespace KerbalVR
 					canvas.gameObject.layer = 5;
 					canvas.worldCamera = UIMasterController.Instance.uiCamera;
 				}
+			}
+		}
+
+		static Quaternion hudRotation = Quaternion.identity;
+		static Vector3 hudPosition = new Vector3(0, 0.0f, 0.3f);
+		static float hudScale = 0.0003f;
+
+		private IEnumerator ConfigureHeadsUpCanvas(Canvas canvas, bool running)
+		{
+			yield return null; // wait a frame so that ThroughTheEyes knows whether we are in first person or not
+			bool hudMode= running && Scene.IsFirstPersonEVA();
+
+			if (hudMode)
+			{
+				var eva = Scene.GetKerbalEVA();
+
+				// TODO: this doesn't actually attach it to the skeleton, so it doesn't move with the helmet.  I tried attaching to the bone, but that didn't work.eva.helmetTransform
+				canvas.transform.SetParent(eva.helmetTransform, false);
+				canvas.transform.localPosition = hudPosition;
+				canvas.transform.localRotation = hudRotation;
+				canvas.transform.localScale = Vector3.one * hudScale;
+				canvas.gameObject.layer = 0;
+				canvas.worldCamera = FlightCamera.fetch.mainCamera;
+			}
+			else
+			{
+				canvas.transform.SetParent(UIMasterController.Instance.transform, false);
+				canvas.transform.localPosition = new Vector3(0, 0, 500); // 500 is the value for the PAW, this might not be correct for other canvases
+				canvas.transform.localRotation = Quaternion.identity;
+				canvas.transform.localScale = Vector3.one;
+				canvas.gameObject.layer = 5;
+				canvas.worldCamera = UIMasterController.Instance.uiCamera;
 			}
 		}
 
