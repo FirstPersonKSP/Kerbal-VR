@@ -8,118 +8,118 @@ using Valve.VR;
 
 namespace KerbalVR.InternalModules
 {
-    public class VRButton : InternalModule
-    {
-        [KSPField]
-        public string buttonTransformName = String.Empty;
+	public class VRButton : InternalModule
+	{
+		[KSPField]
+		public string buttonTransformName = String.Empty;
 
-        [KSPField]
-        public Vector3 axis = Vector3.down;
+		[KSPField]
+		public Vector3 axis = Vector3.down;
 
-        [KSPField]
-        public float pressThreshold = 0.004f;
+		[KSPField]
+		public float pressThreshold = 0.004f;
 
-        VRButtonInteractionListener interactionListener = null;
-        VRCover cover = null;
-
-#if PROP_GIZMOS
-        GameObject gizmo;
-#endif
-
-        private void Start()
-        {
-            var buttonTransform = this.FindTransform(buttonTransformName);
-
-            if (buttonTransform != null && interactionListener == null)
-            {
-                interactionListener = Utils.GetOrAddComponent<VRButtonInteractionListener>(buttonTransform.gameObject);
-                interactionListener.buttonModule = this;
+		VRButtonInteractionListener interactionListener = null;
+		VRCover cover = null;
 
 #if PROP_GIZMOS
-                if (gizmo == null)
-                {
-                    gizmo = Utils.CreateGizmo();
-                    gizmo.transform.SetParent(transform, false);
-                    Utils.SetLayer(gizmo, 20);
-                }
+		GameObject gizmo;
 #endif
-            }
 
-            cover = gameObject.GetComponent<VRCover>();
-        }
+		private void Start()
+		{
+			var buttonTransform = this.FindTransform(buttonTransformName);
 
-        class VRButtonInteractionListener : MonoBehaviour, IFingertipInteractable
-        {
-            public VRButton buttonModule;
-
-            // when the fingertip initially makes contact, where is its center along the axis?
-            float initialContactOffset = 0.0f;
-            Vector3 initialLocalPosition; // the button's localPosition at rest
-            bool latched = false;
-            bool latchedCover = false;
-
-            public void Awake()
-            {
-                initialLocalPosition = transform.localPosition;
+			if (buttonTransform != null && interactionListener == null)
+			{
+				interactionListener = Utils.GetOrAddComponent<VRButtonInteractionListener>(buttonTransform.gameObject);
+				interactionListener.buttonModule = this;
 
 #if PROP_GIZMOS
-                Utils.GetOrAddComponent<ColliderVisualizer>(gameObject);
+				if (gizmo == null)
+				{
+					gizmo = Utils.CreateGizmo();
+					gizmo.transform.SetParent(transform, false);
+					Utils.SetLayer(gizmo, 20);
+				}
 #endif
-            }
+			}
 
-            float GetFingertipPosition(Vector3 fingertipCenter)
-            {
-                Vector3 localFingertipPosition = transform.InverseTransformPoint(fingertipCenter);
-                return Vector3.Dot(localFingertipPosition, buttonModule.axis);
-            }
+			cover = gameObject.GetComponent<VRCover>();
+		}
 
-            public void OnEnter(Hand hand, Collider buttonCollider)
-            {
-                initialContactOffset = GetFingertipPosition(hand.FingertipPosition);
+		class VRButtonInteractionListener : MonoBehaviour, IFingertipInteractable
+		{
+			public VRButton buttonModule;
 
-                latchedCover = buttonModule.cover != null && !buttonModule.cover.IsOpen;
+			// when the fingertip initially makes contact, where is its center along the axis?
+			float initialContactOffset = 0.0f;
+			Vector3 initialLocalPosition; // the button's localPosition at rest
+			bool latched = false;
+			bool latchedCover = false;
 
-                //if (!latchedCover)
-                //{
-                //	HapticUtils.Light(hand.handType);
-                //}
-            }
+			public void Awake()
+			{
+				initialLocalPosition = transform.localPosition;
 
-            public void OnExit(Hand hand, Collider buttonCollider)
-            {
-                if (latchedCover) return;
+#if PROP_GIZMOS
+				Utils.GetOrAddComponent<ColliderVisualizer>(gameObject);
+#endif
+			}
 
-                transform.localPosition = initialLocalPosition;
+			float GetFingertipPosition(Vector3 fingertipCenter)
+			{
+				Vector3 localFingertipPosition = transform.InverseTransformPoint(fingertipCenter);
+				return Vector3.Dot(localFingertipPosition, buttonModule.axis);
+			}
 
-                if (latched)
-                {
-                    gameObject.SendMessage("OnMouseUp");
-                }
+			public void OnEnter(Hand hand, Collider buttonCollider)
+			{
+				initialContactOffset = GetFingertipPosition(hand.FingertipPosition);
 
-                latched = false;
-            }
+				latchedCover = buttonModule.cover != null && !buttonModule.cover.IsOpen;
 
-            public void OnStay(Hand hand, Collider buttonCollider)
-            {
-                if (latchedCover) return;
+				//if (!latchedCover)
+				//{
+				//	HapticUtils.Light(hand.handType);
+				//}
+			}
 
-                float currentFingerPosition = GetFingertipPosition(hand.FingertipPosition);
-                float delta = Mathf.Max(0.0f, currentFingerPosition - initialContactOffset);
+			public void OnExit(Hand hand, Collider buttonCollider)
+			{
+				if (latchedCover) return;
 
-                if (delta > buttonModule.pressThreshold)
-                {
-                    delta = buttonModule.pressThreshold;
+				transform.localPosition = initialLocalPosition;
 
-                    if (!latched)
-                    {
-                        latched = true;
-                        gameObject.SendMessage("OnMouseDown");
-                        HapticUtils.Light(hand.handType);
-                    }
-                }
+				if (latched)
+				{
+					gameObject.SendMessage("OnMouseUp");
+				}
 
-                transform.localPosition = initialLocalPosition + buttonModule.axis * delta;
-            }
-        }
-    }
+				latched = false;
+			}
+
+			public void OnStay(Hand hand, Collider buttonCollider)
+			{
+				if (latchedCover) return;
+
+				float currentFingerPosition = GetFingertipPosition(hand.FingertipPosition);
+				float delta = Mathf.Max(0.0f, currentFingerPosition - initialContactOffset);
+
+				if (delta > buttonModule.pressThreshold)
+				{
+					delta = buttonModule.pressThreshold;
+
+					if (!latched)
+					{
+						latched = true;
+						gameObject.SendMessage("OnMouseDown");
+						HapticUtils.Light(hand.handType);
+					}
+				}
+
+				transform.localPosition = initialLocalPosition + buttonModule.axis * delta;
+			}
+		}
+	}
 }

@@ -19,13 +19,19 @@ namespace KerbalVR
 		/// This is a singleton class, and there must be exactly one GameObject with this Component in the scene.
 		/// </summary>
 		private static InteractionSystem _instance;
-		public static InteractionSystem Instance {
-			get {
-				if (_instance == null) {
+		public static InteractionSystem Instance
+		{
+			get
+			{
+				if (_instance == null)
+				{
 					_instance = FindObjectOfType<InteractionSystem>();
-					if (_instance == null) {
+					if (_instance == null)
+					{
 						Utils.LogError("The scene needs to have one active GameObject with an InteractionSystem script attached!");
-					} else {
+					}
+					else
+					{
 						_instance.Initialize();
 					}
 				}
@@ -36,7 +42,7 @@ namespace KerbalVR
 		/// <summary>
 		/// One-time initialization for this singleton class.
 		/// </summary>
-		private void Initialize() 
+		private void Initialize()
 		{
 			InitializeHandScripts();
 			EventSystem.current.gameObject.AddComponent<VRLaserInputModule>();
@@ -119,7 +125,7 @@ namespace KerbalVR
 			return handGameObject.AddComponent<Hand>();
 		}
 
-		protected void InitializeHandScripts() 
+		protected void InitializeHandScripts()
 		{
 			HandProfileManager.Instance.LoadAllProfiles();
 

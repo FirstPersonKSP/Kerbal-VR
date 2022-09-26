@@ -24,7 +24,7 @@ namespace KerbalVR.IVAAdaptors
 					var knob = creationFunction(gameObject, customRotation);
 					if (knob != null)
 					{
-							return knob;
+						return knob;
 					}
 				}
 				catch (Exception ex)

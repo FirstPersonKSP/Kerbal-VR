@@ -4,12 +4,14 @@ using UnityEngine;
 using Valve.VR;
 using static Valve.VR.SteamVR_Events;
 
-namespace KerbalVR {
+namespace KerbalVR
+{
 	/// <summary>
 	/// The Hand component is applied to each of the two hand GameObjects.
 	/// It handles all the interactions related to using the hands in VR.
 	/// </summary>
-	public class Hand : MonoBehaviour {
+	public class Hand : MonoBehaviour
+	{
 
 		#region Public Members
 		/// <summary>
@@ -80,7 +82,7 @@ namespace KerbalVR {
 		protected VRLadder ladder;
 
 		// For interacting with the UI
-		internal VRUIHand UIHand { get; private set;}
+		internal VRUIHand UIHand { get; private set; }
 
 		#endregion
 
@@ -93,7 +95,7 @@ namespace KerbalVR {
 		/// <exception cref="ArgumentException"></exception>
 		/// <exception cref="MissingReferenceException"></exception>
 		/// <exception cref="Exception"></exception>
-		public void Initialize(SteamVR_Input_Sources handType, Hand otherHand, bool isIVA) 
+		public void Initialize(SteamVR_Input_Sources handType, Hand otherHand, bool isIVA)
 		{
 			handActionPose = SteamVR_Input.GetPoseAction("default", "Pose");
 			this.handType = handType;
@@ -121,7 +123,7 @@ namespace KerbalVR {
 
 			// make instance object out of the hand prefab
 			handObject = Instantiate(handPrefab);
-			if (handObject == null) 
+			if (handObject == null)
 			{
 				throw new Exception("Could not Instantiate prefab for " + handType);
 			}
@@ -169,9 +171,9 @@ namespace KerbalVR {
 				kerbalSkeletonHelper.destinationSkeletonRoot = handObject.transform.Find(profile.retargetableSetting.destinationSkeletonRootPath);
 			}
 
-  		// set up ladder
+			// set up ladder
 			ladder = gameObject.AddComponent<VRLadder>();
-			
+
 			// set up UI hand  
 			UIHand = gameObject.AddComponent<VRUIHand>();
 
@@ -183,10 +185,10 @@ namespace KerbalVR {
 			fingertipCollider = fingertipTransform.gameObject.AddComponent<FingertipCollider>();
 			fingertipCollider.Initialize(this);
 
-      // this has to be after the fingertip collider is initialized and before the hand collider is initialized (for ladder setup)
+			// this has to be after the fingertip collider is initialized and before the hand collider is initialized (for ladder setup)
 			Detach();
-      
-      // create a child object for the colider so that it can be on a different layer
+
+			// create a child object for the colider so that it can be on a different layer
 			handTransform = new GameObject("handTransform").transform;
 			handTransform.SetParent(handObject.transform.Find(profile.gripTransformPath), false);
 			handTransform.rotation = handObject.transform.rotation;
@@ -244,7 +246,7 @@ namespace KerbalVR {
 		{
 			ChangeGrab(newState);
 		}
-		
+
 		public void ChangeGrab(bool newState)
 		{
 			if (newState)
@@ -295,7 +297,8 @@ namespace KerbalVR {
 			}
 
 			// if rendering, update the hand positions
-			if (isRendering) {
+			if (isRendering)
+			{
 				// get device indices for each hand, then set the transform
 				bool isConnected = handActionPose.GetDeviceIsConnected(handType);
 				if (isConnected)
@@ -334,18 +337,22 @@ namespace KerbalVR {
 						handObject.transform.rotation = handTransformRot;
 					}
 #endif
-				} else {
+				}
+				else
+				{
 					isRendering = false;
 				}
 			}
 
 			// makes changes as necessary
 			isRenderingHands.Push(isRendering);
-			if (isRenderingHands.IsChanged()) {
+			if (isRenderingHands.IsChanged())
+			{
 				handObject.SetActive(isRendering);
 
 			}
-			if (renderLayerHands.IsChanged()) {
+			if (renderLayerHands.IsChanged())
+			{
 				Utils.SetLayer(this.gameObject, renderLayerHands.Value);
 				Utils.SetLayer(handObject, renderLayerHands.Value);
 

@@ -6,12 +6,12 @@ using Valve.VR;
 
 namespace KerbalVR
 {
-    public static class Scene
+	public static class Scene
 	{
-        public static bool IsInIVA()
-        {
-            return (CameraManager.Instance != null) && (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA || CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.Internal);
-        }
+		public static bool IsInIVA()
+		{
+			return (CameraManager.Instance != null) && (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA || CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.Internal);
+		}
 
 		public static KerbalEVA GetKerbalEVA()
 		{
@@ -32,10 +32,10 @@ namespace KerbalVR
 			return cameraManager == null ? false : cameraManager.isFirstPerson;
 		}
 
-        public static bool IsInEVA()
-        {
+		public static bool IsInEVA()
+		{
 			return GetKerbalEVA() != null;
-        }
+		}
 
 		internal static void EnterFirstPerson()
 		{
@@ -60,197 +60,213 @@ namespace KerbalVR
 	}
 
 #if false
-    /// <summary>
-    /// Scene is a singleton class that encapsulates the code that positions
-    /// the game cameras correctly for rendering them to the VR headset,
-    /// according to the current KSP scene (flight, editor, etc).
-    /// </summary>
-    public class Scene : MonoBehaviour
-    {
-        /// The camera system is designed as follows:
-        ///
-        ///   As soon as OpenVR is initialized, create a "VR Camera Rig". It is a
-        ///   list of Camera pairs, one Camera per eye, and one pair per KSP Camera.
-        ///   KSP Cameras are those named in the KSP_CAMERA_NAMES_ALL array below.
-        ///   These are the cameras that we are interested in rendering in VR.
-        ///
-        ///   Some of these KSP Cameras come in and out of existence during gameplay,
-        ///   e.g. the InternalCamera is not created until we enter IVA in the game.
-        ///   So, every frame, attempt to find the KSP Camera so we can copy its
-        ///   parameters into the corresponding VR Camera pair.
-        ///
-        ///   Via this design, we do not have to manipulate the actual KSP
-        ///   Cameras (FlightCamera, etc.), as we have done in previous designs
-        ///   (KerbalVR version 3.x.x and prior). I found that manipulating the
-        ///   KSP Cameras can introduce weird side effects, as many of these
-        ///   cameras have other controllers attached which are also trying to
-        ///   manipulate the KSP Cameras.
-        ///
-        ///   Maintain a list of KSP camera names relevant to the current scene.
-        ///   Update this list on every transition of GameScene, or CameraMode
-        ///   during Flight. When a transition happens, turn back on the KSP
-        ///   cameras if they were off, and turn off all VR cameras. Wait for a
-        ///   short amount of time. Then update the list of cameras for the
-        ///   current scene, turn off these KSP cameras, and turn on the VR
-        ///   cameras, per the list.
-        ///
-        ///   We don't make the camera switch immediately, instead we wait some
-        ///   finite amount of time, because sometimes there is
-        ///   internal KSP code that may decide to asynchronously turn cameras on or
-        ///   off around the time that GameScenes switch.
-        ///
+	/// <summary>
+	/// Scene is a singleton class that encapsulates the code that positions
+	/// the game cameras correctly for rendering them to the VR headset,
+	/// according to the current KSP scene (flight, editor, etc).
+	/// </summary>
+	public class Scene : MonoBehaviour
+	{
+		/// The camera system is designed as follows:
+		///
+		///   As soon as OpenVR is initialized, create a "VR Camera Rig". It is a
+		///   list of Camera pairs, one Camera per eye, and one pair per KSP Camera.
+		///   KSP Cameras are those named in the KSP_CAMERA_NAMES_ALL array below.
+		///   These are the cameras that we are interested in rendering in VR.
+		///
+		///   Some of these KSP Cameras come in and out of existence during gameplay,
+		///   e.g. the InternalCamera is not created until we enter IVA in the game.
+		///   So, every frame, attempt to find the KSP Camera so we can copy its
+		///   parameters into the corresponding VR Camera pair.
+		///
+		///   Via this design, we do not have to manipulate the actual KSP
+		///   Cameras (FlightCamera, etc.), as we have done in previous designs
+		///   (KerbalVR version 3.x.x and prior). I found that manipulating the
+		///   KSP Cameras can introduce weird side effects, as many of these
+		///   cameras have other controllers attached which are also trying to
+		///   manipulate the KSP Cameras.
+		///
+		///   Maintain a list of KSP camera names relevant to the current scene.
+		///   Update this list on every transition of GameScene, or CameraMode
+		///   during Flight. When a transition happens, turn back on the KSP
+		///   cameras if they were off, and turn off all VR cameras. Wait for a
+		///   short amount of time. Then update the list of cameras for the
+		///   current scene, turn off these KSP cameras, and turn on the VR
+		///   cameras, per the list.
+		///
+		///   We don't make the camera switch immediately, instead we wait some
+		///   finite amount of time, because sometimes there is
+		///   internal KSP code that may decide to asynchronously turn cameras on or
+		///   off around the time that GameScenes switch.
+		///
 
-    #region Constants
-        public static readonly string[] KSP_CAMERA_NAMES_MAINMENU = {
-            "GalaxyCamera",
-            "Landscape Camera",
-        };
-        public static readonly string[] KSP_CAMERA_NAMES_SPACECENTER = {
-            "GalaxyCamera",
-            "Camera ScaledSpace",
-            "Camera 00",
-        };
-        public static readonly string[] KSP_CAMERA_NAMES_TRACKSTATION = {
-            "GalaxyCamera",
-            "Camera ScaledSpace",
-        };
-        public static readonly string[] KSP_CAMERA_NAMES_EDITOR = {
-            "GalaxyCamera",
-            "sceneryCam",
-            "Main Camera",
-        };
-        public static readonly string[] KSP_CAMERA_NAMES_FLIGHT = {
-            "GalaxyCamera",
-            "Camera ScaledSpace",
-            "Camera 00",
-        };
-        public static readonly string[] KSP_CAMERA_NAMES_FLIGHT_IVA = {
-            "GalaxyCamera",
-            "Camera ScaledSpace",
-            "Camera 00",
-            "InternalCamera",
-        };
-        public static readonly string[] KSP_CAMERA_NAMES_FLIGHT_MAP = {
-            "GalaxyCamera",
-            "Camera ScaledSpace",
-        };
+	#region Constants
+		public static readonly string[] KSP_CAMERA_NAMES_MAINMENU = {
+			"GalaxyCamera",
+			"Landscape Camera",
+		};
+		public static readonly string[] KSP_CAMERA_NAMES_SPACECENTER = {
+			"GalaxyCamera",
+			"Camera ScaledSpace",
+			"Camera 00",
+		};
+		public static readonly string[] KSP_CAMERA_NAMES_TRACKSTATION = {
+			"GalaxyCamera",
+			"Camera ScaledSpace",
+		};
+		public static readonly string[] KSP_CAMERA_NAMES_EDITOR = {
+			"GalaxyCamera",
+			"sceneryCam",
+			"Main Camera",
+		};
+		public static readonly string[] KSP_CAMERA_NAMES_FLIGHT = {
+			"GalaxyCamera",
+			"Camera ScaledSpace",
+			"Camera 00",
+		};
+		public static readonly string[] KSP_CAMERA_NAMES_FLIGHT_IVA = {
+			"GalaxyCamera",
+			"Camera ScaledSpace",
+			"Camera 00",
+			"InternalCamera",
+		};
+		public static readonly string[] KSP_CAMERA_NAMES_FLIGHT_MAP = {
+			"GalaxyCamera",
+			"Camera ScaledSpace",
+		};
 
-        // note: any camera in the above arrays should also be present here:
-        public static readonly string[] KSP_CAMERA_NAMES_ALL = {
-            "GalaxyCamera",
-            "Landscape Camera",
-            "Camera ScaledSpace",
-            "Camera 00",
-            "InternalCamera",
-            "sceneryCam",
-            "Main Camera",
-        };
-    #endregion
+		// note: any camera in the above arrays should also be present here:
+		public static readonly string[] KSP_CAMERA_NAMES_ALL = {
+			"GalaxyCamera",
+			"Landscape Camera",
+			"Camera ScaledSpace",
+			"Camera 00",
+			"InternalCamera",
+			"sceneryCam",
+			"Main Camera",
+		};
+	#endregion
 
-    #region Singleton
-        /// <summary>
-        /// This is a singleton class, and there must be exactly one GameObject with this Component in the scene.
-        /// </summary>
-        private static Scene _instance;
-        public static Scene Instance {
-            get {
-                if (_instance == null) {
-                    _instance = FindObjectOfType<Scene>();
-                    if (_instance == null) {
-                        Utils.LogError("The scene needs to have one active GameObject with a Scene script attached!");
-                    } else {
-                        _instance.Initialize();
-                    }
-                }
-                return _instance;
-            }
-        }
+	#region Singleton
+		/// <summary>
+		/// This is a singleton class, and there must be exactly one GameObject with this Component in the scene.
+		/// </summary>
+		private static Scene _instance;
+		public static Scene Instance
+		{
+			get
+			{
+				if (_instance == null)
+				{
+					_instance = FindObjectOfType<Scene>();
+					if (_instance == null)
+					{
+						Utils.LogError("The scene needs to have one active GameObject with a Scene script attached!");
+					}
+					else
+					{
+						_instance.Initialize();
+					}
+				}
+				return _instance;
+			}
+		}
 
-        /// <summary>
-        /// One-time initialization for this singleton class.
-        /// </summary>
-        private void Initialize() { }
-    #endregion
-
-
-    #region Properties
-        // The initial world position of the cameras for the current scene. This
-        // position corresponds to the origin in the real world physical device
-        // coordinate system.
-        public Vector3 InitialPosition { get; private set; }
-        public Quaternion InitialRotation { get; private set; }
-
-        // The current world position of the cameras for the current scene. This
-        // position corresponds to the origin in the real world physical device
-        // coordinate system.
-        public Vector3 CurrentPosition { get; set; }
-        public Quaternion CurrentRotation { get; set; }
-
-        // defines the tracking method to use
-        public ETrackingUniverseOrigin TrackingSpace { get; private set; } = ETrackingUniverseOrigin.TrackingUniverseSeated;
-
-        public SteamVR_Utils.RigidTransform HmdTransform { get; private set; } = new SteamVR_Utils.RigidTransform();
-
-        public bool IsVrCamerasEnabled { get; private set; } = false;
-        public bool IsVrAllowed {
-            get {
-                return HighLogic.LoadedScene == GameScenes.MAINMENU ||
-                    HighLogic.LoadedScene == GameScenes.SPACECENTER ||
-                    HighLogic.LoadedScene == GameScenes.TRACKSTATION ||
-                    HighLogic.LoadedScene == GameScenes.EDITOR ||
-                    HighLogic.LoadedScene == GameScenes.FLIGHT;
-            }
-        }
-    #endregion
+		/// <summary>
+		/// One-time initialization for this singleton class.
+		/// </summary>
+		private void Initialize() { }
+	#endregion
 
 
-    #region Private Members
-        protected bool isVrCameraRigCreated = false;
-        protected string[] currentKspSceneCameraNames = null;
-    #endregion
+	#region Properties
+		// The initial world position of the cameras for the current scene. This
+		// position corresponds to the origin in the real world physical device
+		// coordinate system.
+		public Vector3 InitialPosition { get; private set; }
+		public Quaternion InitialRotation { get; private set; }
+
+		// The current world position of the cameras for the current scene. This
+		// position corresponds to the origin in the real world physical device
+		// coordinate system.
+		public Vector3 CurrentPosition { get; set; }
+		public Quaternion CurrentRotation { get; set; }
+
+		// defines the tracking method to use
+		public ETrackingUniverseOrigin TrackingSpace { get; private set; } = ETrackingUniverseOrigin.TrackingUniverseSeated;
+
+		public SteamVR_Utils.RigidTransform HmdTransform { get; private set; } = new SteamVR_Utils.RigidTransform();
+
+		public bool IsVrCamerasEnabled { get; private set; } = false;
+		public bool IsVrAllowed
+		{
+			get
+			{
+				return HighLogic.LoadedScene == GameScenes.MAINMENU ||
+					HighLogic.LoadedScene == GameScenes.SPACECENTER ||
+					HighLogic.LoadedScene == GameScenes.TRACKSTATION ||
+					HighLogic.LoadedScene == GameScenes.EDITOR ||
+					HighLogic.LoadedScene == GameScenes.FLIGHT;
+			}
+		}
+	#endregion
 
 
-        protected void Start() {
-            // kick off a coroutine that constantly checks whether
-            // we can copy KSP camera parameters onto our own VRCameraSet
-            // StartCoroutine("CopyKspCameraParameters");
-        }
-
-        protected void OnEnable() {
-            // setup callback functions for events
-            GameEvents.onGameSceneSwitchRequested.Add(OnGameSceneSwitchRequested);
-            GameEvents.OnIVACameraKerbalChange.Add(OnIvaCameraChange);
-            GameEvents.OnCameraChange.Add(OnCameraChange);
-            KerbalVR.Events.HmdStatusUpdated.Listen(OnHmdStatusUpdated);
-        }
-
-        protected void OnDisable() {
-            // remove callback functions
-            GameEvents.onGameSceneSwitchRequested.Remove(OnGameSceneSwitchRequested);
-            GameEvents.OnIVACameraKerbalChange.Remove(OnIvaCameraChange);
-            GameEvents.OnCameraChange.Remove(OnCameraChange);
-            KerbalVR.Events.HmdStatusUpdated.Remove(OnHmdStatusUpdated);
-        }
+	#region Private Members
+		protected bool isVrCameraRigCreated = false;
+		protected string[] currentKspSceneCameraNames = null;
+	#endregion
 
 
-        protected void Update() {
-            if (KerbalVR.Core.IsOpenVrReady && !isVrCameraRigCreated) {
-                // very the VR cameras have been constructed
-                // BuildVrCameraRig();
-            }
-        }
+		protected void Start()
+		{
+			// kick off a coroutine that constantly checks whether
+			// we can copy KSP camera parameters onto our own VRCameraSet
+			// StartCoroutine("CopyKspCameraParameters");
+		}
+
+		protected void OnEnable()
+		{
+			// setup callback functions for events
+			GameEvents.onGameSceneSwitchRequested.Add(OnGameSceneSwitchRequested);
+			GameEvents.OnIVACameraKerbalChange.Add(OnIvaCameraChange);
+			GameEvents.OnCameraChange.Add(OnCameraChange);
+			KerbalVR.Events.HmdStatusUpdated.Listen(OnHmdStatusUpdated);
+		}
+
+		protected void OnDisable()
+		{
+			// remove callback functions
+			GameEvents.onGameSceneSwitchRequested.Remove(OnGameSceneSwitchRequested);
+			GameEvents.OnIVACameraKerbalChange.Remove(OnIvaCameraChange);
+			GameEvents.OnCameraChange.Remove(OnCameraChange);
+			KerbalVR.Events.HmdStatusUpdated.Remove(OnHmdStatusUpdated);
+		}
 
 
-        protected void LateUpdate() {
-            if (KerbalVR.Core.IsOpenVrReady) {
-                // update cameras with pose data
-                UpdateCameraPositions();
-            }
-        }
+		protected void Update()
+		{
+			if (KerbalVR.Core.IsOpenVrReady && !isVrCameraRigCreated)
+			{
+				// very the VR cameras have been constructed
+				// BuildVrCameraRig();
+			}
+		}
 
 
-        protected void UpdateCameraPositions() {
-#if false
+		protected void LateUpdate()
+		{
+			if (KerbalVR.Core.IsOpenVrReady)
+			{
+				// update cameras with pose data
+				UpdateCameraPositions();
+			}
+		}
+
+
+		protected void UpdateCameraPositions()
+		{
+#if true
             // re-position cameras as modified by game controls (e.g. Kerbals moving about)
             switch (HighLogic.LoadedScene) {
                 case GameScenes.FLIGHT:
@@ -348,32 +364,38 @@ namespace KerbalVR
                 }
             }
 #endif
-        }
+		}
 
-        protected void OnGameSceneSwitchRequested(GameEvents.FromToAction<GameScenes, GameScenes> fromToAction) {
-            StartCoroutine(TransitionScene());
-        }
+		protected void OnGameSceneSwitchRequested(GameEvents.FromToAction<GameScenes, GameScenes> fromToAction)
+		{
+			StartCoroutine(TransitionScene());
+		}
 
-        protected void OnIvaCameraChange(Kerbal kerbal) {
-            StartCoroutine(TransitionScene(true));
-        }
+		protected void OnIvaCameraChange(Kerbal kerbal)
+		{
+			StartCoroutine(TransitionScene(true));
+		}
 
-        protected void OnCameraChange(CameraManager.CameraMode mode) {
+		protected void OnCameraChange(CameraManager.CameraMode mode)
+		{
 #if DEBUG
-            Utils.Log("OnCameraChange: " + mode.ToString());
+			Utils.Log("OnCameraChange: " + mode.ToString());
 #endif
-            StartCoroutine(TransitionScene(true));
-        }
+			StartCoroutine(TransitionScene(true));
+		}
 
-        protected void OnHmdStatusUpdated(bool isRunning) {
-            // if enabling VR, ensure camera rig is built
-            if (isRunning) {
-                // BuildVrCameraRig();
-            }
-            StartCoroutine(TransitionScene());
-        }
+		protected void OnHmdStatusUpdated(bool isRunning)
+		{
+			// if enabling VR, ensure camera rig is built
+			if (isRunning)
+			{
+				// BuildVrCameraRig();
+			}
+			StartCoroutine(TransitionScene());
+		}
 
-        protected IEnumerator TransitionScene(bool doFastTransition = false) {
+		protected IEnumerator TransitionScene(bool doFastTransition = false)
+		{
 #if false
 
 #if DEBUG
@@ -481,16 +503,17 @@ namespace KerbalVR
                 SetVrCameraPositions();
             }
 #endif
-            yield return null;
-        }
+			yield return null;
+		}
 
-        /// <summary>
-        /// Retrieve the Camera component for the named KSP camera.
-        /// We use the VRCameraSets structure to store quickly accessible
-        /// references to the KSP cameras.
-        /// </summary>
-        /// <param name="kspCameraName">Name of the KSP camera</param>
-        protected Camera GetKspCameraComponent(string kspCameraName) {
+		/// <summary>
+		/// Retrieve the Camera component for the named KSP camera.
+		/// We use the VRCameraSets structure to store quickly accessible
+		/// references to the KSP cameras.
+		/// </summary>
+		/// <param name="kspCameraName">Name of the KSP camera</param>
+		protected Camera GetKspCameraComponent(string kspCameraName)
+		{
 #if false
             foreach (var cameraSet in VRCameraSets) {
                 if (cameraSet.kspCameraName == kspCameraName) {
@@ -521,180 +544,197 @@ namespace KerbalVR
             // did not find the camera
             Utils.LogWarning("GetKspCameraComponent: Unexpected state, cannot find camera " + kspCameraName);
 #endif
-            return null;
-        }
+			return null;
+		}
 
-        protected void SetVrCameraPositions() {
-            GameScenes scene = HighLogic.LoadedScene;
+		protected void SetVrCameraPositions()
+		{
+			GameScenes scene = HighLogic.LoadedScene;
 
-            // most scenese are seated tracking
-            TrackingSpace = ETrackingUniverseOrigin.TrackingUniverseSeated;
+			// most scenese are seated tracking
+			TrackingSpace = ETrackingUniverseOrigin.TrackingUniverseSeated;
 
-            switch (scene) {
-                case GameScenes.MAINMENU:
-                    InitialPosition = new Vector3(0f, -0.87f, 0f);
-                    InitialRotation = Quaternion.identity;
-                    TrackingSpace = ETrackingUniverseOrigin.TrackingUniverseStanding;
-                    break;
+			switch (scene)
+			{
+				case GameScenes.MAINMENU:
+					InitialPosition = new Vector3(0f, -0.87f, 0f);
+					InitialRotation = Quaternion.identity;
+					TrackingSpace = ETrackingUniverseOrigin.TrackingUniverseStanding;
+					break;
 
-                case GameScenes.SPACECENTER:
-                    // initial position is in the sky above the SpaceCenter
-                    // InitialPosition = new Vector3(51.7f, -601.8f, 878.4f); // world coordinates
-                    InitialPosition = SpaceCenter.Instance.cb.GetWorldSurfacePosition(-0.15426, -74.67217, 500); // approx lat/lon equivalent
+				case GameScenes.SPACECENTER:
+					// initial position is in the sky above the SpaceCenter
+					// InitialPosition = new Vector3(51.7f, -601.8f, 878.4f); // world coordinates
+					InitialPosition = SpaceCenter.Instance.cb.GetWorldSurfacePosition(-0.15426, -74.67217, 500); // approx lat/lon equivalent
 
-                    // for rotation, look toward the SpaceCenter, but aligned with the surface normal
-                    double lat, lon, alt;
-                    SpaceCenter.Instance.cb.GetLatLonAlt(SpaceCenter.Instance.transform.position, out lat, out lon, out alt);
-                    Vector3d spaceCenterPos = SpaceCenter.Instance.cb.GetWorldSurfacePosition(lat, lon, 500);
-                    Vector3 lookTargetSc = spaceCenterPos - InitialPosition;
-                    Vector3d surfaceNormal = SpaceCenter.Instance.cb.GetSurfaceNVector(-0.15426, -74.67217);
-                    InitialRotation = Quaternion.LookRotation(lookTargetSc, surfaceNormal);
-                    break;
+					// for rotation, look toward the SpaceCenter, but aligned with the surface normal
+					double lat, lon, alt;
+					SpaceCenter.Instance.cb.GetLatLonAlt(SpaceCenter.Instance.transform.position, out lat, out lon, out alt);
+					Vector3d spaceCenterPos = SpaceCenter.Instance.cb.GetWorldSurfacePosition(lat, lon, 500);
+					Vector3 lookTargetSc = spaceCenterPos - InitialPosition;
+					Vector3d surfaceNormal = SpaceCenter.Instance.cb.GetSurfaceNVector(-0.15426, -74.67217);
+					InitialRotation = Quaternion.LookRotation(lookTargetSc, surfaceNormal);
+					break;
 
-                case GameScenes.TRACKSTATION:
-                    // we are looking at things through the Scaled Space camera.
-                    // initial position should always be zero (the Scaled Space camera does not move).
-                    InitialPosition = Vector3.zero;
+				case GameScenes.TRACKSTATION:
+					// we are looking at things through the Scaled Space camera.
+					// initial position should always be zero (the Scaled Space camera does not move).
+					InitialPosition = Vector3.zero;
 
-                    // look towards current body (NOT WORKING)
-                    // Vector3 lookTargetCb = ScaledSpace.LocalToScaledSpace(Planetarium.fetch.CurrentMainBody.position);
-                    Vector3 lookTargetCb = Planetarium.fetch.CurrentMainBody.scaledBody.transform.position;
-                    InitialRotation = Quaternion.LookRotation(lookTargetCb, Vector3.up);
+					// look towards current body (NOT WORKING)
+					// Vector3 lookTargetCb = ScaledSpace.LocalToScaledSpace(Planetarium.fetch.CurrentMainBody.position);
+					Vector3 lookTargetCb = Planetarium.fetch.CurrentMainBody.scaledBody.transform.position;
+					InitialRotation = Quaternion.LookRotation(lookTargetCb, Vector3.up);
 
-                    // Utils.Log("CB Position = " + Planetarium.fetch.CurrentMainBody.transform.position.ToString("F4"));
-                    // Utils.Log("ScaledBody Position = " + Planetarium.fetch.CurrentMainBody.scaledBody.transform.position.ToString("F4"));
-                    // Utils.Log("SS SceneTransform = " + ScaledSpace.SceneTransform.position.ToString("F3"));
-                    break;
+					// Utils.Log("CB Position = " + Planetarium.fetch.CurrentMainBody.transform.position.ToString("F4"));
+					// Utils.Log("ScaledBody Position = " + Planetarium.fetch.CurrentMainBody.scaledBody.transform.position.ToString("F4"));
+					// Utils.Log("SS SceneTransform = " + ScaledSpace.SceneTransform.position.ToString("F3"));
+					break;
 
-                case GameScenes.EDITOR:
-                    TrackingSpace = ETrackingUniverseOrigin.TrackingUniverseStanding;
-                    InitialPosition = new Vector3(0f, 0f, -5f);
-                    InitialRotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
-                    break;
+				case GameScenes.EDITOR:
+					TrackingSpace = ETrackingUniverseOrigin.TrackingUniverseStanding;
+					InitialPosition = new Vector3(0f, 0f, -5f);
+					InitialRotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
+					break;
 
-                case GameScenes.FLIGHT:
-                    if (CameraManager.Instance != null) {
-                        switch (CameraManager.Instance.currentCameraMode) {
-                            case CameraManager.CameraMode.IVA:
-                                InitialPosition = InternalCamera.Instance.transform.position;
-                                InitialRotation = InternalCamera.Instance.transform.rotation;
-                                break;
+				case GameScenes.FLIGHT:
+					if (CameraManager.Instance != null)
+					{
+						switch (CameraManager.Instance.currentCameraMode)
+						{
+							case CameraManager.CameraMode.IVA:
+								InitialPosition = InternalCamera.Instance.transform.position;
+								InitialRotation = InternalCamera.Instance.transform.rotation;
+								break;
 
-                            case CameraManager.CameraMode.Map:
-                                InitialPosition = Vector3.zero;
-                                InitialRotation = Quaternion.identity;
-                                break;
+							case CameraManager.CameraMode.Map:
+								InitialPosition = Vector3.zero;
+								InitialRotation = Quaternion.identity;
+								break;
 
-                            case CameraManager.CameraMode.Flight:
-                                if (IsInEVA()) {
-                                    Vector3 neckPos = FlightGlobals.ActiveVessel.evaController.helmetTransform.position;
-                                    Quaternion neckRot = FlightGlobals.ActiveVessel.evaController.helmetTransform.rotation;
-                                    InitialPosition = neckPos;
-                                    InitialRotation = neckRot;
-                                } else {
-                                    InitialPosition = FlightCamera.fetch.GetCameraTransform().position;
-                                    InitialRotation = FlightCamera.fetch.GetCameraTransform().rotation;
-                                }
-                                
-                                break;
+							case CameraManager.CameraMode.Flight:
+								if (IsInEVA())
+								{
+									Vector3 neckPos = FlightGlobals.ActiveVessel.evaController.helmetTransform.position;
+									Quaternion neckRot = FlightGlobals.ActiveVessel.evaController.helmetTransform.rotation;
+									InitialPosition = neckPos;
+									InitialRotation = neckRot;
+								}
+								else
+								{
+									InitialPosition = FlightCamera.fetch.GetCameraTransform().position;
+									InitialRotation = FlightCamera.fetch.GetCameraTransform().rotation;
+								}
 
-                            default:
-                                Utils.LogWarning("SetVrCameraPositions unhandled flight scene");
-                                break;
-                        }
-                    }
-                    else {
-                        InitialPosition = FlightCamera.fetch.GetCameraTransform().position;
-                        InitialRotation = FlightCamera.fetch.GetCameraTransform().rotation;
-                    }
-                    break;
+								break;
 
-                default:
-                    Utils.LogWarning("SetVrCameraPositions unhandled scene");
-                    break;
-            }
-            CurrentPosition = InitialPosition;
-            CurrentRotation = InitialRotation;
+							default:
+								Utils.LogWarning("SetVrCameraPositions unhandled flight scene");
+								break;
+						}
+					}
+					else
+					{
+						InitialPosition = FlightCamera.fetch.GetCameraTransform().position;
+						InitialRotation = FlightCamera.fetch.GetCameraTransform().rotation;
+					}
+					break;
 
-            // set the tracking space for this scene
-            KerbalVR.Core.SetHmdTrackingSpace(TrackingSpace);
-        }
+				default:
+					Utils.LogWarning("SetVrCameraPositions unhandled scene");
+					break;
+			}
+			CurrentPosition = InitialPosition;
+			CurrentRotation = InitialRotation;
 
-        protected string[] GetCameraNamesForCurrentScene() {
-            string[] cameraNames = null;
-            GameScenes scene = HighLogic.LoadedScene;
-            switch (HighLogic.LoadedScene) {
-                case GameScenes.MAINMENU:
-                    cameraNames = KSP_CAMERA_NAMES_MAINMENU;
-                    break;
+			// set the tracking space for this scene
+			KerbalVR.Core.SetHmdTrackingSpace(TrackingSpace);
+		}
 
-                case GameScenes.SPACECENTER:
-                    cameraNames = KSP_CAMERA_NAMES_SPACECENTER;
-                    break;
+		protected string[] GetCameraNamesForCurrentScene()
+		{
+			string[] cameraNames = null;
+			GameScenes scene = HighLogic.LoadedScene;
+			switch (HighLogic.LoadedScene)
+			{
+				case GameScenes.MAINMENU:
+					cameraNames = KSP_CAMERA_NAMES_MAINMENU;
+					break;
 
-                case GameScenes.TRACKSTATION:
-                    cameraNames = KSP_CAMERA_NAMES_TRACKSTATION;
-                    break;
+				case GameScenes.SPACECENTER:
+					cameraNames = KSP_CAMERA_NAMES_SPACECENTER;
+					break;
 
-                case GameScenes.EDITOR:
-                    cameraNames = KSP_CAMERA_NAMES_EDITOR;
-                    break;
+				case GameScenes.TRACKSTATION:
+					cameraNames = KSP_CAMERA_NAMES_TRACKSTATION;
+					break;
 
-                case GameScenes.FLIGHT:
-                    if (CameraManager.Instance != null) {
-                        CameraManager.CameraMode mode = CameraManager.Instance.currentCameraMode;
-                        switch (mode) {
-                            case CameraManager.CameraMode.IVA:
-                                cameraNames = KSP_CAMERA_NAMES_FLIGHT_IVA;
-                                break;
+				case GameScenes.EDITOR:
+					cameraNames = KSP_CAMERA_NAMES_EDITOR;
+					break;
 
-                            case CameraManager.CameraMode.Map:
-                                cameraNames = KSP_CAMERA_NAMES_FLIGHT_MAP;
-                                break;
+				case GameScenes.FLIGHT:
+					if (CameraManager.Instance != null)
+					{
+						CameraManager.CameraMode mode = CameraManager.Instance.currentCameraMode;
+						switch (mode)
+						{
+							case CameraManager.CameraMode.IVA:
+								cameraNames = KSP_CAMERA_NAMES_FLIGHT_IVA;
+								break;
 
-                            case CameraManager.CameraMode.Flight:
-                                cameraNames = KSP_CAMERA_NAMES_FLIGHT;
-                                break;
-                        }
-                    }
-                    else {
-                        cameraNames = KSP_CAMERA_NAMES_FLIGHT;
-                    }
-                    break;
-            }
+							case CameraManager.CameraMode.Map:
+								cameraNames = KSP_CAMERA_NAMES_FLIGHT_MAP;
+								break;
+
+							case CameraManager.CameraMode.Flight:
+								cameraNames = KSP_CAMERA_NAMES_FLIGHT;
+								break;
+						}
+					}
+					else
+					{
+						cameraNames = KSP_CAMERA_NAMES_FLIGHT;
+					}
+					break;
+			}
 
 #if DEBUG
-            Utils.Log("GetCameraNamesForCurrentScene: " + (cameraNames == null ? "null" : String.Join(",", cameraNames)));
+			Utils.Log("GetCameraNamesForCurrentScene: " + (cameraNames == null ? "null" : String.Join(",", cameraNames)));
 #endif
-            return cameraNames;
-        }
+			return cameraNames;
+		}
 
-        /// <summary>
-        /// Convert a device position to Unity world coordinates for this scene.
-        /// </summary>
-        /// <param name="devicePosition">Device position in the device space coordinate system.</param>
-        /// <returns>Unity world position corresponding to the device position.</returns>
-        public Vector3 DevicePoseToWorld(Vector3 devicePosition) {
-            return CurrentPosition + CurrentRotation * devicePosition;
-        }
+		/// <summary>
+		/// Convert a device position to Unity world coordinates for this scene.
+		/// </summary>
+		/// <param name="devicePosition">Device position in the device space coordinate system.</param>
+		/// <returns>Unity world position corresponding to the device position.</returns>
+		public Vector3 DevicePoseToWorld(Vector3 devicePosition)
+		{
+			return CurrentPosition + CurrentRotation * devicePosition;
+		}
 
-        /// <summary>
-        /// Convert a device rotation to Unity world coordinates for this scene.
-        /// </summary>
-        /// <param name="deviceRotation">Device rotation in the device space coordinate system.</param>
-        /// <returns>Unity world rotation corresponding to the device rotation.</returns>
-        public Quaternion DevicePoseToWorld(Quaternion deviceRotation) {
-            return CurrentRotation * deviceRotation;
-        }
+		/// <summary>
+		/// Convert a device rotation to Unity world coordinates for this scene.
+		/// </summary>
+		/// <param name="deviceRotation">Device rotation in the device space coordinate system.</param>
+		/// <returns>Unity world rotation corresponding to the device rotation.</returns>
+		public Quaternion DevicePoseToWorld(Quaternion deviceRotation)
+		{
+			return CurrentRotation * deviceRotation;
+		}
 
-        public static bool IsInIVA() {
-            return (CameraManager.Instance != null) && (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA);
-        }
+		public static bool IsInIVA()
+		{
+			return (CameraManager.Instance != null) && (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA);
+		}
 
-        public static bool IsInEVA() {
-            return (FlightGlobals.ActiveVessel != null) && FlightGlobals.ActiveVessel.isEVA;
-        }
-    } // class Scene
+		public static bool IsInEVA()
+		{
+			return (FlightGlobals.ActiveVessel != null) && FlightGlobals.ActiveVessel.isEVA;
+		}
+	} // class Scene
 
 #endif
 } // namespace KerbalVR

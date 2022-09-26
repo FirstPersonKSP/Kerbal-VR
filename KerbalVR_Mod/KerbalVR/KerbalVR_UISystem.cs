@@ -149,7 +149,7 @@ namespace KerbalVR
 		private IEnumerator ConfigureHeadsUpCanvas(Canvas canvas, bool running)
 		{
 			yield return null; // wait a frame so that ThroughTheEyes knows whether we are in first person or not
-			bool hudMode= running && Scene.IsFirstPersonEVA();
+			bool hudMode = running && Scene.IsFirstPersonEVA();
 
 			if (canvas == null) yield break;
 
@@ -187,7 +187,7 @@ namespace KerbalVR
 			float scaleFactor = running ? 0.5f : 1.0f;
 
 			canvas.transform.localScale = Vector3.one * scaleFactor;
-			
+
 		}
 
 		static void ConfigureHand(Hand hand, bool running)
@@ -680,10 +680,10 @@ namespace KerbalVR
 			eventSystem.RaycastAll(pointerData, m_RaycastResultCache);
 			pointerData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
 			m_RaycastResultCache.Clear();
-				
+
 			// TODO: reimplement dragging
 			// pointerData.delta = pointerPosition - lastHeadPose;
-			
+
 			// handle colliders in the world that are listening to mouse events
 			// If we hit anything on a canvas, ignore this.
 			hitCollider = pointerData.pointerCurrentRaycast.isValid ? null : hit.collider;

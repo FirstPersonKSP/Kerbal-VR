@@ -8,13 +8,13 @@ using Valve.VR;
 
 namespace KerbalVR
 {
-    public static class Core
+	public static class Core
 	{
 		/// <summary>
 		/// Whether or not VR mode is currently running.  This changes based on the current scene, whether the headset is on, or with a manual toggle.
 		/// </summary>
-        public static bool IsVrRunning { get; private set; }
-        /// <summary>
+		public static bool IsVrRunning { get; private set; }
+		/// <summary>
 		/// Whether or not the game was launched with VR mode enabled.  This never changes until the game is restarted.
 		/// </summary>
 		public static bool IsVrEnabled { get; private set; }
@@ -23,8 +23,8 @@ namespace KerbalVR
 		private static bool isHeadsetOn; // if the headset-on action is bound, whether or not the headset is on the head.  If it's not bound (perhaps the hardware doesn't support it), then always true
 		private static bool vrRunningDesired; // whether or not the game wants VR running, e.g. based on the current scene or manual toggle
 
-        public static void InitSystems(bool vrEnabled)
-        {
+		public static void InitSystems(bool vrEnabled)
+		{
 			IsVrEnabled = vrEnabled;
 			IsVrRunning = vrEnabled;
 
@@ -51,22 +51,22 @@ namespace KerbalVR
 			//GameObject.DontDestroyOnLoad(kvrScene);
 
 			GameObject kvrInteractionSys = new GameObject("KVR_InteractionSystem");
-            kvrInteractionSys.AddComponent<KerbalVR.InteractionSystem>();
-            InteractionSystem kvrInteractionSysComponent = InteractionSystem.Instance; // init the singleton
-            GameObject.DontDestroyOnLoad(kvrInteractionSys);
-        }
+			kvrInteractionSys.AddComponent<KerbalVR.InteractionSystem>();
+			InteractionSystem kvrInteractionSysComponent = InteractionSystem.Instance; // init the singleton
+			GameObject.DontDestroyOnLoad(kvrInteractionSys);
+		}
 
-        public static void InitSteamVRInput()
+		public static void InitSteamVRInput()
 		{
-            // initialize SteamVR input
-            SteamVR_Actions.PreInitialize();
-            SteamVR_Input.IdentifyActionsFile();
-            SteamVR_Input.Initialize();
-            SetActionSetActive("default", true);
-            //ActivateActionSet("editor");
-            SetActionSetActive("flight", true);
-            //ActivateActionSet("EVA");
-        }
+			// initialize SteamVR input
+			SteamVR_Actions.PreInitialize();
+			SteamVR_Input.IdentifyActionsFile();
+			SteamVR_Input.Initialize();
+			SetActionSetActive("default", true);
+			//ActivateActionSet("editor");
+			SetActionSetActive("flight", true);
+			//ActivateActionSet("EVA");
+		}
 
 		private static void UpdateVrRunning()
 		{
@@ -102,25 +102,25 @@ namespace KerbalVR
 			UpdateVrRunning();
 		}
 
-        public static void SetActionSetActive(string actionSetName, bool active)
-        {
-            SteamVR_ActionSet actionSet = SteamVR_Input.GetActionSet(actionSetName, false, true);
-            if (actionSet != null)
-            {
-                if (active)
-                {
-                    actionSet.Activate(SteamVR_Input_Sources.Any);
-                }
-                else
+		public static void SetActionSetActive(string actionSetName, bool active)
+		{
+			SteamVR_ActionSet actionSet = SteamVR_Input.GetActionSet(actionSetName, false, true);
+			if (actionSet != null)
+			{
+				if (active)
 				{
-                    actionSet.Deactivate(SteamVR_Input_Sources.Any);
+					actionSet.Activate(SteamVR_Input_Sources.Any);
 				}
-            }
-            else
-            {
-                Utils.LogError("Action Set '" + actionSetName + "' does not exist");
-            }
-        }
+				else
+				{
+					actionSet.Deactivate(SteamVR_Input_Sources.Any);
+				}
+			}
+			else
+			{
+				Utils.LogError("Action Set '" + actionSetName + "' does not exist");
+			}
+		}
 
 		public static void ResetVRPosition()
 		{
@@ -164,113 +164,122 @@ namespace KerbalVR
 
 #if false
 
-namespace KerbalVR 
+namespace KerbalVR
 {
-    /// <summary>
-    /// The entry point for the KerbalVR plugin. This mod should
-    /// start up once, when the game starts.
-    /// </summary>
-    [KSPAddon(KSPAddon.Startup.Instantly, true)]
-    public class Core : MonoBehaviour {
-        // this function allows importing DLLs from a given path
-        [DllImport("kernel32.dll", SetLastError = true)]
-        protected static extern bool SetDllDirectory(string lpPathName);
+	/// <summary>
+	/// The entry point for the KerbalVR plugin. This mod should
+	/// start up once, when the game starts.
+	/// </summary>
+	[KSPAddon(KSPAddon.Startup.Instantly, true)]
+	public class Core : MonoBehaviour
+	{
+		// this function allows importing DLLs from a given path
+		[DllImport("kernel32.dll", SetLastError = true)]
+		protected static extern bool SetDllDirectory(string lpPathName);
 
 
-#region Types
-        public enum OpenVrState {
-            Uninitialized,
-            Initializing,
-            Initialized,
-            InitFailed,
-        }
-#endregion
+		#region Types
+		public enum OpenVrState
+		{
+			Uninitialized,
+			Initializing,
+			Initialized,
+			InitFailed,
+		}
+		#endregion
 
 
-#region Properties
-        /// <summary>
-        /// Returns true if VR is currently enabled. Enabled
-        /// does not necessarily mean VR is currently running, only
-        /// that the user allowing VR to be activated.
-        /// Set to true to enable VR; false to disable VR.
-        /// </summary>
-        public static bool IsVrEnabled { get; set; } = false;
+		#region Properties
+		/// <summary>
+		/// Returns true if VR is currently enabled. Enabled
+		/// does not necessarily mean VR is currently running, only
+		/// that the user allowing VR to be activated.
+		/// Set to true to enable VR; false to disable VR.
+		/// </summary>
+		public static bool IsVrEnabled { get; set; } = false;
 
-        /// <summary>
-        /// Returns true if VR is currently running, i.e. tracking devices
-        /// and rendering images to the headset.
-        /// </summary>
-        public static bool IsVrRunning { get; private set; } = false;
+		/// <summary>
+		/// Returns true if VR is currently running, i.e. tracking devices
+		/// and rendering images to the headset.
+		/// </summary>
+		public static bool IsVrRunning { get; private set; } = false;
 
-        public static TrackedDevicePose_t[] GamePoses { get; private set; } = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
+		public static TrackedDevicePose_t[] GamePoses { get; private set; } = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
 
-        public static bool IsOpenVrReady {
-            get {
-                return openVrState == OpenVrState.Initialized;
-            }
-        }
+		public static bool IsOpenVrReady
+		{
+			get
+			{
+				return openVrState == OpenVrState.Initialized;
+			}
+		}
 
-#endregion
-
-
-#region Private Members
-        // keep track of when the HMD is rendering images
-        protected static OpenVrState openVrState = OpenVrState.Uninitialized;
-        protected static bool vrIsRunningPrev = false;
-        protected static DateTime openVrInitLastAttempt;
-
-        // store the tracked device poses
-        protected static TrackedDevicePose_t[] devicePoses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
-        protected static TrackedDevicePose_t[] renderPoses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
-#endregion
+		#endregion
 
 
-        /// <summary>
-        /// Initialize the KerbalVR-related GameObjects, singleton classes, and initialize OpenVR.
-        /// </summary>
-        protected void Awake() {
-            // set the location of the native plugin DLLs
-            //SetDllDirectory(Globals.EXTERNAL_DLL_PATH);
+		#region Private Members
+		// keep track of when the HMD is rendering images
+		protected static OpenVrState openVrState = OpenVrState.Uninitialized;
+		protected static bool vrIsRunningPrev = false;
+		protected static DateTime openVrInitLastAttempt;
 
-            InitSystems();
+		// store the tracked device poses
+		protected static TrackedDevicePose_t[] devicePoses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
+		protected static TrackedDevicePose_t[] renderPoses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
+		#endregion
+
+
+		/// <summary>
+		/// Initialize the KerbalVR-related GameObjects, singleton classes, and initialize OpenVR.
+		/// </summary>
+		protected void Awake()
+		{
+			// set the location of the native plugin DLLs
+			//SetDllDirectory(Globals.EXTERNAL_DLL_PATH);
+
+			InitSystems();
 
 			// for whatever reason, enabling VR mode during loading makes it super slow
 			XRSettings.enabled = false;
 
 			// initialize OpenVR immediately if allowed in config
-			if (KerbalVR.Configuration.Instance.InitOpenVrAtStartup) {
-                TryInitializeOpenVr();
-            }
+			if (KerbalVR.Configuration.Instance.InitOpenVrAtStartup)
+			{
+				TryInitializeOpenVr();
+			}
 
-            // add an event triggered when game scene changes
-            GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
+			// add an event triggered when game scene changes
+			GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
 
-            // don't destroy this object when switching scenes
-            DontDestroyOnLoad(this);
+			// don't destroy this object when switching scenes
+			DontDestroyOnLoad(this);
 
-            // ensure various settings to minimize latency
-            Application.targetFrameRate = -1;
-            Application.runInBackground = true; // don't require companion window focus
-            QualitySettings.maxQueuedFrames = -1;
-            QualitySettings.vSyncCount = 0; // this applies to the companion window
-        }
+			// ensure various settings to minimize latency
+			Application.targetFrameRate = -1;
+			Application.runInBackground = true; // don't require companion window focus
+			QualitySettings.maxQueuedFrames = -1;
+			QualitySettings.vSyncCount = 0; // this applies to the companion window
+		}
 
-        /// <summary>
-        /// Start is called before the first frame update, to queue up the plugin renderer coroutine.
-        /// </summary>
-        IEnumerator Start() {
-            yield return StartCoroutine("CallPluginAtEndOfFrames");
-        }
+		/// <summary>
+		/// Start is called before the first frame update, to queue up the plugin renderer coroutine.
+		/// </summary>
+		IEnumerator Start()
+		{
+			yield return StartCoroutine("CallPluginAtEndOfFrames");
+		}
 
-        /// <summary>
-        /// The plugin renderer coroutine which must run after all Cameras have rendered,
-        /// then issues a callback to the native renderer, so that the native code runs on
-        /// Unity's renderer thread.
-        /// </summary>
-        IEnumerator CallPluginAtEndOfFrames() {
-            while (true) {
-                // wait until all frame rendering is done
-                yield return new WaitForEndOfFrame();
+		/// <summary>
+		/// The plugin renderer coroutine which must run after all Cameras have rendered,
+		/// then issues a callback to the native renderer, so that the native code runs on
+		/// Unity's renderer thread.
+		/// </summary>
+		IEnumerator CallPluginAtEndOfFrames()
+		{
+			while (true)
+			{
+				// wait until all frame rendering is done
+				yield return new WaitForEndOfFrame();
 
 				/*
                 // if VR is active, issue the render callback
@@ -303,132 +312,153 @@ namespace KerbalVR
                     GL.IssuePluginEvent(GetRenderEventFunc(), 0);
                 }
 				*/
-            }
-        }
+			}
+		}
 
-        /// <summary>
-        /// Overrides the OnDestroy method, called when plugin is destroyed.
-        /// </summary>
-        protected void OnDestroy() {
-            Utils.Log(KerbalVR.Globals.KERBALVR_NAME + " is shutting down...");
-            CloseVr();
-        }
+		/// <summary>
+		/// Overrides the OnDestroy method, called when plugin is destroyed.
+		/// </summary>
+		protected void OnDestroy()
+		{
+			Utils.Log(KerbalVR.Globals.KERBALVR_NAME + " is shutting down...");
+			CloseVr();
+		}
 
 
-        /// <summary>
-        /// On Update, dispatch OpenVR events, retrieve tracked device poses.
-        /// </summary>
-        protected void LateUpdate() {
-            // debug hooks
-            if (Input.GetKeyDown(KeyCode.Y)) {
-                // Utils.PrintAllCameras();
-                // Utils.PrintAllGameObjects();
-            }
+		/// <summary>
+		/// On Update, dispatch OpenVR events, retrieve tracked device poses.
+		/// </summary>
+		protected void LateUpdate()
+		{
+			// debug hooks
+			if (Input.GetKeyDown(KeyCode.Y))
+			{
+				// Utils.PrintAllCameras();
+				// Utils.PrintAllGameObjects();
+			}
 
-            // process the state of OpenVR
-            ProcessOpenVrState();
+			// process the state of OpenVR
+			ProcessOpenVrState();
 
-            // dispatch any OpenVR events
-            DispatchOpenVrEvents();
+			// dispatch any OpenVR events
+			DispatchOpenVrEvents();
 
-            // check if we are running the HMD
-            IsVrRunning = (openVrState == OpenVrState.Initialized) && IsVrEnabled;
+			// check if we are running the HMD
+			IsVrRunning = (openVrState == OpenVrState.Initialized) && IsVrEnabled;
 
-            if (IsVrRunning) {
-                // we've just started VR
-                if (!vrIsRunningPrev) {
-                    Utils.Log("VR is now turned on");
-                    ResetInitialHmdPosition();
-                }
-            }
+			if (IsVrRunning)
+			{
+				// we've just started VR
+				if (!vrIsRunningPrev)
+				{
+					Utils.Log("VR is now turned on");
+					ResetInitialHmdPosition();
+				}
+			}
 
-            // update controllers input logic
-            SteamVR_Input.Update();
+			// update controllers input logic
+			SteamVR_Input.Update();
 
-            // VR has been deactivated
-            if (!IsVrRunning && vrIsRunningPrev) {
-                Utils.Log("VR is now turned off");
-            }
+			// VR has been deactivated
+			if (!IsVrRunning && vrIsRunningPrev)
+			{
+				Utils.Log("VR is now turned off");
+			}
 
-            // emit an update if the running status changed
-            if (IsVrRunning != vrIsRunningPrev) {
-                vrIsRunningPrev = IsVrRunning;
-                KerbalVR.Events.HmdStatusUpdated.Send(IsVrRunning);
-            }
-        }
+			// emit an update if the running status changed
+			if (IsVrRunning != vrIsRunningPrev)
+			{
+				vrIsRunningPrev = IsVrRunning;
+				KerbalVR.Events.HmdStatusUpdated.Send(IsVrRunning);
+			}
+		}
 
-        /// <summary>
-        /// Dispatch other miscellaneous OpenVR-specific events.
-        /// </summary>
-        protected void DispatchOpenVrEvents() {
-            if (IsOpenVrReady) {
-                var vrEvent = new VREvent_t();
-                var size = (uint)System.Runtime.InteropServices.Marshal.SizeOf(typeof(VREvent_t));
-                for (int i = 0; i < 64; i++) {
-                    if (!OpenVR.System.PollNextEvent(ref vrEvent, size))
-                        break;
+		/// <summary>
+		/// Dispatch other miscellaneous OpenVR-specific events.
+		/// </summary>
+		protected void DispatchOpenVrEvents()
+		{
+			if (IsOpenVrReady)
+			{
+				var vrEvent = new VREvent_t();
+				var size = (uint)System.Runtime.InteropServices.Marshal.SizeOf(typeof(VREvent_t));
+				for (int i = 0; i < 64; i++)
+				{
+					if (!OpenVR.System.PollNextEvent(ref vrEvent, size))
+						break;
 
-                    switch ((EVREventType)vrEvent.eventType) {
-                        case EVREventType.VREvent_InputFocusCaptured: // another app has taken focus (likely dashboard)
-                            if (vrEvent.data.process.oldPid == 0) {
-                                SteamVR_Events.InputFocus.Send(false);
-                            }
-                            break;
-                        case EVREventType.VREvent_InputFocusReleased: // that app has released input focus
-                            if (vrEvent.data.process.pid == 0) {
-                                SteamVR_Events.InputFocus.Send(true);
-                            }
-                            break;
-                        case EVREventType.VREvent_ShowRenderModels:
-                            SteamVR_Events.HideRenderModels.Send(false);
-                            break;
-                        case EVREventType.VREvent_HideRenderModels:
-                            SteamVR_Events.HideRenderModels.Send(true);
-                            break;
-                        default:
-                            SteamVR_Events.System((EVREventType)vrEvent.eventType).Send(vrEvent);
-                            break;
-                    }
-                }
-            }
-        }
+					switch ((EVREventType)vrEvent.eventType)
+					{
+						case EVREventType.VREvent_InputFocusCaptured: // another app has taken focus (likely dashboard)
+							if (vrEvent.data.process.oldPid == 0)
+							{
+								SteamVR_Events.InputFocus.Send(false);
+							}
+							break;
+						case EVREventType.VREvent_InputFocusReleased: // that app has released input focus
+							if (vrEvent.data.process.pid == 0)
+							{
+								SteamVR_Events.InputFocus.Send(true);
+							}
+							break;
+						case EVREventType.VREvent_ShowRenderModels:
+							SteamVR_Events.HideRenderModels.Send(false);
+							break;
+						case EVREventType.VREvent_HideRenderModels:
+							SteamVR_Events.HideRenderModels.Send(true);
+							break;
+						default:
+							SteamVR_Events.System((EVREventType)vrEvent.eventType).Send(vrEvent);
+							break;
+					}
+				}
+			}
+		}
 
-        /// <summary>
-        /// State machine which re-attempts to initialize OpenVR periodically if it fails.
-        /// </summary>
-        protected static void ProcessOpenVrState() {
-            switch (openVrState) {
-                case OpenVrState.Uninitialized:
-                    if (IsVrEnabled) {
-                        openVrState = OpenVrState.Initializing;
-                    }
-                    break;
+		/// <summary>
+		/// State machine which re-attempts to initialize OpenVR periodically if it fails.
+		/// </summary>
+		protected static void ProcessOpenVrState()
+		{
+			switch (openVrState)
+			{
+				case OpenVrState.Uninitialized:
+					if (IsVrEnabled)
+					{
+						openVrState = OpenVrState.Initializing;
+					}
+					break;
 
-                case OpenVrState.Initializing:
-                    TryInitializeOpenVr();
-                    break;
+				case OpenVrState.Initializing:
+					TryInitializeOpenVr();
+					break;
 
-                case OpenVrState.InitFailed:
-                    if (DateTime.Now.Subtract(openVrInitLastAttempt).TotalSeconds > 10) {
-                        openVrState = OpenVrState.Uninitialized;
-                    }
-                    break;
-            }
-        }
+				case OpenVrState.InitFailed:
+					if (DateTime.Now.Subtract(openVrInitLastAttempt).TotalSeconds > 10)
+					{
+						openVrState = OpenVrState.Uninitialized;
+					}
+					break;
+			}
+		}
 
-        protected static void TryInitializeOpenVr() {
-            openVrInitLastAttempt = DateTime.Now;
-            try {
-                InitializeOpenVr();
-                openVrState = OpenVrState.Initialized;
-                Utils.Log("Initialized OpenVR");
+		protected static void TryInitializeOpenVr()
+		{
+			openVrInitLastAttempt = DateTime.Now;
+			try
+			{
+				InitializeOpenVr();
+				openVrState = OpenVrState.Initialized;
+				Utils.Log("Initialized OpenVR");
 
-            } catch (Exception e) {
-                openVrState = OpenVrState.InitFailed;
-                Utils.LogError("InitializeOpenVr failed with error: " + e);
-                IsVrEnabled = false;
-            }
-        }
+			}
+			catch (Exception e)
+			{
+				openVrState = OpenVrState.InitFailed;
+				Utils.LogError("InitializeOpenVr failed with error: " + e);
+				IsVrEnabled = false;
+			}
+		}
 
 		/// <summary>
 		/// An event called when the game is switching scenes.
@@ -445,35 +475,40 @@ namespace KerbalVR
 			}
 		}
 
-        /// <summary>
-        /// Initialize VR using OpenVR API calls. Throws an exception on error.
-        /// </summary>
-        protected static void InitializeOpenVr() {
-            // return if OpenVR has already been initialized
-            if (openVrState == OpenVrState.Initialized) {
-                return;
-            }
+		/// <summary>
+		/// Initialize VR using OpenVR API calls. Throws an exception on error.
+		/// </summary>
+		protected static void InitializeOpenVr()
+		{
+			// return if OpenVR has already been initialized
+			if (openVrState == OpenVrState.Initialized)
+			{
+				return;
+			}
 
-            // check if HMD is connected on the system
-            if (!OpenVR.IsHmdPresent()) {
-                throw new InvalidOperationException("HMD not found on this system");
-            }
+			// check if HMD is connected on the system
+			if (!OpenVR.IsHmdPresent())
+			{
+				throw new InvalidOperationException("HMD not found on this system");
+			}
 
-            // check if SteamVR runtime is installed
-            if (!OpenVR.IsRuntimeInstalled()) {
-                throw new InvalidOperationException("SteamVR runtime not found on this system");
-            }
+			// check if SteamVR runtime is installed
+			if (!OpenVR.IsRuntimeInstalled())
+			{
+				throw new InvalidOperationException("SteamVR runtime not found on this system");
+			}
 
-            // initialize OpenVR
-            EVRInitError initErrorCode = EVRInitError.None;
-            OpenVR.Init(ref initErrorCode, EVRApplicationType.VRApplication_Scene);
-            if (initErrorCode != EVRInitError.None) {
-                throw new Exception("OpenVR error: " + OpenVR.GetStringForHmdError(initErrorCode));
-            }
+			// initialize OpenVR
+			EVRInitError initErrorCode = EVRInitError.None;
+			OpenVR.Init(ref initErrorCode, EVRApplicationType.VRApplication_Scene);
+			if (initErrorCode != EVRInitError.None)
+			{
+				throw new Exception("OpenVR error: " + OpenVR.GetStringForHmdError(initErrorCode));
+			}
 
-            // reset "seated position" and capture initial position. this means you should hold the HMD in
-            // the position you would like to consider "seated", before running this code.
-            ResetInitialHmdPosition();
+			// reset "seated position" and capture initial position. this means you should hold the HMD in
+			// the position you would like to consider "seated", before running this code.
+			ResetInitialHmdPosition();
 
 #if false
             // get HMD render target size
@@ -509,37 +544,42 @@ namespace KerbalVR
             }
 #endif
 
-            InitSteamVRInput();
-        }
+			InitSteamVRInput();
+		}
 
-        /// <summary>
-        /// Sets the tracking space for the HMD
-        /// </summary>
-        public static void SetHmdTrackingSpace(ETrackingUniverseOrigin origin) {
-            if (openVrState == OpenVrState.Initialized) {
-                OpenVR.Compositor.SetTrackingSpace(origin);
-            }
-        }
+		/// <summary>
+		/// Sets the tracking space for the HMD
+		/// </summary>
+		public static void SetHmdTrackingSpace(ETrackingUniverseOrigin origin)
+		{
+			if (openVrState == OpenVrState.Initialized)
+			{
+				OpenVR.Compositor.SetTrackingSpace(origin);
+			}
+		}
 
-        /// <summary>
-        /// Sets the current real-world position of the HMD as the seated origin.
-        /// </summary>
-        public static void ResetInitialHmdPosition() {
-            if (openVrState == OpenVrState.Initialized) {
-                OpenVR.System.ResetSeatedZeroPose();
-            }
-        }
+		/// <summary>
+		/// Sets the current real-world position of the HMD as the seated origin.
+		/// </summary>
+		public static void ResetInitialHmdPosition()
+		{
+			if (openVrState == OpenVrState.Initialized)
+			{
+				OpenVR.System.ResetSeatedZeroPose();
+			}
+		}
 
-        /// <summary>
-        /// Shuts down the OpenVR API.
-        /// </summary>
-        protected void CloseVr() {
-            IsVrEnabled = false;
-            OpenVR.Shutdown();
-            openVrState = OpenVrState.Uninitialized;
-        }
+		/// <summary>
+		/// Shuts down the OpenVR API.
+		/// </summary>
+		protected void CloseVr()
+		{
+			IsVrEnabled = false;
+			OpenVR.Shutdown();
+			openVrState = OpenVrState.Uninitialized;
+		}
 
-    } // class Core
+	} // class Core
 } // namespace KerbalVR
 
 #endif

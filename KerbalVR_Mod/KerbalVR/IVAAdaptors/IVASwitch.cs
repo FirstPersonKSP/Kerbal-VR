@@ -8,10 +8,10 @@ using UnityEngine;
 
 namespace KerbalVR.IVAAdaptors
 {
-    // represents an abstraction for an interactive toggle switch
-    public class IVASwitch
-    {
-        public static List<Func<GameObject, Transform, IVASwitch>> CreationFunctions = new List<Func<GameObject, Transform, IVASwitch>>();
+	// represents an abstraction for an interactive toggle switch
+	public class IVASwitch
+	{
+		public static List<Func<GameObject, Transform, IVASwitch>> CreationFunctions = new List<Func<GameObject, Transform, IVASwitch>>();
 
 		public static IVASwitch ConstructSwitch(GameObject gameObject, Transform transform)
 		{
@@ -22,7 +22,7 @@ namespace KerbalVR.IVAAdaptors
 					var ivaSwitch = creationFunction(gameObject, transform);
 					if (ivaSwitch != null)
 					{
-					
+
 						return ivaSwitch;
 					}
 				}
@@ -36,6 +36,6 @@ namespace KerbalVR.IVAAdaptors
 
 
 		public virtual bool CurrentState { get; }
-        public virtual void SetState(bool newState) { }
-    }
+		public virtual void SetState(bool newState) { }
+	}
 }

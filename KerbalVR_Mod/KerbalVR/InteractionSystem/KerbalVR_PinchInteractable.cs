@@ -8,13 +8,13 @@ using Valve.VR;
 
 namespace KerbalVR
 {
-    public interface IPinchInteractable
-    {
+	public interface IPinchInteractable
+	{
 
-        GameObject GameObject { get; }
+		GameObject GameObject { get; }
 
-        void OnPinch(Hand hand);
-        void OnHold(Hand hand);
-        void OnRelease(Hand hand);
-    }
+		void OnPinch(Hand hand);
+		void OnHold(Hand hand);
+		void OnRelease(Hand hand);
+	}
 }
