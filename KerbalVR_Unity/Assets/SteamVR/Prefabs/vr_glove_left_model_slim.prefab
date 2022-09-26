@@ -414,7 +414,7 @@ GameObject:
   - component: {fileID: 4000011344192480}
   - component: {fileID: 95000014108670334}
   m_Layer: 0
-  m_Name: slim_l
+  m_Name: slim
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1027,6 +1027,7 @@ SkinnedMeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

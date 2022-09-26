@@ -13,11 +13,6 @@ namespace KerbalVR {
 
 		#region Public Members
 		/// <summary>
-		/// The prefab GameObject to use to instantiate empty hands.
-		/// </summary>
-		public GameObject handPrefab;
-
-		/// <summary>
 		/// Either the LeftHand or RightHand for this object.
 		/// </summary>
 		public SteamVR_Input_Sources handType;
@@ -38,7 +33,7 @@ namespace KerbalVR {
 		#region Private Members
 		// hand game objects
 		public GameObject handObject;
-		static internal readonly Vector3 GripOffset = new Vector3(0, 0, -0.1f);
+		public Vector3 GripOffset = new Vector3(0, 0, -0.1f);
 		public Vector3 GripPosition
 		{
 			get { return transform.TransformPoint(GripOffset); }
@@ -84,20 +79,45 @@ namespace KerbalVR {
 
 		#endregion
 
-
 		/// <summary>
 		/// Creates the render models for the hands; sets up behavior scripts on the hands,
 		/// including colliders for interacting with objects.
 		/// </summary>
-		public void Initialize() {
+		/// <param name="handType"></param>
+		/// <param name="otherHand"></param>
+		/// <exception cref="ArgumentException"></exception>
+		/// <exception cref="MissingReferenceException"></exception>
+		/// <exception cref="Exception"></exception>
+		public void Initialize(SteamVR_Input_Sources handType, Hand otherHand, bool isIVA) 
+		{
+			handActionPose = SteamVR_Input.GetPoseAction("default", "Pose");
+			this.handType = handType;
+			this.otherHand = otherHand;
+
 			// verify members are set correctly
-			if (handType != SteamVR_Input_Sources.LeftHand && handType != SteamVR_Input_Sources.RightHand) {
-				throw new Exception("handType must be LeftHand or RightHand");
+			if (handType != SteamVR_Input_Sources.RightHand && handType != SteamVR_Input_Sources.LeftHand)
+			{
+				throw new ArgumentException("handType must be LeftHand or RightHand");
+			}
+			bool isRightHand = handType == SteamVR_Input_Sources.RightHand;
+
+			// load hand profile
+			profile = HandProfileManager.Instance.GetProfile(isIVA);
+
+			GripOffset = profile.gripOffset;
+
+			// load hand prefab assets
+			string prefabName = isRightHand ? profile.PrefabNameRight : profile.PrefabNameLeft;
+			GameObject handPrefab = AssetLoader.Instance.GetGameObject(prefabName);
+			if (handPrefab == null)
+			{
+				throw new MissingReferenceException($"Could not load prefab: {prefabName}");
 			}
 
 			// make instance object out of the hand prefab
 			handObject = Instantiate(handPrefab);
-			if (handObject == null) {
+			if (handObject == null) 
+			{
 				throw new Exception("Could not Instantiate prefab for " + handType);
 			}
 			handObject.name = "KVR_HandObject_" + handType;
@@ -105,23 +125,17 @@ namespace KerbalVR {
 			handObject.SetActive(false); // default to inactive, to match the default in Update
 
 			// cache the hand renderers
-			string renderModelParentPath = (handType == SteamVR_Input_Sources.LeftHand) ? "slim_l" : "slim_r";
-			string renderModelPath = renderModelParentPath + "/vr_glove_right_slim";
-			Transform handSkin = handObject.transform.Find(renderModelPath);
-			handRenderer = handSkin.gameObject.GetComponent<SkinnedMeshRenderer>();
+			handRenderer = handObject.transform.Find(profile.renderModelPath).gameObject.GetComponent<SkinnedMeshRenderer>();
 			Utils.SetLayer(handObject, 0);
-
-			// define hand-specific names
-			string skeletonRoot = (handType == SteamVR_Input_Sources.LeftHand) ? "slim_l/Root" : "slim_r/Root";
-			string skeletonActionName = (handType == SteamVR_Input_Sources.LeftHand) ? "SkeletonLeftHand" : "SkeletonRightHand";
 
 			// add behavior scripts to the hands
 			handSkeleton = handObject.AddComponent<SteamVR_Behaviour_Skeleton>();
-			handSkeleton.skeletonRoot = handObject.transform.Find(skeletonRoot);
+			handSkeleton.skeletonRoot = handObject.transform.Find(profile.sourceSkeletonRootPath);
 			handSkeleton.inputSource = handType;
 			handSkeleton.rangeOfMotion = EVRSkeletalMotionRange.WithController;
-			handSkeleton.mirroring = (handType == SteamVR_Input_Sources.LeftHand) ? SteamVR_Behaviour_Skeleton.MirrorType.RightToLeft : SteamVR_Behaviour_Skeleton.MirrorType.None;
+			handSkeleton.mirroring = isRightHand ? SteamVR_Behaviour_Skeleton.MirrorType.None : SteamVR_Behaviour_Skeleton.MirrorType.RightToLeft;
 			handSkeleton.updatePose = false;
+			string skeletonActionName = (handType == SteamVR_Input_Sources.LeftHand) ? "SkeletonLeftHand" : "SkeletonRightHand";
 			handSkeleton.skeletonAction = SteamVR_Input.GetSkeletonAction("default", skeletonActionName, false);
 			handSkeleton.fallbackCurlAction = SteamVR_Input.GetSingleAction("default", "Squeeze", false);
 
@@ -134,14 +148,23 @@ namespace KerbalVR {
 			handSkeleton.Initialize();
 
 			// add tracking
-			var pose = gameObject.AddComponent<SteamVR_Behaviour_Pose>();
+			SteamVR_Behaviour_Pose pose = gameObject.AddComponent<SteamVR_Behaviour_Pose>();
 			pose.inputSource = handType;
 
 			// set up actions
-			var actionGrab = SteamVR_Input.GetBooleanAction("default", "GrabGrip");
+			SteamVR_Action_Boolean actionGrab = SteamVR_Input.GetBooleanAction("default", "GrabGrip");
 			actionGrab[handType].onChange += OnChangeGrab;
 
-			// set up ladder
+			// set up skeleton helper
+			if (profile.useSkeletonHelper)
+			{
+				KerbalSkeletonHelper kerbalSkeletonHelper = handObject.AddComponent<KerbalSkeletonHelper>();
+				kerbalSkeletonHelper.retargetableSetting = profile.retargetableSetting;
+				kerbalSkeletonHelper.sourceSkeletonRoot = handSkeleton.skeletonRoot;
+				kerbalSkeletonHelper.destinationSkeletonRoot = handObject.transform.Find(profile.retargetableSetting.destinationSkeletonRootPath);
+			}
+
+  		// set up ladder
 			ladder = gameObject.AddComponent<VRLadder>();
 			
 			// set up UI hand  
@@ -150,23 +173,24 @@ namespace KerbalVR {
 			#region Setup Colliders
 
 			// add fingertip collider for "mouse clicks"
-			string fingertipTransformPath = renderModelParentPath + "/Root/wrist_r/finger_index_meta_r/finger_index_0_r/finger_index_1_r/finger_index_2_r/finger_index_r_end";
-			fingertipTransform = handObject.transform.Find(fingertipTransformPath);
+			fingertipTransform = handObject.transform.Find(profile.indexTipTransformPath);
+			fingertipTransform.localPosition += profile.fingertipOffset;
 			fingertipCollider = fingertipTransform.gameObject.AddComponent<FingertipCollider>();
 			fingertipCollider.Initialize(this);
 
-			// this has to be after the fingertip collider is initialized and before the hand collider is initialized (for ladder setup)
+      // this has to be after the fingertip collider is initialized and before the hand collider is initialized (for ladder setup)
 			Detach();
-
-			// create a child object for the colider so that it can be on a different layer
+      
+      // create a child object for the colider so that it can be on a different layer
 			handTransform = new GameObject("handTransform").transform;
-			handTransform.SetParent(handObject.transform, false);
+			handTransform.SetParent(handObject.transform.Find(profile.gripTransformPath), false);
+			handTransform.rotation = handObject.transform.rotation;
+			handTransform.localPosition = GripOffset;
 			handCollider = handTransform.gameObject.AddComponent<HandCollider>();
 			handCollider.Initialize(this);
 
 			// thumb is used to calculate position of pinch collider
-			string thumbTransformPath = renderModelParentPath + "/Root/wrist_r/finger_thumb_0_r/finger_thumb_1_r/finger_thumb_2_r/finger_thumb_r_end";
-			thumbTransform = handObject.transform.Find(thumbTransformPath);
+			thumbTransform = handObject.transform.Find(profile.thumbTipTransformPath);
 
 			// set up pinch behavior
 			pinchTransform = new GameObject("pinchTransform").transform;
@@ -211,9 +235,17 @@ namespace KerbalVR {
 		/// <param name="fromAction">SteamVR action that triggered this callback</param>
 		/// <param name="fromSource">Hand type that triggered this callback</param>
 		/// <param name="newState">New state of this action</param>
-		protected void OnChangeGrab(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource, bool newState) {
-			if (newState) {
-				if (handCollider.HoveredObject != null) {
+		protected void OnChangeGrab(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource, bool newState)
+		{
+			ChangeGrab(newState);
+		}
+		
+		public void ChangeGrab(bool newState)
+		{
+			if (newState)
+			{
+				if (handCollider.HoveredObject != null)
+				{
 					heldObject = handCollider.HoveredObject;
 					heldObject.GrabbedHand = this;
 					if (heldObject.SkeletonPoser != null)
@@ -222,8 +254,11 @@ namespace KerbalVR {
 					}
 					Attach(heldObject.transform);
 				}
-			} else {
-				if (heldObject != null) {
+			}
+			else
+			{
+				if (heldObject != null)
+				{
 					heldObject.GrabbedHand = null;
 					heldObject = null;
 					Detach();
@@ -231,17 +266,20 @@ namespace KerbalVR {
 			}
 		}
 
-		protected void Update() {
+		protected void Update()
+		{
 			// should we render the hands in the current scene?
 			bool isRendering = KerbalVR.Core.IsVrRunning;
 			if (isRendering)
 			{
 				int renderLayer = 0;
 
-				switch (HighLogic.LoadedScene) {
+				switch (HighLogic.LoadedScene)
+				{
 					case GameScenes.FLIGHT:
 
-						if (KerbalVR.Scene.IsInIVA()) {
+						if (KerbalVR.Scene.IsInIVA())
+						{
 							// IVA-specific settings
 							renderLayer = 20;
 						}

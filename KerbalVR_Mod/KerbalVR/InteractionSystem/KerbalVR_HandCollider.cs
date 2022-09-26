@@ -15,8 +15,7 @@ namespace KerbalVR
             // add interactable collider
             handCollider = this.gameObject.AddComponent<SphereCollider>();
             handCollider.isTrigger = true;
-            handCollider.center = Hand.GripOffset;
-            handCollider.radius = 0.035f;
+            handCollider.radius = hand.profile.gripColliderSize;
 
             handRigidbody = this.gameObject.AddComponent<Rigidbody>();
             handRigidbody.useGravity = false;
@@ -27,8 +26,8 @@ namespace KerbalVR
             // debugging stuff
 #if HAND_GIZMOS
             gameObject.AddComponent<ColliderVisualizer>();
-            //var handGizmo = Utils.CreateGizmo();
-            //handGizmo.transform.SetParent(transform, false);
+            var handGizmo = Utils.CreateGizmo();
+            handGizmo.transform.SetParent(transform, false);
 #endif
         }
 
