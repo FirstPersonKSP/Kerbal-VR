@@ -157,8 +157,10 @@ namespace KerbalVR
 			{
 				var eva = Scene.GetKerbalEVA();
 
-				// TODO: this doesn't actually attach it to the skeleton, so it doesn't move with the helmet.  I tried attaching to the bone, but that didn't work.eva.helmetTransform
-				canvas.transform.SetParent(eva.helmetTransform, false);
+				// TODO: this doesn't actually attach it to the skeleton, so it doesn't move with the helmet.  I tried attaching to the bone, but that didn't work:
+				// eva.helmetTransform
+				// For now, just use the flightcamera transform so that the canvas doesn't get deleted along with the kerbal when boarding
+				canvas.transform.SetParent(FlightCamera.fetch.transform, false);
 				canvas.transform.localPosition = hudPosition;
 				canvas.transform.localRotation = hudRotation;
 				canvas.transform.localScale = Vector3.one * hudScale;
