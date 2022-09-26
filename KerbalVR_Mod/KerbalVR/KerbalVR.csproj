@@ -149,6 +149,7 @@
     <Compile Include="InternalModules\KerbalVR_Yoke.cs" />
     <Compile Include="IVAAdaptors\IVAKnob.cs" />
     <Compile Include="IVAAdaptors\IVASwitch.cs" />
+    <Compile Include="Components\KerbalVR_ArmScaler.cs" />
     <Compile Include="KerbalVR_AssetLoader.cs" />
     <Compile Include="KerbalVR_Core.cs" />
     <Compile Include="KerbalVR_MainMenu.cs" />
