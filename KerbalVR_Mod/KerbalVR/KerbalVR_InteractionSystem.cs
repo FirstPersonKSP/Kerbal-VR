@@ -101,6 +101,16 @@ namespace KerbalVR
 		protected bool isHandsInitialized = false;
 		#endregion
 
+		public Hand GetHand(SteamVR_Input_Sources handType)
+		{
+			switch (handType)
+			{
+				case SteamVR_Input_Sources.LeftHand: return LeftHand;
+				case SteamVR_Input_Sources.RightHand: return RightHand;
+				default: return null;
+			}
+		}
+
 		private Hand SetupHand(string name)
 		{
 			GameObject handGameObject = new GameObject(name);

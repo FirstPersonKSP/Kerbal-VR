@@ -317,14 +317,14 @@ namespace KerbalVR
 		Collider m_lastHitCollider = null;
 		IVRMouseTarget m_mouseTarget;
 
-		protected Hand m_hand; // TODO: switch this when a button is pressed on the other hand
+		protected SteamVR_Input_Sources m_handType = SteamVR_Input_Sources.RightHand; // TODO: switch this when a button is pressed on the other hand
+		protected Hand m_hand => InteractionSystem.Instance.GetHand(m_handType); // making this a property instead of a direct reference because the actual hand objects change when going iva/eva
 		internal VRUIHand VRUIHand => m_hand.UIHand;
 
 		protected override void Awake()
 		{
 			base.Awake();
 
-			m_hand = InteractionSystem.Instance.RightHand;
 			pointerData = new PointerEventData(eventSystem);
 		}
 
