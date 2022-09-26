@@ -30,7 +30,7 @@ namespace KerbalVR {
         /// <summary>
         /// The other hand's GameObject
         /// </summary>
-        public GameObject otherHand;
+        public Hand otherHand;
 
         #endregion
 

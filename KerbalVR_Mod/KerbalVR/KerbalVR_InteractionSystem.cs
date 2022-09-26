@@ -101,8 +101,8 @@ namespace KerbalVR
             RightHand.handType = SteamVR_Input_Sources.RightHand;
             RightHand.handActionPose = handActionPose;
 
-            RightHand.otherHand = LeftHand.gameObject;
-            LeftHand.otherHand = RightHand.gameObject;
+            RightHand.otherHand = LeftHand;
+            LeftHand.otherHand = RightHand;
 
             // can init the skeleton behavior now
             LeftHand.Initialize();

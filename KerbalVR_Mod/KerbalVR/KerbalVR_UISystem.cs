@@ -529,7 +529,7 @@ namespace KerbalVR
 
 		public override bool ShouldActivateModule()
 		{
-			return m_canvasStack.Count > 0;
+			return Core.IsVrRunning && m_canvasStack.Count > 0;
 		}
 
 		public override void Process()
@@ -554,27 +554,32 @@ namespace KerbalVR
 		{
 			m_PAWFingertipState = false;
 
-			var canvas = m_canvasStack.Last();
-			var raycaster = canvas.GetComponent<BaseRaycaster>();
-			
-			pointerData.Reset();
-			pointerData.position = raycaster.eventCamera.WorldToScreenPoint(m_hand.FingertipPosition);
-			raycaster.Raycast(pointerData, m_RaycastResultCache);
-
-			Vector3 toFinger = m_hand.FingertipPosition - canvas.transform.position;
-			float distance = Vector3.Dot(toFinger, -canvas.transform.forward);
-
-			if (!m_PAWFingertipLatched && distance < m_hand.FingertipRadius && distance > -m_hand.FingertipRadius)
+			if (m_canvasStack.Count > 0)
 			{
-				m_PAWFingertipState = distance < 0;
-				if (m_PAWFingertipState)
+				var canvas = m_canvasStack.Last();
+				var raycaster = canvas.GetComponent<BaseRaycaster>();
+
+				pointerData.Reset();
+				pointerData.position = raycaster.eventCamera.WorldToScreenPoint(m_hand.FingertipPosition);
+				raycaster.Raycast(pointerData, m_RaycastResultCache);
+
+				Vector3 toFinger = m_hand.FingertipPosition - canvas.transform.position;
+				float distance = Vector3.Dot(toFinger, -canvas.transform.forward);
+
+				if (!m_PAWFingertipLatched && distance < m_hand.FingertipRadius && distance > -m_hand.FingertipRadius)
 				{
-					m_PAWFingertipLatched = true;
+					m_PAWFingertipState = distance < 0;
+					if (m_PAWFingertipState)
+					{
+						m_PAWFingertipLatched = true;
+
+						HapticUtils.Light(m_hand.otherHand.handType);
+					}
 				}
-			}
-			else if (m_PAWFingertipLatched && distance > m_hand.FingertipRadius)
-			{
-				m_PAWFingertipLatched = false;
+				else if (m_PAWFingertipLatched && distance > m_hand.FingertipRadius)
+				{
+					m_PAWFingertipLatched = false;
+				}
 			}
 
 			pointerData.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
