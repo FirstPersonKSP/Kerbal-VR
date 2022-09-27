@@ -15,7 +15,7 @@ namespace KerbalVR
 		{
 			Utils.Log("Addon Awake");
 
-			KerbalVR.Core.InitSystems(XRSettings.enabled);
+			KerbalVR.Core.InitSystems(true);
 
 			ApplyPatches();
 

@@ -109,6 +109,12 @@
     <Reference Include="$(ManagedPath)\UnityEngine.VRModule.dll">
       <Private>false</Private>
     </Reference>
+    <Reference Include="$(ManagedPath)\Unity.XR.Management.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(ManagedPath)\Unity.XR.OpenVR.dll">
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Publicize Include="ThroughTheEyes" />

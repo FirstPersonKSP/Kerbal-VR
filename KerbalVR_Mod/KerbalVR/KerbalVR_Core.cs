@@ -2,8 +2,10 @@ using KSP.UI;
 using System;
 using System.Collections;
 using System.Runtime.InteropServices;
+using Unity.XR.OpenVR;
 using UnityEngine;
 using UnityEngine.XR;
+using UnityEngine.XR.Management;
 using Valve.VR;
 
 namespace KerbalVR
@@ -25,6 +27,24 @@ namespace KerbalVR
 
 		public static void InitSystems(bool vrEnabled)
 		{
+			var generalSettings = ScriptableObject.CreateInstance<XRGeneralSettings>();
+			var managerSettings = ScriptableObject.CreateInstance<XRManagerSettings>();
+			var xrLoader = ScriptableObject.CreateInstance<OpenVRLoader>();
+
+			var settings = OpenVRSettings.GetSettings();
+			settings.StereoRenderingMode = OpenVRSettings.StereoRenderingModes.MultiPass;
+
+			generalSettings.Manager = managerSettings;
+
+			managerSettings.loaders.Add(xrLoader);
+			managerSettings.automaticRunning = true;
+			managerSettings.automaticLoading = true;
+			managerSettings.InitializeLoaderSync();
+
+			GameObject.DontDestroyOnLoad(generalSettings);
+			GameObject.DontDestroyOnLoad(managerSettings);
+			GameObject.DontDestroyOnLoad(xrLoader);
+
 			IsVrEnabled = vrEnabled;
 			IsVrRunning = vrEnabled;
 
@@ -32,6 +52,8 @@ namespace KerbalVR
 			{
 				KerbalVR.Core.InitSteamVRInput();
 				HardwareUtils.Init();
+
+				SteamVR.Initialize(true);
 			}
 
 			//// initialize KerbalVR GameObjects
