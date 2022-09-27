@@ -16,11 +16,21 @@ namespace KerbalVR
 	internal class UISystem : MonoBehaviour
 	{
 		internal static UISystem Instance { get; private set; }
+
+		Transform m_pdaCanvasAnchor;
+		public Transform PdaCanvasAnchor => m_pdaCanvasAnchor;
+
 		void Awake()
 		{
 			GameEvents.onPartActionUIShown.Add(OnPartActionUIShown);
 			GameEvents.onPartActionUIDismiss.Add(OnPartActionUIDismiss);
 			Instance = this;
+
+			m_pdaCanvasAnchor = new GameObject("VR PDA Canvas Anchor").transform;
+			m_pdaCanvasAnchor.localRotation = pdaRotation;
+			m_pdaCanvasAnchor.localScale = Vector3.one * pdaScale;
+			DontDestroyOnLoad(this);
+			DontDestroyOnLoad(m_pdaCanvasAnchor);
 		}
 
 		private void OnPartActionUIDismiss(Part data)
@@ -110,6 +120,13 @@ namespace KerbalVR
 			}
 		}
 
+		public void ActivatePDACanvas(Hand hand)
+		{
+			m_pdaCanvasAnchor.gameObject.SetActive(true);
+			m_pdaCanvasAnchor.SetParent(hand.transform, false);
+			m_pdaCanvasAnchor.localPosition = hand.handType == SteamVR_Input_Sources.LeftHand ? pdaPosition_Left : pdaPosition_Right;
+		}
+
 		IEnumerator ConfigureHandheldCanvases(Canvas[] canvases, bool running)
 		{
 			yield return null; // wait a frame so that ThroughTheEyes knows whether we are in first person or not
@@ -119,7 +136,7 @@ namespace KerbalVR
 			{
 				if (pdaMode)
 				{
-					canvas.transform.SetParent(InteractionSystem.Instance.LeftHand.UIHand.CanvasAnchor, false);
+					canvas.transform.SetParent(m_pdaCanvasAnchor, false);
 					canvas.transform.localPosition = Vector3.zero;
 					canvas.gameObject.layer = 0;
 					canvas.worldCamera = FlightCamera.fetch.mainCamera;
@@ -132,9 +149,12 @@ namespace KerbalVR
 					canvas.worldCamera = UIMasterController.Instance.uiCamera;
 				}
 			}
-
-			InteractionSystem.Instance.RightHand.UIHand.LaserEnabled = !pdaMode;
 		}
+
+		static Vector3 pdaPosition_Left = new Vector3(0.025f, -0.03f, 0.1f);
+		static Vector3 pdaPosition_Right = new Vector3(-0.18f, -0.03f, 0.1f);
+		static Quaternion pdaRotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
+		static float pdaScale = 0.0015f; // arbitrary
 
 		static Quaternion hudRotation = Quaternion.identity;
 		static Vector3 hudPosition = new Vector3(0, 0.0f, 0.3f);
@@ -186,8 +206,7 @@ namespace KerbalVR
 
 		static void ConfigureHand(Hand hand, bool running)
 		{
-			// for now, let's only use the right hand as a laser pointer
-			hand.UIHand.VRRunningChanged(running && hand.handType == SteamVR_Input_Sources.RightHand);
+			hand.UIHand.VRRunningChanged(running);
 		}
 	}
 
@@ -197,7 +216,6 @@ namespace KerbalVR
 		LineRenderer m_lineRenderer;
 		SteamVR_Action_Boolean_Source m_interactAction;
 		SteamVR_Action_Boolean_Source m_rightClickAction;
-		Transform m_canvasAnchor;
 
 		static readonly Vector3 rayDirection = Vector3.Normalize(Vector3.forward - Vector3.up);
 		static readonly float rayDistance = 1000.0f; // this probably needs to be customized per scene.  This is crazy far for flight scene, but not far enough in KSC
@@ -211,16 +229,10 @@ namespace KerbalVR
 			(1 << 15) | // KSC buildings
 			(1 << 21); // Part triggers
 
-		static Vector3 pdaPosition = new Vector3(0.025f, 0.0f, 0.0f);
-		static Quaternion pdaRotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
-		static float pdaScale = 0.001f; // arbitrary
-
 		LineRenderer m_uiLineRenderer;
 
 		public SteamVR_Action_Boolean_Source ClickAction => m_interactAction;
 		public SteamVR_Action_Boolean_Source RightClickAction => m_rightClickAction;
-
-		public Transform CanvasAnchor => m_canvasAnchor;
 
 		public bool LaserEnabled
 		{
@@ -247,14 +259,10 @@ namespace KerbalVR
 
 			SetupLineRenderer(m_lineRenderer);
 
+			LaserEnabled = false;
+
 			m_interactAction = SteamVR_Input.GetAction<SteamVR_Action_Boolean>("InteractUI")[m_hand.handType];
 			m_rightClickAction = SteamVR_Input.GetAction<SteamVR_Action_Boolean>("RightClick")[m_hand.handType];
-
-			m_canvasAnchor = new GameObject("VR PDA Canvas Anchor").transform;
-			m_canvasAnchor.SetParent(transform, false);
-			m_canvasAnchor.localPosition = pdaPosition;
-			m_canvasAnchor.localRotation = pdaRotation;
-			m_canvasAnchor.localScale = Vector3.one * pdaScale;
 
 #if false
 			var uiLineObject = new GameObject();
@@ -282,8 +290,11 @@ namespace KerbalVR
 
 		public void VRRunningChanged(bool running)
 		{
-			m_lineRenderer.enabled = running;
 			enabled = running;
+			if (!running)
+			{
+				LaserEnabled = false;
+			}
 		}
 
 		public bool CastRay(out RaycastHit hit)
@@ -578,20 +589,23 @@ namespace KerbalVR
 
 		public override bool ShouldActivateModule()
 		{
-			return Core.IsVrRunning && InteractionSystem.Instance.LeftHand.UIHand.RightClickAction.state;
+			return Core.IsVrRunning && (InteractionSystem.Instance.RightHand.UIHand.RightClickAction.state || InteractionSystem.Instance.LeftHand.UIHand.RightClickAction.state);
 		}
 
 		public override void ActivateModule()
 		{
 			base.ActivateModule();
-			m_hand.otherHand.UIHand.CanvasAnchor.gameObject.SetActive(true);
+
+			m_handType = InteractionSystem.Instance.RightHand.UIHand.RightClickAction.state ? SteamVR_Input_Sources.LeftHand : SteamVR_Input_Sources.RightHand;
 			m_hand.UIHand.LaserEnabled = true;
+
+			UISystem.Instance.ActivatePDACanvas(m_hand.otherHand);
 
 			// the rest of this feels like a hack; maybe should be in a derived class somewhere
 			// most of this class is game and situation agnostic, but this code isn't
 
 			// force a refresh because the PAWs won't look correct if they were created while the canvas was deactivated
-			foreach (var window in m_hand.otherHand.UIHand.CanvasAnchor.GetComponentsInChildren<UIPartActionWindow>())
+			foreach (var window in UISystem.Instance.PdaCanvasAnchor.GetComponentsInChildren<UIPartActionWindow>())
 			{
 				window.CreatePartList(false);
 			}
@@ -610,7 +624,7 @@ namespace KerbalVR
 		public override void DeactivateModule()
 		{
 			base.DeactivateModule();
-			m_hand.otherHand.UIHand.CanvasAnchor.gameObject.SetActive(false);
+			UISystem.Instance.PdaCanvasAnchor.gameObject.SetActive(false);
 			m_hand.UIHand.LaserEnabled = false;
 		}
 

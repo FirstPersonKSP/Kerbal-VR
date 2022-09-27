@@ -54,6 +54,9 @@ namespace KerbalVR
 			kvrInteractionSys.AddComponent<KerbalVR.InteractionSystem>();
 			InteractionSystem kvrInteractionSysComponent = InteractionSystem.Instance; // init the singleton
 			GameObject.DontDestroyOnLoad(kvrInteractionSys);
+
+			// must occur before we call SetVrRunningDesired
+			var uiSystem = new GameObject("VRUISystem").AddComponent<UISystem>();
 		}
 
 		public static void InitSteamVRInput()
