@@ -49,8 +49,10 @@ namespace KerbalVR
 		{
 			switch (scene)
 			{
+#if GUI_ENABLED
 				case GameScenes.MAINMENU:
 				case GameScenes.SPACECENTER:
+#endif
 				case GameScenes.FLIGHT:
 					return true;
 				default:
@@ -100,7 +102,7 @@ namespace KerbalVR
 		///   off around the time that GameScenes switch.
 		///
 
-	#region Constants
+#region Constants
 		public static readonly string[] KSP_CAMERA_NAMES_MAINMENU = {
 			"GalaxyCamera",
 			"Landscape Camera",
@@ -145,9 +147,9 @@ namespace KerbalVR
 			"sceneryCam",
 			"Main Camera",
 		};
-	#endregion
+#endregion
 
-	#region Singleton
+#region Singleton
 		/// <summary>
 		/// This is a singleton class, and there must be exactly one GameObject with this Component in the scene.
 		/// </summary>
@@ -176,10 +178,10 @@ namespace KerbalVR
 		/// One-time initialization for this singleton class.
 		/// </summary>
 		private void Initialize() { }
-	#endregion
+#endregion
 
 
-	#region Properties
+#region Properties
 		// The initial world position of the cameras for the current scene. This
 		// position corresponds to the origin in the real world physical device
 		// coordinate system.
@@ -209,13 +211,13 @@ namespace KerbalVR
 					HighLogic.LoadedScene == GameScenes.FLIGHT;
 			}
 		}
-	#endregion
+#endregion
 
 
-	#region Private Members
+#region Private Members
 		protected bool isVrCameraRigCreated = false;
 		protected string[] currentKspSceneCameraNames = null;
-	#endregion
+#endregion
 
 
 		protected void Start()
