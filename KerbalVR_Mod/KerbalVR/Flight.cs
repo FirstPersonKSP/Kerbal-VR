@@ -7,6 +7,8 @@ using UnityEngine.XR;
 using Valve.VR;
 using HarmonyLib;
 using KSP.UI;
+using System.Reflection;
+using System.Reflection.Emit;
 
 namespace KerbalVR
 {
@@ -302,7 +304,7 @@ namespace KerbalVR
 
 		public void HandleMovementInput_Prefix(KerbalEVA kerbalEVA)
 		{
-			if (!kerbalEVA.VesselUnderControl)
+			if (!kerbalEVA.VesselUnderControl || !Core.IsVrEnabled)
 			{
 				return;
 			}
@@ -342,7 +344,7 @@ namespace KerbalVR
 
 		public void HandleMovementInput_Postfix(KerbalEVA kerbalEVA)
 		{
-			if (!kerbalEVA.VesselUnderControl)
+			if (!kerbalEVA.VesselUnderControl || !Core.IsVrEnabled)
 			{
 				return;
 			}
@@ -372,7 +374,8 @@ namespace KerbalVR
 		{
 			if (!kerbalEVA.VesselUnderControl ||
 				!kerbalEVA.JetpackDeployed ||
-				kerbalEVA.SurfaceOrSplashed())
+				kerbalEVA.SurfaceOrSplashed() ||
+				!Core.IsVrEnabled)
 			{
 				return;
 			}
@@ -527,6 +530,60 @@ namespace KerbalVR
 		static void Postfix(FlagSite __instance)
 		{
 			__instance.DismissSiteRename();
+		}
+	}
+
+	// support for deploying inventory items in EVA
+	// this function checks the EVA_Jump key directly
+	[HarmonyPatch(typeof(ModuleInventoryPart), nameof(ModuleInventoryPart.OnUpdate))]
+	class ModuleInventoryPart_Update_Patch
+	{
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+		{
+			bool replaceNextKeyDown = false;
+			bool replacementSuccessful = false;
+			FieldInfo EVA_Jump_fieldInfo = AccessTools.DeclaredField(typeof(GameSettings), nameof(GameSettings.EVA_Jump));
+			MethodInfo KeyDown_methodInfo = AccessTools.DeclaredMethod(typeof(KeyBinding), nameof(KeyBinding.GetKeyDown));
+			MethodInfo replacement_methodInfo = AccessTools.DeclaredMethod(typeof(ModuleInventoryPart_Update_Patch), nameof(ShouldDeployPart));
+
+			foreach (var code in instructions)
+			{
+				if (code.LoadsField(EVA_Jump_fieldInfo))
+				{
+					replaceNextKeyDown = true;
+				}
+
+				if (replaceNextKeyDown && code.Calls(KeyDown_methodInfo))
+				{
+					code.opcode = OpCodes.Call;
+					code.operand = replacement_methodInfo;
+					replaceNextKeyDown = false;
+					replacementSuccessful = true;
+				}
+
+				yield return code;
+			}
+
+			if (!replacementSuccessful)
+			{
+				throw new Exception("[KerbalVR]: failed to patch ModuleInventoryPart.OnUpdate");
+			}
+		}
+
+		static bool ShouldDeployPart(KeyBinding keyBinding, bool ignoreInputLock)
+		{
+			// TODO: extend this to check for VR inputs
+			if (keyBinding.GetKeyDown(ignoreInputLock))
+			{
+				return true;
+			}
+
+			if (Core.IsVrEnabled && SteamVR_Actions.eVA_Jump.stateDown)
+			{
+				return true;
+			}
+
+			return false;
 		}
 	}
 }
