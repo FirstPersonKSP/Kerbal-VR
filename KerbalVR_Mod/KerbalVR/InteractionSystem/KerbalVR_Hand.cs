@@ -139,7 +139,7 @@ namespace KerbalVR
 			handSkeleton = handObject.AddComponent<SteamVR_Behaviour_Skeleton>();
 			handSkeleton.skeletonRoot = handObject.transform.Find(profile.sourceSkeletonRootPath);
 			handSkeleton.inputSource = handType;
-			handSkeleton.rangeOfMotion = EVRSkeletalMotionRange.WithController;
+			handSkeleton.rangeOfMotion = HandProfileManager.Instance.fullRangeOfMotion ? EVRSkeletalMotionRange.WithoutController : EVRSkeletalMotionRange.WithController;
 			handSkeleton.mirroring = isRightHand ? SteamVR_Behaviour_Skeleton.MirrorType.None : SteamVR_Behaviour_Skeleton.MirrorType.RightToLeft;
 			handSkeleton.updatePose = false;
 			string skeletonActionName = (handType == SteamVR_Input_Sources.LeftHand) ? "SkeletonLeftHand" : "SkeletonRightHand";

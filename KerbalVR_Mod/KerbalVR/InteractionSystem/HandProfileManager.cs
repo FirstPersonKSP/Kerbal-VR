@@ -69,6 +69,9 @@ namespace KerbalVR
 		[PersistentField("HandProfile/eva")]
 		public string evaProfile = "profile_name";
 
+		[PersistentField("HandProfile/fullRangeOfMotion")]
+		public bool fullRangeOfMotion;
+
 		[PersistentField("HandProfile/Profile", isCollection = true)]
 		public static List<Profile> profiles = new List<Profile>();
 
