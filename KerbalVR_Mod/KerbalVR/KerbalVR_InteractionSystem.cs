@@ -156,7 +156,7 @@ namespace KerbalVR
 	{
 		public static void Prefix(CollisionManager __instance, ref Transform __state)
 		{
-			if (InteractionSystem.Instance.gameObject.GetComponentUpwards<Part>() != null)
+			if (Core.IsVrEnabled && InteractionSystem.Instance.gameObject.GetComponentUpwards<Part>() != null)
 			{
 				__state = InteractionSystem.Instance.transform.parent;
 				InteractionSystem.Instance.transform.SetParent(null, false);
