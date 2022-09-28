@@ -15,6 +15,15 @@ namespace KerbalVR.PartModules
 			m_eva = GetComponent<KerbalEVA>();
 			LampChanged();
 			JetpackChanged();
+
+			var interactable = m_eva.ladderCollider.gameObject.AddComponent<InteractableBehaviour>();
+
+			interactable.OnGrab += OnGrabbed;
+		}
+
+		private void OnGrabbed(Hand hand)
+		{
+			SwitchTo();
 		}
 
 		[KSPEvent(guiActive = true)]
@@ -40,6 +49,13 @@ namespace KerbalVR.PartModules
 		void JetpackChanged()
 		{
 			base.Events["ToggleJetpack"].guiName = m_eva.JetpackDeployed ? "Deactivate Jetpack" : "Activate Jetpack";
+		}
+
+		[KSPEvent(guiActive = false, guiActiveUnfocused = true, unfocusedRange = 2000)]
+		void SwitchTo()
+		{
+			FlightGlobals.SetActiveVessel(vessel);
+			Scene.EnterFirstPerson();
 		}
 	}
 }
