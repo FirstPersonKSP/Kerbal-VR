@@ -59,7 +59,7 @@ namespace KerbalVR
 		}
 
 		protected SkinnedMeshRenderer handRenderer;
-		protected SteamVR_Behaviour_Skeleton handSkeleton;
+		public SteamVR_Behaviour_Skeleton handSkeleton { get; protected set; }
 
 		// keep tracking of render state
 		protected Types.ShiftRegister<bool> isRenderingHands = new Types.ShiftRegister<bool>(2);

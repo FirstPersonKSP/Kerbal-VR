@@ -16,18 +16,14 @@ namespace KerbalVR
 		IPinchInteractable hoveredInteractable;
 		IPinchInteractable heldInteractable;
 
+		bool wasPinching;
+
 		internal void Initialize(Hand hand)
 		{
 			this.hand = hand;
 
 			pinchIndex = SteamVR_Input.GetBooleanAction("default", "PinchIndex")[hand.handType];
-			pinchIndex.onChange += OnChangePinch;
-
 			pinchThumb = SteamVR_Input.GetBooleanAction("default", "PinchThumb")[hand.handType];
-			pinchThumb.onChange += OnChangePinch;
-
-			pinchIndex.onUpdate += OnUpdatePinch;
-			pinchThumb.onUpdate += OnUpdatePinch;
 
 			collider = gameObject.AddComponent<SphereCollider>();
 			collider.isTrigger = true;
@@ -44,30 +40,49 @@ namespace KerbalVR
 #endif
 		}
 
-		private void OnUpdatePinch(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource, bool newState)
+		private void Update()
 		{
-			if (heldInteractable != null)
-			{
-				heldInteractable.OnHold(hand);
-			}
-		}
+			bool isPinching = IsPinching();
 
-		private void OnChangePinch(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource, bool newState)
-		{
-			bool isPinching = pinchIndex.state && pinchThumb.state;
-
-			if (isPinching && hoveredInteractable != null)
+			if (isPinching && !wasPinching && hoveredInteractable != null)
 			{
 				heldInteractable = hoveredInteractable;
 				heldInteractable.OnPinch(hand);
 				hand.FingertipEnabled = false;
 			}
-			else if (!isPinching && heldInteractable != null)
+			else if (!isPinching && wasPinching && heldInteractable != null)
 			{
 				heldInteractable.OnRelease(hand);
 				heldInteractable = null;
 				hand.FingertipEnabled = true;
 			}
+			else if (isPinching && wasPinching && heldInteractable != null)
+			{
+				heldInteractable.OnHold(hand);
+			}
+
+			wasPinching = isPinching;
+		}
+
+		bool IsPinching()
+		{
+			// if we're running partial tracking, activate pinch whenever the fingertips are close together
+			if (hand.handSkeleton.skeletalTrackingLevel >= EVRSkeletalTrackingLevel.VRSkeletalTracking_Partial)
+			{
+				var fingertipDistance = Vector3.Distance(hand.handSkeleton.indexTip.position, hand.handSkeleton.thumbTip.position);
+
+				if (fingertipDistance <= hand.profile.pinchColliderSize * 4.0f)
+				{
+					return true;
+				}
+			}
+
+			if (pinchIndex.state && pinchThumb.state)
+			{
+				return true;
+			}
+
+			return false;
 		}
 
 		protected void OnTriggerEnter(Collider other)
