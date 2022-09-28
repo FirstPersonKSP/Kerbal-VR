@@ -47,10 +47,17 @@ namespace KerbalVR
 			{
 				window.gameObject.SetLayerRecursive(0);
 				window.rectTransform.anchoredPosition3D = Vector3.zero;
-				window.rectTransform.localPosition = Vector3.zero;
 				window.GetComponentInChildren<Graphic>().material.shader = Shader.Find("UI/Default"); // this defaults to "UI/KSP/Color Overlay" which has z-write on, which causes z-fighting when rendered in worldspace
 
 				VRFingerTipInputModule.Instance.PushCanvas(UIMasterController.Instance.actionCanvas);
+
+				float x = 0.0f;
+				for (int i = 0; i < UIPartActionController.Instance.windows.Count; i++)
+				{
+					var paw = UIPartActionController.Instance.windows[i];
+					paw.transform.localPosition = new Vector3(x, 0.0f, 0.0f);
+					x += paw.windowDimensions.x + 5;
+				}
 			}
 			else
 			{
