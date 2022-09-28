@@ -15,20 +15,23 @@ namespace KerbalVR
 		{
 			Utils.Log("Addon Awake");
 
-			KerbalVR.Core.InitSystems(XRSettings.enabled);
-
 			ApplyPatches();
-
-			// for whatever reason, enabling VR mode during loading makes it super slow (vsync maybe?)
-			KerbalVR.Core.SetVrRunningDesired(false);
-			
-			Valve.VR.SteamVR_Settings.instance.trackingSpace = Valve.VR.ETrackingUniverseOrigin.TrackingUniverseSeated;
-			Valve.VR.SteamVR_Settings.instance.lockPhysicsUpdateRateToRenderFrequency = false;
 
 			GameEvents.onLevelWasLoaded.Add(OnLevelWasLoaded);
 			GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
 
 			DontDestroyOnLoad(this);
+		}
+
+		public static void ModuleManagerPostLoad()
+		{
+			KerbalVR.Core.InitSystems(XRSettings.enabled);
+
+			// for whatever reason, enabling VR mode during loading makes it super slow (vsync maybe?)
+			KerbalVR.Core.SetVrRunningDesired(false);
+
+			Valve.VR.SteamVR_Settings.instance.trackingSpace = Valve.VR.ETrackingUniverseOrigin.TrackingUniverseSeated;
+			Valve.VR.SteamVR_Settings.instance.lockPhysicsUpdateRateToRenderFrequency = false;
 		}
 
 		private static void Scatterer_CreateRenderTextures_Prefix(ref int width, ref int height)
@@ -60,7 +63,7 @@ namespace KerbalVR
 			}
 		}
 
-		private void ApplyPatches()
+		private static void ApplyPatches()
 		{
 			var harmony = new Harmony("KerbalVR");
 			harmony.PatchAll(Assembly.GetExecutingAssembly());
