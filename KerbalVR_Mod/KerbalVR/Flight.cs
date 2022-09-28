@@ -333,13 +333,9 @@ namespace KerbalVR
 
 			Vector3 packTgtRpos = tgtRpos + verticalInput * kerbalEVA.transform.up;
 
-			if (FirstPerson.ReflectedMembers.eva_tgtRpos == null) return;
-
-			FirstPerson.ReflectedMembers.eva_tgtRpos.SetValue(kerbalEVA, tgtRpos);
-			FirstPerson.ReflectedMembers.eva_packTgtRPos.SetValue(kerbalEVA, packTgtRpos);
-			FirstPerson.ReflectedMembers.eva_ladderTgtRPos.SetValue(kerbalEVA, packTgtRpos); // for now, same as jetpack
-
-			// TODO: parachute input
+			kerbalEVA.tgtRpos = tgtRpos;
+			kerbalEVA.packTgtRPos = packTgtRpos;
+			kerbalEVA.ladderTgtRPos = packTgtRpos; // for now, same as jetpack (so up/down match)
 		}
 
 		public void HandleMovementInput_Postfix(KerbalEVA kerbalEVA)
@@ -351,6 +347,7 @@ namespace KerbalVR
 
 			// rotation needs to be done after the main method or else it will get overwritten
 			Vector2 lookStickInput = m_lookStickAction.GetAxis(SteamVR_Input_Sources.Any);
+			Vector2 moveStickInput = m_moveStickAction.GetAxis(SteamVR_Input_Sources.Any);
 
 			float yaw = lookStickInput.x;
 
@@ -368,6 +365,11 @@ namespace KerbalVR
 			{
 				FirstPerson.FirstPersonEVA.instance.fpStateWalkRun.current_turn -= 360.0f;
 			}
+
+			// parachuteInput gets cleared in handleMovementInput, so we need to set it in postfix
+			// use both sticks the same for now
+			kerbalEVA.parachuteInput.x = Mathf.Clamp(lookStickInput.y + moveStickInput.y, -1.0f, 1.0f);
+			kerbalEVA.parachuteInput.y = Mathf.Clamp(lookStickInput.x + moveStickInput.x, -1.0f, 1.0f);
 		}
 
 		public void FPStateFloating_PreOnFixedUpdate_Postfix(KerbalEVA kerbalEVA)
@@ -403,7 +405,7 @@ namespace KerbalVR
 
 			if (cmdRot != Vector3.zero)
 			{
-				FirstPerson.ReflectedMembers.eva_cmdRot.SetValue(kerbalEVA, cmdRot);
+				kerbalEVA.cmdRot = cmdRot;
 				FirstPerson.FirstPersonEVA.instance.state.rotationpid_previouserror = Vector3.zero;
 				FirstPerson.FirstPersonEVA.instance.state.rotationpid_integral = Vector3.zero;
 			}
@@ -423,8 +425,7 @@ namespace KerbalVR
 
 			packTgtRpos.Normalize();
 
-			FirstPerson.ReflectedMembers.eva_packTgtRPos.SetValue(kerbalEVA, packTgtRpos);
-
+			kerbalEVA.packTgtRPos = packTgtRpos;
 		}
 
 		private void ToggleLight_OnStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
