@@ -206,6 +206,9 @@ namespace KerbalVR
 			pinchCollider.Initialize(this);
 
 			#endregion
+
+			gameObject.SetLayerRecursive(isIVA ? 20 : 0);
+			handCollider.gameObject.layer = isIVA ? 20 : 3;
 		}
 
 		public void Attach(Transform parent)
@@ -277,24 +280,6 @@ namespace KerbalVR
 		{
 			// should we render the hands in the current scene?
 			bool isRendering = KerbalVR.Core.IsVrRunning;
-			if (isRendering)
-			{
-				int renderLayer = 0;
-
-				switch (HighLogic.LoadedScene)
-				{
-					case GameScenes.FLIGHT:
-
-						if (KerbalVR.Scene.IsInIVA())
-						{
-							// IVA-specific settings
-							renderLayer = 20;
-						}
-						break;
-				}
-
-				renderLayerHands.Push(renderLayer);
-			}
 
 			// if rendering, update the hand positions
 			if (isRendering)
@@ -350,13 +335,6 @@ namespace KerbalVR
 			{
 				handObject.SetActive(isRendering);
 
-			}
-			if (renderLayerHands.IsChanged())
-			{
-				Utils.SetLayer(this.gameObject, renderLayerHands.Value);
-				Utils.SetLayer(handObject, renderLayerHands.Value);
-
-				handTransform.gameObject.layer = renderLayerHands.Value == 20 ? 20 : 3;
 			}
 		}
 	}
