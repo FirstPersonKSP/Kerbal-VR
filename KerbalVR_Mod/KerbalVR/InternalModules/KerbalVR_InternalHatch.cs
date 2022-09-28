@@ -68,7 +68,6 @@ namespace KerbalVR.InternalModules
 
 			if (kerbal != null && evaPossible && HighLogic.CurrentGame.Parameters.Flight.CanEVA)
 			{
-				m_grabbedHand.Detach();
 				var kerbalEVA = FlightEVA.fetch.spawnEVA(kerbal.protoCrewMember, kerbal.InPart, FindAirlock(kerbal.InPart, airlockName), true);
 				CameraManager.Instance.SetCameraFlight();
 
@@ -95,6 +94,7 @@ namespace KerbalVR.InternalModules
 
 				if (m_rotationUtil.IsAtMax())
 				{
+					m_grabbedHand.Detach(true);
 					yield return StartCoroutine(GoEVA());
 					break;
 				}

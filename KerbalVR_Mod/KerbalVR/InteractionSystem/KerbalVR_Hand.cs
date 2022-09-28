@@ -186,7 +186,7 @@ namespace KerbalVR
 			fingertipCollider.Initialize(this);
 
 			// this has to be after the fingertip collider is initialized and before the hand collider is initialized (for ladder setup)
-			Detach();
+			Detach(true);
 
 			// create a child object for the colider so that it can be on a different layer
 			handTransform = new GameObject("handTransform").transform;
@@ -223,7 +223,7 @@ namespace KerbalVR
 			detacher.hand = this;
 		}
 
-		public void Detach()
+		public void Detach(bool immediate = false)
 		{
 			var handDetacher = handObject.GetComponentInParent<HandDetacher>();
 			if (handDetacher)
@@ -231,7 +231,15 @@ namespace KerbalVR
 				Component.Destroy(handDetacher);
 			}
 
-			handSkeleton.BlendToSkeleton();
+			if (immediate)
+			{
+				handSkeleton.skeletonBlend = 1.0f;
+				handSkeleton.UpdateSkeletonTransforms();
+			}
+			else
+			{
+				handSkeleton.BlendToSkeleton();
+			}
 			handObject.transform.SetParent(transform, false);
 			handObject.transform.localPosition = Vector3.zero;
 			handObject.transform.localRotation = Quaternion.identity;

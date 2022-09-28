@@ -80,6 +80,11 @@ namespace KerbalVR
 					RightHandEVA.gameObject.SetActive(true);
 				}
 
+				LeftHandIVA.Detach(true);
+				RightHandIVA.Detach(true);
+				LeftHandEVA.Detach(true);
+				RightHandEVA.Detach(true);
+
 				LeftHandIVA.ChangeGrab(false);
 				RightHandIVA.ChangeGrab(false);
 				LeftHandEVA.ChangeGrab(false);

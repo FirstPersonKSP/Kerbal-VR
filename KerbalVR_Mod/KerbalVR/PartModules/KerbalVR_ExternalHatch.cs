@@ -93,6 +93,8 @@ namespace KerbalVR
 
 				if (m_rotationUtil.IsAtMax())
 				{
+					m_grabbedHand.Detach(true);
+
 					var kerbalEVA = FlightGlobals.ActiveVessel.evaController;
 					var protoCrewMember = kerbalEVA.part.protoModuleCrew[0];
 					kerbalEVA.BoardPart(part);
