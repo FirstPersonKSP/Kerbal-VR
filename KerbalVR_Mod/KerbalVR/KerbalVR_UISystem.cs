@@ -49,7 +49,7 @@ namespace KerbalVR
 
 		private void OnPartActionUIShown(UIPartActionWindow window, Part part)
 		{
-			if (Core.IsVrRunning && Scene.IsFirstPersonEVA())
+			if (Core.IsVrRunning)
 			{
 				window.gameObject.SetLayerRecursive(0);
 				window.rectTransform.anchoredPosition3D = Vector3.zero;
@@ -143,7 +143,7 @@ namespace KerbalVR
 		IEnumerator ConfigureHandheldCanvases(Canvas[] canvases, bool running)
 		{
 			yield return null; // wait a frame so that ThroughTheEyes knows whether we are in first person or not
-			bool pdaMode = running && Scene.IsFirstPersonEVA();
+			bool pdaMode = running;
 
 			foreach (var canvas in canvases)
 			{
@@ -176,14 +176,12 @@ namespace KerbalVR
 		private IEnumerator ConfigureHeadsUpCanvas(Canvas canvas, bool running)
 		{
 			yield return null; // wait a frame so that ThroughTheEyes knows whether we are in first person or not
-			bool hudMode = running && Scene.IsFirstPersonEVA();
+			bool hudMode = running;
 
 			if (canvas == null) yield break;
 
 			if (hudMode)
 			{
-				var eva = Scene.GetKerbalEVA();
-
 				// TODO: this doesn't actually attach it to the skeleton, so it doesn't move with the helmet.  I tried attaching to the bone, but that didn't work:
 				// eva.helmetTransform
 				// For now, just use the flightcamera transform so that the canvas doesn't get deleted along with the kerbal when boarding
@@ -643,8 +641,8 @@ namespace KerbalVR
 		{
 			if (!Core.IsVrRunning) return false;
 
-			// temporary - we might eventually want to use fingertips for UI interactions in other scenes
-			if (HighLogic.LoadedSceneIsFlight)
+			// temporary - we might eventually want to use fingertips for UI interactions in other scenes or even in IVA (maybe AppCanvas?)
+			if (HighLogic.LoadedSceneIsFlight && !Scene.IsInIVA())
 			{
 				var left = InteractionSystem.Instance.LeftHand.UIHand;
 				var right = InteractionSystem.Instance.RightHand.UIHand;
