@@ -10,7 +10,7 @@ namespace KerbalVR
 		protected Rigidbody handRigidbody;
 		protected VRLadder ladder;
 
-		internal void Initialize(Hand hand)
+		internal void Initialize(Hand hand, VRLadder ladder)
 		{
 			// add interactable collider
 			collider = this.gameObject.AddComponent<SphereCollider>();
@@ -21,7 +21,7 @@ namespace KerbalVR
 			handRigidbody.useGravity = false;
 			handRigidbody.isKinematic = true;
 
-			ladder = gameObject.GetComponentUpwards<VRLadder>();
+			this.ladder = ladder;
 
 			// debugging stuff
 #if HAND_GIZMOS
@@ -50,7 +50,7 @@ namespace KerbalVR
 			if (HoveredObject != null)
 			{
 				InteractableBehaviour interactable = other.gameObject.GetComponent<InteractableBehaviour>();
-				if (interactable == HoveredObject)
+				if (interactable != null && interactable == HoveredObject)
 				{
 					HoveredObject = null;
 				}

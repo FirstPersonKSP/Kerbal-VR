@@ -17,7 +17,7 @@ namespace KerbalVR
 		/// <summary>
 		/// Either the LeftHand or RightHand for this object.
 		/// </summary>
-		public SteamVR_Input_Sources handType;
+		public SteamVR_Input_Sources handType = SteamVR_Input_Sources.RightHand;
 
 		/// <summary>
 		/// The SteamVR_Input action for the hand pose data.
@@ -58,7 +58,18 @@ namespace KerbalVR
 			}
 		}
 
-		public Vector3 GripPosition => palmTransform.position;
+		public Vector3 GripPosition
+		{
+			get
+			{
+				// the grip collider can now be attached to some bone other than the hand root
+				// when the hand is attached to an object, the colliders on the hand aren't moving, so we need to use the transform from the tracking object instead
+				// find the collider center relative to the hand object root, then apply that offset to the tracked hand
+				Vector3 relativeGripLocation = CurrentHandObject.transform.InverseTransformPoint(palmCollider.transform.position);
+				return CurrentHandObject.transform.TransformPoint(relativeGripLocation);
+			}
+		}
+
 		public Vector3 FingertipPosition => fingertipTransform.position;
 		public float FingertipRadius => fingertipCollider.collider.radius;
 		public bool FingertipEnabled
@@ -76,7 +87,7 @@ namespace KerbalVR
 
 		// keep track of held objects
 		protected Transform palmTransform;
-		protected HandCollider handCollider;
+		protected HandCollider palmCollider;
 		protected InteractableBehaviour heldObject;
 
 		// interacting with mouse-clickable objects
@@ -91,9 +102,9 @@ namespace KerbalVR
 		protected VRLadder ladder;
 
 		protected SkinnedMeshRenderer renderModel;
-		protected Transform indexTipTransform;
-		protected Transform thumbTipTransform;
-		protected Transform gripTransform;
+		protected Transform indexTargetTransform;
+		protected Transform thumbTargetTransform;
+		protected Transform palmTargetTransform;
 
 		// For interacting with the UI
 		internal VRUIHand UIHand { get; private set; }
@@ -125,7 +136,7 @@ namespace KerbalVR
 			// load hand profile
 			HandProfileManager handSetting = HandProfileManager.Instance;
 
-			#region Step 1: Setup tracking skeleton
+			#region Setup tracking skeleton
 
 			GameObject trackingSkeleton = AssetLoader.Instance.GetGameObject(
 				isRightHand ? 
@@ -137,9 +148,8 @@ namespace KerbalVR
 				throw new MissingReferenceException($"Could not load tracking skeleton");
 			}
 
-			handObject = Instantiate(trackingSkeleton, Vector3.zero, Quaternion.identity);
+			handObject = Instantiate(trackingSkeleton, Vector3.zero, Quaternion.identity, transform);
 			handObject.name = "KVR_HandObject_" + handType;
-			DontDestroyOnLoad(handObject);
 			handObject.SetActive(false); // default to inactive, to match the default in Update
 			// add behavior scripts to the hands
 			handSkeleton = handObject.AddComponent<SteamVR_Behaviour_Skeleton>();
@@ -171,7 +181,7 @@ namespace KerbalVR
 
 			#endregion
 
-			#region Step 2: Setup hand model
+			#region Setup hand model
 
 			IVAProfile = handSetting.GetProfile(true);
 			SetupModel(IVAProfile, ref IVAObject);
@@ -181,7 +191,17 @@ namespace KerbalVR
 
 			#endregion
 
-			#region Step 3: Setup Collider
+			#region Setup other stuffs
+
+			// set up ladder
+			ladder = gameObject.AddComponent<VRLadder>();
+
+			// set up UI hand  
+			UIHand = gameObject.AddComponent<VRUIHand>();
+
+			#endregion
+
+			#region Setup Collider
 
 			// add fingertip collider for "mouse clicks"
 			fingertipTransform = new GameObject("KVR_FingertipCollider").transform;
@@ -193,10 +213,10 @@ namespace KerbalVR
 			Detach(true);
 
 			// create a child object for the colider so that it can be on a different layer
-			palmTransform = new GameObject("KVR_HandCollider").transform;
+			palmTransform = new GameObject("KVR_PalmCollider").transform;
 			palmTransform.SetParent(handObject.transform);
-			handCollider = palmTransform.gameObject.AddComponent<HandCollider>();
-			handCollider.Initialize(this);
+			palmCollider = palmTransform.gameObject.AddComponent<HandCollider>();
+			palmCollider.Initialize(this, ladder);
 
 			// thumb is used to calculate position of pinch collider
 			thumbTransform = new GameObject("KVR_Thumb").transform;
@@ -210,35 +230,17 @@ namespace KerbalVR
 
 			#endregion
 
-			#region Step 4: Setup skeletonHelper
+			#region Setup skeleton helper
 
 			KerbalSkeletonHelper ivaSkeletonHelper = IVAObject.AddComponent<KerbalSkeletonHelper>();
 			ivaSkeletonHelper.profile = IVAProfile;
 			ivaSkeletonHelper.sourceSkeletonRoot = handSkeleton.skeletonRoot;
-			ivaSkeletonHelper.destinationSkeletonRoot = IVAObject.transform.Find(IVAProfile.destinationSkeletonRootPath);
+			ivaSkeletonHelper.destinationSkeletonRoot = IVAObject.transform.Find(IVAProfile.skeletonRootTransformPath);
 
 			KerbalSkeletonHelper evaSkeletonHelper = EVAObject.AddComponent<KerbalSkeletonHelper>();
 			evaSkeletonHelper.profile = EVAProfile;
 			evaSkeletonHelper.sourceSkeletonRoot = handSkeleton.skeletonRoot;
-			evaSkeletonHelper.destinationSkeletonRoot = EVAObject.transform.Find(EVAProfile.destinationSkeletonRootPath);
-
-			#endregion
-
-			#region Step 5: Setup Layers
-
-			Utils.SetLayer(handObject, 0);
-			IVAObject.SetLayerRecursive(20);
-			EVAObject.SetLayerRecursive(0);
-
-			#endregion
-
-			#region Step 6: Setup other stuffs
-
-			// set up ladder
-			ladder = gameObject.AddComponent<VRLadder>();
-
-			// set up UI hand  
-			UIHand = gameObject.AddComponent<VRUIHand>();
+			evaSkeletonHelper.destinationSkeletonRoot = EVAObject.transform.Find(EVAProfile.skeletonRootTransformPath);
 
 			#endregion
 
@@ -303,9 +305,9 @@ namespace KerbalVR
 		{
 			if (newState)
 			{
-				if (handCollider.HoveredObject != null)
+				if (palmCollider.HoveredObject != null)
 				{
-					heldObject = handCollider.HoveredObject;
+					heldObject = palmCollider.HoveredObject;
 					heldObject.GrabbedHand = this;
 
 					// the grab callbacks might end up destroying the object
@@ -409,12 +411,12 @@ namespace KerbalVR
 
 		private void SyncCollider()
 		{
-			fingertipTransform.position = indexTipTransform.TransformPoint(CurrentProfile.fingertipOffset);
-			thumbTransform.position = thumbTipTransform.position;
-			palmTransform.position = gripTransform.TransformPoint(CurrentProfile.gripOffset);
-
-			//fingertipTransform.rotation = indexTipTransform.rotation;
-			//handTransform.rotation = handObject.transform.rotation;
+			fingertipTransform.position = indexTargetTransform.TransformPoint(CurrentProfile.fingertipOffset);
+			thumbTransform.position = thumbTargetTransform.position;
+			palmTransform.position = palmTargetTransform.TransformPoint(CurrentProfile.gripOffset);
+			
+			fingertipTransform.rotation = indexTargetTransform.rotation;
+			palmTransform.rotation = handObject.transform.rotation;
 
 			// update position of the pinch transform to the middle between the tip of the index finger and the tip of the thumb
 			pinchTransform.position = Vector3.Lerp(fingertipTransform.position, thumbTransform.position, 0.5f);
@@ -422,19 +424,20 @@ namespace KerbalVR
 
 		private void SwitchProfile()
 		{
+			Utils.SetLayer(handObject, UseIVAProfile ? 20 : 0);
+			palmTransform.gameObject.layer = UseIVAProfile ? 20 : 3;
+
 			IVAObject.SetActive(UseIVAProfile);
 			EVAObject.SetActive(!UseIVAProfile);
 
 			fingertipCollider.collider.radius = CurrentProfile.fingertipColliderSize;
-			handCollider.collider.radius = CurrentProfile.gripColliderSize;
+			palmCollider.collider.radius = CurrentProfile.palmColliderSize;
 			pinchCollider.collider.radius = CurrentProfile.pinchColliderSize;
 
-			indexTipTransform = CurrentHandObject.transform.Find(CurrentProfile.indexTipTransformPath);
-			thumbTipTransform = CurrentHandObject.transform.Find(CurrentProfile.thumbTipTransformPath);
-			gripTransform = CurrentHandObject.transform.Find(CurrentProfile.gripTransformPath);
+			indexTargetTransform = CurrentHandObject.transform.Find(CurrentProfile.indexTipTransformPath);
+			thumbTargetTransform = CurrentHandObject.transform.Find(CurrentProfile.thumbTipTransformPath);
+			palmTargetTransform = CurrentHandObject.transform.Find(CurrentProfile.gripTransformPath);
 			renderModel = CurrentHandObject.transform.Find(CurrentProfile.renderModelPath).gameObject.GetComponent<SkinnedMeshRenderer>();
-
-			palmTransform.gameObject.layer = UseIVAProfile ? 20 : 3;
 		}
 	}
 

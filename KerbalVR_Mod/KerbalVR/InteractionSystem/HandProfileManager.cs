@@ -20,8 +20,8 @@ namespace KerbalVR
 			public Vector3 gripOffset;
 			[PersistentField("fingertipOffset")]
 			public Vector3 fingertipOffset;
-			[PersistentField("gripColliderSize")]
-			public float gripColliderSize;
+			[PersistentField("palmColliderSize")]
+			public float palmColliderSize;
 			[PersistentField("fingertipColliderSize")]
 			public float fingertipColliderSize;
 			[PersistentField("pinchColliderSize")]
@@ -42,7 +42,7 @@ namespace KerbalVR
 			public string gripTransformPath;
 
 			[PersistentField("skeletonRootTransformPath")]
-			public string destinationSkeletonRootPath;
+			public string skeletonRootTransformPath;
 			[PersistentField("wrist")]
 			public string wrist;
 			[PersistentField("joint", isCollection = true)]
