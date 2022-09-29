@@ -34,7 +34,7 @@ namespace KerbalVR
 		protected void OnTriggerEnter(Collider other)
 		{
 			InteractableBehaviour interactable = other.gameObject.GetComponent<InteractableBehaviour>();
-			if (interactable != null)
+			if (interactable != null && interactable.enabled)
 			{
 				HoveredObject = interactable;
 			}
