@@ -5,15 +5,32 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.XR;
+using Valve.VR;
 
 namespace KerbalVR
 {
 	[KSPAddon(KSPAddon.Startup.Instantly, true)]
 	public class FirstPersonKerbalAddon : MonoBehaviour
 	{
+		static bool m_shouldEnableVR;
+
 		public void Awake()
 		{
 			Utils.Log("Addon Awake");
+
+			// for whatever reason, enabling VR mode during loading makes it super slow (vsync maybe?)
+			m_shouldEnableVR = XRSettings.enabled;
+
+			if (m_shouldEnableVR)
+			{
+				Core.InitSteamVRInput();
+				SteamVR.Initialize();
+				HardwareUtils.Init();
+
+				XRSettings.enabled = false;
+				SteamVR.enabled = false;
+				SteamVR_Behaviour.instance.enabled = false;
+			}
 
 			ApplyPatches();
 
@@ -25,10 +42,7 @@ namespace KerbalVR
 
 		public static void ModuleManagerPostLoad()
 		{
-			KerbalVR.Core.InitSystems(XRSettings.enabled);
-
-			// for whatever reason, enabling VR mode during loading makes it super slow (vsync maybe?)
-			KerbalVR.Core.SetVrRunningDesired(false);
+			KerbalVR.Core.InitSystems(m_shouldEnableVR);
 
 			Valve.VR.SteamVR_Settings.instance.trackingSpace = Valve.VR.ETrackingUniverseOrigin.TrackingUniverseSeated;
 			Valve.VR.SteamVR_Settings.instance.lockPhysicsUpdateRateToRenderFrequency = false;
