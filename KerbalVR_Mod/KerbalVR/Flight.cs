@@ -206,6 +206,8 @@ namespace KerbalVR
 		private void FixFlightCamera()
 		{
 			KerbalVR.InteractionSystem.Instance.transform.SetParent(FlightCamera.fetch.transform, false);
+			KerbalVR.InteractionSystem.Instance.transform.localPosition = Vector3.zero;
+			KerbalVR.InteractionSystem.Instance.transform.localRotation = Quaternion.identity;
 		}
 
 		private void FixInternalCamera()
@@ -220,6 +222,8 @@ namespace KerbalVR
 			KerbalVR.InteractionSystem.Instance.transform.localScale = Vector3.one;
 
 			KerbalVR.InteractionSystem.Instance.transform.SetParent(InternalCamera.Instance.transform.parent, false);
+			KerbalVR.InteractionSystem.Instance.transform.localPosition = Vector3.zero;
+			KerbalVR.InteractionSystem.Instance.transform.localRotation = Quaternion.identity;
 		}
 
 		static readonly string[] ArmBones = { "bn_l_arm01", "bn_r_arm01" };
