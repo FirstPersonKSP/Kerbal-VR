@@ -30,9 +30,9 @@ namespace KerbalVR
 				XRSettings.enabled = false;
 				SteamVR.enabled = false;
 				SteamVR_Behaviour.instance.enabled = false;
-			}
 
-			ApplyPatches();
+				ApplyPatches();
+			}
 
 			GameEvents.onLevelWasLoaded.Add(OnLevelWasLoaded);
 			GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
