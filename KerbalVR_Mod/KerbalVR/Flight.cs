@@ -304,7 +304,7 @@ namespace KerbalVR
 
 		public void HandleMovementInput_Prefix(KerbalEVA kerbalEVA)
 		{
-			if (!kerbalEVA.VesselUnderControl || !Core.IsVrEnabled)
+			if (!kerbalEVA.VesselUnderControl || !Core.IsVrRunning)
 			{
 				return;
 			}
@@ -340,7 +340,7 @@ namespace KerbalVR
 
 		public void HandleMovementInput_Postfix(KerbalEVA kerbalEVA)
 		{
-			if (!kerbalEVA.VesselUnderControl || !Core.IsVrEnabled)
+			if (!kerbalEVA.VesselUnderControl || !Core.IsVrRunning)
 			{
 				return;
 			}
@@ -377,7 +377,7 @@ namespace KerbalVR
 			if (!kerbalEVA.VesselUnderControl ||
 				!kerbalEVA.JetpackDeployed ||
 				kerbalEVA.SurfaceOrSplashed() ||
-				!Core.IsVrEnabled)
+				!Core.IsVrRunning)
 			{
 				return;
 			}
@@ -579,7 +579,7 @@ namespace KerbalVR
 				return true;
 			}
 
-			if (Core.IsVrEnabled && SteamVR_Actions.eVA_Jump.stateDown)
+			if (Core.IsVrRunning && SteamVR_Actions.eVA_Jump.stateDown)
 			{
 				return true;
 			}
