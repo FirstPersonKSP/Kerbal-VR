@@ -58,7 +58,7 @@ namespace KerbalVR
 			}
 		}
 
-		public Vector3 GripPosition => handTransform.position;
+		public Vector3 GripPosition => palmTransform.position;
 		public Vector3 FingertipPosition => fingertipTransform.position;
 		public float FingertipRadius => fingertipCollider.collider.radius;
 		public bool FingertipEnabled
@@ -75,7 +75,7 @@ namespace KerbalVR
 		protected Types.ShiftRegister<int> renderLayerHands = new Types.ShiftRegister<int>(2);
 
 		// keep track of held objects
-		protected Transform handTransform;
+		protected Transform palmTransform;
 		protected HandCollider handCollider;
 		protected InteractableBehaviour heldObject;
 
@@ -193,9 +193,9 @@ namespace KerbalVR
 			Detach(true);
 
 			// create a child object for the colider so that it can be on a different layer
-			handTransform = new GameObject("KVR_HandCollider").transform;
-			handTransform.SetParent(handObject.transform);
-			handCollider = handTransform.gameObject.AddComponent<HandCollider>();
+			palmTransform = new GameObject("KVR_HandCollider").transform;
+			palmTransform.SetParent(handObject.transform);
+			handCollider = palmTransform.gameObject.AddComponent<HandCollider>();
 			handCollider.Initialize(this);
 
 			// thumb is used to calculate position of pinch collider
@@ -307,11 +307,16 @@ namespace KerbalVR
 				{
 					heldObject = handCollider.HoveredObject;
 					heldObject.GrabbedHand = this;
-					if (heldObject.SkeletonPoser != null)
+
+					// the grab callbacks might end up destroying the object
+					if (heldObject != null)
 					{
-						handSkeleton.BlendToPoser(heldObject.SkeletonPoser);
+						if (heldObject.SkeletonPoser != null)
+						{
+							handSkeleton.BlendToPoser(heldObject.SkeletonPoser);
+						}
+						Attach(heldObject.transform);
 					}
-					Attach(heldObject.transform);
 				}
 			}
 			else
@@ -323,6 +328,22 @@ namespace KerbalVR
 					Detach();
 				}
 			}
+		}
+
+		public bool IsFingerTrackingPinching()
+		{
+			// if we're running partial tracking, activate pinch whenever the fingertips are close together
+			if (handSkeleton.skeletalTrackingLevel >= EVRSkeletalTrackingLevel.VRSkeletalTracking_Partial && handSkeleton.skeletonBlend >= 1.0f)
+			{
+				var fingertipDistance = Vector3.Distance(handSkeleton.indexTip.position, handSkeleton.thumbTip.position);
+
+				if (fingertipDistance <= CurrentProfile.pinchColliderSize * 4.0f)
+				{
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		protected void Update()
@@ -390,7 +411,7 @@ namespace KerbalVR
 		{
 			fingertipTransform.position = indexTipTransform.TransformPoint(CurrentProfile.fingertipOffset);
 			thumbTransform.position = thumbTipTransform.position;
-			handTransform.position = gripTransform.TransformPoint(CurrentProfile.gripOffset);
+			palmTransform.position = gripTransform.TransformPoint(CurrentProfile.gripOffset);
 
 			//fingertipTransform.rotation = indexTipTransform.rotation;
 			//handTransform.rotation = handObject.transform.rotation;
@@ -413,7 +434,7 @@ namespace KerbalVR
 			gripTransform = CurrentHandObject.transform.Find(CurrentProfile.gripTransformPath);
 			renderModel = CurrentHandObject.transform.Find(CurrentProfile.renderModelPath).gameObject.GetComponent<SkinnedMeshRenderer>();
 
-			handTransform.gameObject.layer = UseIVAProfile ? 20 : 3;
+			palmTransform.gameObject.layer = UseIVAProfile ? 20 : 3;
 		}
 	}
 

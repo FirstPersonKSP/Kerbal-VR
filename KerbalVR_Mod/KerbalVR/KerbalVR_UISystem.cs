@@ -22,6 +22,9 @@ namespace KerbalVR
 
 		void Awake()
 		{
+			EventSystem.current.gameObject.AddComponent<VRLaserInputModule>();
+			EventSystem.current.gameObject.AddComponent<VRFingerTipInputModule>();
+
 			GameEvents.onPartActionUIShown.Add(OnPartActionUIShown);
 			GameEvents.onPartActionUIDismiss.Add(OnPartActionUIDismiss);
 			Instance = this;
@@ -31,6 +34,9 @@ namespace KerbalVR
 			m_pdaCanvasAnchor.localScale = Vector3.one * pdaScale;
 			DontDestroyOnLoad(this);
 			DontDestroyOnLoad(m_pdaCanvasAnchor);
+
+			VRLaserInputModule.Instance.UsePinchAsMouseButton = Mouse.Buttons.Left; // not sure if this is correct, in flight mode we might want to make it *both* buttons
+			VRFingerTipInputModule.Instance.UsePinchAsMouseButton = Mouse.Buttons.Right;
 		}
 
 		private void OnPartActionUIDismiss(Part data)
@@ -43,7 +49,7 @@ namespace KerbalVR
 
 		private void OnPartActionUIShown(UIPartActionWindow window, Part part)
 		{
-			if (Core.IsVrRunning && Scene.IsFirstPersonEVA())
+			if (Core.IsVrRunning)
 			{
 				window.gameObject.SetLayerRecursive(0);
 				window.rectTransform.anchoredPosition3D = Vector3.zero;
@@ -137,7 +143,7 @@ namespace KerbalVR
 		IEnumerator ConfigureHandheldCanvases(Canvas[] canvases, bool running)
 		{
 			yield return null; // wait a frame so that ThroughTheEyes knows whether we are in first person or not
-			bool pdaMode = running && Scene.IsFirstPersonEVA();
+			bool pdaMode = running;
 
 			foreach (var canvas in canvases)
 			{
@@ -170,14 +176,12 @@ namespace KerbalVR
 		private IEnumerator ConfigureHeadsUpCanvas(Canvas canvas, bool running)
 		{
 			yield return null; // wait a frame so that ThroughTheEyes knows whether we are in first person or not
-			bool hudMode = running && Scene.IsFirstPersonEVA();
+			bool hudMode = running;
 
 			if (canvas == null) yield break;
 
 			if (hudMode)
 			{
-				var eva = Scene.GetKerbalEVA();
-
 				// TODO: this doesn't actually attach it to the skeleton, so it doesn't move with the helmet.  I tried attaching to the bone, but that didn't work:
 				// eva.helmetTransform
 				// For now, just use the flightcamera transform so that the canvas doesn't get deleted along with the kerbal when boarding
@@ -224,6 +228,9 @@ namespace KerbalVR
 		SteamVR_Action_Boolean_Source m_interactAction;
 		SteamVR_Action_Boolean_Source m_rightClickAction;
 
+		bool m_wasPinching;
+		bool m_isPinching;
+
 		static readonly Vector3 rayDirection = Vector3.Normalize(Vector3.forward - Vector3.up);
 		static readonly float rayDistance = 1000.0f; // this probably needs to be customized per scene.  This is crazy far for flight scene, but not far enough in KSC
 		static readonly int raycastMask =
@@ -240,6 +247,9 @@ namespace KerbalVR
 
 		public SteamVR_Action_Boolean_Source ClickAction => m_interactAction;
 		public SteamVR_Action_Boolean_Source RightClickAction => m_rightClickAction;
+		public bool PinchDown => !m_wasPinching && m_isPinching;
+		public bool PinchState => m_isPinching;
+		public bool PinchUp => m_wasPinching && !m_isPinching;
 
 		public bool LaserEnabled
 		{
@@ -279,6 +289,12 @@ namespace KerbalVR
 			uiLineObject.layer = 5;
 			GameObject.DontDestroyOnLoad(uiLineObject);
 #endif
+		}
+
+		public void Update()
+		{
+			m_wasPinching = m_isPinching;
+			m_isPinching = m_hand.IsFingerTrackingPinching();
 		}
 
 		public void LateUpdate()
@@ -348,6 +364,8 @@ namespace KerbalVR
 		protected Hand m_hand => InteractionSystem.Instance.GetHand(m_handType); // making this a property instead of a direct reference because the actual hand objects change when going iva/eva
 		internal VRUIHand VRUIHand => m_hand.UIHand;
 
+		public Mouse.Buttons UsePinchAsMouseButton = Mouse.Buttons.None;
+
 		protected override void Awake()
 		{
 			base.Awake();
@@ -380,6 +398,12 @@ namespace KerbalVR
 				clickDown = m_hand.UIHand.RightClickAction.stateDown;
 				isClicking = m_hand.UIHand.RightClickAction.state;
 				clickUp = m_hand.UIHand.RightClickAction.stateUp;
+			}
+			else if (button == UsePinchAsMouseButton)
+			{
+				clickDown = m_hand.UIHand.PinchDown;
+				isClicking = m_hand.UIHand.PinchState;
+				clickUp = m_hand.UIHand.PinchUp;
 			}
 			else
 			{
@@ -547,6 +571,14 @@ namespace KerbalVR
 			UpdateMouseButton(Mouse.Left, m_hand.UIHand.ClickAction);
 			UpdateMouseButton(Mouse.Right, m_hand.UIHand.RightClickAction);
 
+			var pinchButton = GetMouseButton(UsePinchAsMouseButton);
+			if (pinchButton != null)
+			{
+				pinchButton.up = m_hand.UIHand.PinchUp;
+				pinchButton.down = m_hand.UIHand.PinchDown;
+				pinchButton.button = m_hand.UIHand.PinchState;
+			}
+
 			if (m_lastHitCollider != null)
 			{
 				// TODO: see if we need to be calling Mouse.GetValidHoverPart
@@ -555,6 +587,17 @@ namespace KerbalVR
 				{
 					Mouse.HoveredPart = part;
 				}
+			}
+		}
+
+		private Mouse.MouseButton GetMouseButton(Mouse.Buttons button)
+		{
+			switch (button)
+			{
+				case Mouse.Buttons.Left: return Mouse.Left;
+				case Mouse.Buttons.Right: return Mouse.Right;
+				case Mouse.Buttons.Middle: return Mouse.Middle;
+				default: return null;
 			}
 		}
 
@@ -596,14 +639,27 @@ namespace KerbalVR
 
 		public override bool ShouldActivateModule()
 		{
-			return Core.IsVrRunning && (InteractionSystem.Instance.RightHand.UIHand.RightClickAction.state || InteractionSystem.Instance.LeftHand.UIHand.RightClickAction.state);
+			if (!Core.IsVrRunning) return false;
+
+			// temporary - we might eventually want to use fingertips for UI interactions in other scenes or even in IVA (maybe AppCanvas?)
+			if (HighLogic.LoadedSceneIsFlight && !Scene.IsInIVA())
+			{
+				var left = InteractionSystem.Instance.LeftHand.UIHand;
+				var right = InteractionSystem.Instance.RightHand.UIHand;
+
+				return left.RightClickAction.state || left.PinchState || right.RightClickAction.state || right.PinchState;
+			}
+
+			return false;
 		}
 
 		public override void ActivateModule()
 		{
 			base.ActivateModule();
 
-			m_handType = InteractionSystem.Instance.RightHand.UIHand.RightClickAction.state ? SteamVR_Input_Sources.LeftHand : SteamVR_Input_Sources.RightHand;
+			var rightHand = InteractionSystem.Instance.RightHand.UIHand;
+
+			m_handType = (rightHand.RightClickAction.state || rightHand.PinchState) ? SteamVR_Input_Sources.LeftHand : SteamVR_Input_Sources.RightHand;
 			m_hand.UIHand.LaserEnabled = true;
 
 			UISystem.Instance.ActivatePDACanvas(m_hand.otherHand);
@@ -618,7 +674,7 @@ namespace KerbalVR
 			}
 
 			// if there are no PAWs open, activate the one for the kerbal
-			if (UIPartActionController.Instance.windows.Count == 0)
+			if (UIPartActionController.Instance && UIPartActionController.Instance.windows.Count == 0)
 			{
 				var eva = Scene.GetKerbalEVA();
 				if (eva != null)
@@ -780,8 +836,10 @@ namespace KerbalVR
 		{
 			if (VRBaseInputModule.ActiveInstance)
 			{
-				if (VRBaseInputModule.ActiveInstance.VRUIHand.ClickAction.state) __result |= Mouse.Buttons.Left;
-				if (VRBaseInputModule.ActiveInstance.VRUIHand.RightClickAction.state) __result |= Mouse.Buttons.Right;
+				var hand = VRBaseInputModule.ActiveInstance.VRUIHand;
+				if (hand.ClickAction.state) __result |= Mouse.Buttons.Left;
+				if (hand.RightClickAction.state) __result |= Mouse.Buttons.Right;
+				if (hand.PinchState) __result |= VRBaseInputModule.ActiveInstance.UsePinchAsMouseButton;
 			}
 		}
 	}
@@ -793,8 +851,10 @@ namespace KerbalVR
 		{
 			if (VRBaseInputModule.ActiveInstance)
 			{
-				if (VRBaseInputModule.ActiveInstance.VRUIHand.ClickAction.stateDown) __result |= Mouse.Buttons.Left;
-				if (VRBaseInputModule.ActiveInstance.VRUIHand.RightClickAction.stateDown) __result |= Mouse.Buttons.Right;
+				var hand = VRBaseInputModule.ActiveInstance.VRUIHand;
+				if (hand.ClickAction.stateDown) __result |= Mouse.Buttons.Left;
+				if (hand.RightClickAction.stateDown) __result |= Mouse.Buttons.Right;
+				if (hand.PinchDown) __result |= VRBaseInputModule.ActiveInstance.UsePinchAsMouseButton;
 			}
 		}
 	}
@@ -806,8 +866,10 @@ namespace KerbalVR
 		{
 			if (VRBaseInputModule.ActiveInstance)
 			{
-				if (VRBaseInputModule.ActiveInstance.VRUIHand.ClickAction.stateUp) __result |= Mouse.Buttons.Left;
-				if (VRBaseInputModule.ActiveInstance.VRUIHand.RightClickAction.stateUp) __result |= Mouse.Buttons.Right;
+				var hand = VRBaseInputModule.ActiveInstance.VRUIHand;
+				if (hand.ClickAction.stateUp) __result |= Mouse.Buttons.Left;
+				if (hand.RightClickAction.stateUp) __result |= Mouse.Buttons.Right;
+				if (hand.PinchUp) __result |= VRBaseInputModule.ActiveInstance.UsePinchAsMouseButton;
 			}
 		}
 	}
@@ -817,7 +879,9 @@ namespace KerbalVR
 	{
 		public static void Postfix(UIPartActionController __instance)
 		{
-			if (VRBaseInputModule.ActiveInstance && VRBaseInputModule.ActiveInstance.VRUIHand.RightClickAction.stateDown)
+			var hand = VRBaseInputModule.ActiveInstance?.VRUIHand;
+
+			if (hand && (hand.RightClickAction.stateDown || VRBaseInputModule.ActiveInstance.UsePinchAsMouseButton == Mouse.Buttons.Right && hand.PinchDown))
 			{
 				__instance.HandleMouseClick(null, HighLogic.LoadedSceneIsFlight);
 			}

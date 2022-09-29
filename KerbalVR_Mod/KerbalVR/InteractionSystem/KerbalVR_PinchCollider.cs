@@ -64,17 +64,11 @@ namespace KerbalVR
 			wasPinching = isPinching;
 		}
 
-		bool IsPinching()
+		public bool IsPinching()
 		{
-			// if we're running partial tracking, activate pinch whenever the fingertips are close together
-			if (hand.handSkeleton.skeletalTrackingLevel >= EVRSkeletalTrackingLevel.VRSkeletalTracking_Partial)
+			if (hand.IsFingerTrackingPinching())
 			{
-				var fingertipDistance = Vector3.Distance(hand.handSkeleton.indexTip.position, hand.handSkeleton.thumbTip.position);
-
-				if (fingertipDistance <= collider.radius * 4.0f)
-				{
-					return true;
-				}
+				return true;
 			}
 
 			if (pinchIndex.state && pinchThumb.state)

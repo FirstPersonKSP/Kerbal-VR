@@ -28,12 +28,6 @@ namespace KerbalVR
 			IsVrEnabled = vrEnabled;
 			IsVrRunning = vrEnabled;
 
-			if (IsVrEnabled)
-			{
-				KerbalVR.Core.InitSteamVRInput();
-				HardwareUtils.Init();
-			}
-
 			//// initialize KerbalVR GameObjects
 			//GameObject kvrConfiguration = new GameObject("KVR_Configuration");
 			//kvrConfiguration.AddComponent<KerbalVR.Configuration>();
