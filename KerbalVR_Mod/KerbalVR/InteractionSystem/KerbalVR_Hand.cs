@@ -43,7 +43,14 @@ namespace KerbalVR
 		public Vector3 GripOffset = new Vector3(0, 0, -0.1f);
 		public Vector3 GripPosition
 		{
-			get { return transform.TransformPoint(GripOffset); }
+			get
+			{
+				// the grip collider can now be attached to some bone other than the hand root
+				// when the hand is attached to an object, the colliders on the hand aren't moving, so we need to use the transform from the tracking object instead
+				// find the collider center relative to the hand object root, then apply that offset to the tracked hand
+				Vector3 relativeGripLocation = handObject.transform.InverseTransformPoint(handCollider.transform.position);
+				return transform.TransformPoint(relativeGripLocation);
+			}
 		}
 
 		public Vector3 FingertipPosition
@@ -66,7 +73,6 @@ namespace KerbalVR
 		protected Types.ShiftRegister<int> renderLayerHands = new Types.ShiftRegister<int>(2);
 
 		// keep track of held objects
-		protected Transform handTransform;
 		protected HandCollider handCollider;
 		protected InteractableBehaviour heldObject;
 
@@ -189,11 +195,11 @@ namespace KerbalVR
 			Detach(true);
 
 			// create a child object for the colider so that it can be on a different layer
-			handTransform = new GameObject("handTransform").transform;
-			handTransform.SetParent(handObject.transform.Find(profile.gripTransformPath), false);
-			handTransform.rotation = handObject.transform.rotation;
-			handTransform.localPosition = GripOffset;
-			handCollider = handTransform.gameObject.AddComponent<HandCollider>();
+			var palmTransform = new GameObject("handTransform").transform;
+			palmTransform.SetParent(handObject.transform.Find(profile.gripTransformPath), false);
+			palmTransform.rotation = handObject.transform.rotation;
+			palmTransform.localPosition = GripOffset;
+			handCollider = palmTransform.gameObject.AddComponent<HandCollider>();
 			handCollider.Initialize(this);
 
 			// thumb is used to calculate position of pinch collider
