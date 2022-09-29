@@ -643,10 +643,16 @@ namespace KerbalVR
 		{
 			if (!Core.IsVrRunning) return false;
 
-			var left = InteractionSystem.Instance.LeftHand.UIHand;
-			var right = InteractionSystem.Instance.RightHand.UIHand;
+			// temporary - we might eventually want to use fingertips for UI interactions in other scenes
+			if (HighLogic.LoadedSceneIsFlight)
+			{
+				var left = InteractionSystem.Instance.LeftHand.UIHand;
+				var right = InteractionSystem.Instance.RightHand.UIHand;
 
-			return left.RightClickAction.state || left.PinchState || right.RightClickAction.state || right.PinchState;
+				return left.RightClickAction.state || left.PinchState || right.RightClickAction.state || right.PinchState;
+			}
+
+			return false;
 		}
 
 		public override void ActivateModule()
@@ -670,7 +676,7 @@ namespace KerbalVR
 			}
 
 			// if there are no PAWs open, activate the one for the kerbal
-			if (UIPartActionController.Instance.windows.Count == 0)
+			if (UIPartActionController.Instance && UIPartActionController.Instance.windows.Count == 0)
 			{
 				var eva = Scene.GetKerbalEVA();
 				if (eva != null)
