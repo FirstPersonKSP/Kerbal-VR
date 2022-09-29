@@ -39,13 +39,12 @@ namespace KerbalVR.InteractionCommon
 
 			if (collider == null)
 			{
-				var capsuleCollider = Utils.GetOrAddComponent<CapsuleCollider>(leverTransform.gameObject);
+				var boxCollider = Utils.GetOrAddComponent<BoxCollider>(leverTransform.gameObject);
 
-				capsuleCollider.radius = 0.02f;
-				capsuleCollider.center = Vector3.up * 0.04f;
-				capsuleCollider.height = 0.07f;
+				boxCollider.size = new Vector3(0.11f, 0.03f, 0.03f);
+				boxCollider.center = new Vector3(0.045f, 0.07f, 0.0f);
 
-				collider = capsuleCollider;
+				collider = boxCollider;
 			}
 
 			m_rotationUtil = new RotationUtil(leverTransform, axis, angleMin, angleMax);
