@@ -295,6 +295,22 @@ namespace KerbalVR
 			}
 		}
 
+		public bool IsFingerTrackingPinching()
+		{
+			// if we're running partial tracking, activate pinch whenever the fingertips are close together
+			if (handSkeleton.skeletalTrackingLevel >= EVRSkeletalTrackingLevel.VRSkeletalTracking_Partial && handSkeleton.skeletonBlend >= 1.0f)
+			{
+				var fingertipDistance = Vector3.Distance(handSkeleton.indexTip.position, handSkeleton.thumbTip.position);
+
+				if (fingertipDistance <= profile.pinchColliderSize * 4.0f)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		protected void Update()
 		{
 			// should we render the hands in the current scene?
