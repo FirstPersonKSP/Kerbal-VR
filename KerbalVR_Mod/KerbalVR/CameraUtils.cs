@@ -89,30 +89,27 @@ namespace KerbalVR
 
 		public static void PatchAll(Harmony harmony)
 		{
-			if (Core.IsVrEnabled)
+			Utils.Log("Patching Camera FOV");
+
+			MethodInfo transpiler = AccessTools.Method(typeof(CameraFOVPatch), nameof(CameraFOVPatch.Transpiler));
+			(Type, string)[] targets =
 			{
-				Utils.Log("Patching Camera FOV");
+				(typeof(FXCamera), nameof(FXCamera.LateUpdate)),
+				(typeof(FXDepthCamera), nameof(FXDepthCamera.LateUpdate)),
+				(typeof(InternalCamera), nameof(InternalCamera.SetFOV)),
+				(typeof(InternalCamera), nameof(InternalCamera.UpdateState)),
+				(typeof(FlightCamera), nameof(FlightCamera.SetFoV)),
+				(typeof(ScaledCamera), nameof(ScaledCamera.SetFoV)),
+				(typeof(GalaxyCameraControl), nameof(GalaxyCameraControl.SetFoV)),
+				(typeof(InternalSpaceOverlay), nameof(InternalSpaceOverlay.LateUpdate)),
+				(typeof(IVACamera), nameof(IVACamera.UpdateState)),
+				(typeof(VehiclePhysics.CameraFree), nameof(VehiclePhysics.CameraFree.Update)),
+				(typeof(VehiclePhysics.CameraLookAt), nameof(VehiclePhysics.CameraLookAt.Update)),
+			};
 
-				MethodInfo transpiler = AccessTools.Method(typeof(CameraFOVPatch), nameof(CameraFOVPatch.Transpiler));
-				(Type, string)[] targets =
-				{
-					(typeof(FXCamera), nameof(FXCamera.LateUpdate)),
-					(typeof(FXDepthCamera), nameof(FXDepthCamera.LateUpdate)),
-					(typeof(InternalCamera), nameof(InternalCamera.SetFOV)),
-					(typeof(InternalCamera), nameof(InternalCamera.UpdateState)),
-					(typeof(FlightCamera), nameof(FlightCamera.SetFoV)),
-					(typeof(ScaledCamera), nameof(ScaledCamera.SetFoV)),
-					(typeof(GalaxyCameraControl), nameof(GalaxyCameraControl.SetFoV)),
-					(typeof(InternalSpaceOverlay), nameof(InternalSpaceOverlay.LateUpdate)),
-					(typeof(IVACamera), nameof(IVACamera.UpdateState)),
-					(typeof(VehiclePhysics.CameraFree), nameof(VehiclePhysics.CameraFree.Update)),
-					(typeof(VehiclePhysics.CameraLookAt), nameof(VehiclePhysics.CameraLookAt.Update)),
-				};
-
-				foreach ((Type type, string method) in targets)
-				{
-					harmony.Patch(AccessTools.Method(type, method), transpiler: new HarmonyMethod(transpiler));
-				}
+			foreach ((Type type, string method) in targets)
+			{
+				harmony.Patch(AccessTools.Method(type, method), transpiler: new HarmonyMethod(transpiler));
 			}
 		}
 	}
