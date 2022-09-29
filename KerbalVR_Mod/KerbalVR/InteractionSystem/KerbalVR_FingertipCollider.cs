@@ -12,19 +12,12 @@ namespace KerbalVR
 		#region Properties
 		public Hand hand;
 
-		public Vector3 FingertipCenter
-		{
-			get { return fingertipCollider.transform.TransformPoint(fingertipCollider.center); }
-		}
-
-		public float FingertipRadius => fingertipCollider.radius;
-
 		public bool InteractionsEnabled
 		{
 			get { return enabled; }
 			set
 			{
-				fingertipCollider.enabled = value;
+				collider.enabled = value;
 				enabled = value;
 			}
 		}
@@ -32,7 +25,7 @@ namespace KerbalVR
 		#endregion
 
 		#region Private Members
-		protected SphereCollider fingertipCollider;
+		public SphereCollider collider;
 		protected Rigidbody fingertipRigidbody;
 		#endregion
 
@@ -42,9 +35,9 @@ namespace KerbalVR
 
 			fingertipRigidbody = this.gameObject.AddComponent<Rigidbody>();
 			fingertipRigidbody.isKinematic = true;
-			fingertipCollider = this.gameObject.AddComponent<SphereCollider>();
-			fingertipCollider.isTrigger = true;
-			fingertipCollider.radius = hand.profile.fingertipColliderSize;
+			collider = this.gameObject.AddComponent<SphereCollider>();
+			collider.isTrigger = true;
+			collider.radius = 0.001f; // this will be modified by Hand
 
 #if FINGER_GIZMOS
 			gameObject.AddComponent<ColliderVisualizer>();

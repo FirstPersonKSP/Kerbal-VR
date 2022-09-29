@@ -65,40 +65,13 @@ namespace KerbalVR
 			{
 				useIVAProfile = value;
 
-				if (useIVAProfile)
-				{
-					LeftHandIVA.gameObject.SetActive(true);
-					RightHandIVA.gameObject.SetActive(true);
-					LeftHandEVA.gameObject.SetActive(false);
-					RightHandEVA.gameObject.SetActive(false);
-				}
-				else
-				{
-					LeftHandIVA.gameObject.SetActive(false);
-					RightHandIVA.gameObject.SetActive(false);
-					LeftHandEVA.gameObject.SetActive(true);
-					RightHandEVA.gameObject.SetActive(true);
-				}
-
-				LeftHandIVA.Detach(true);
-				RightHandIVA.Detach(true);
-				LeftHandEVA.Detach(true);
-				RightHandEVA.Detach(true);
-
-				LeftHandIVA.ChangeGrab(false);
-				RightHandIVA.ChangeGrab(false);
-				LeftHandEVA.ChangeGrab(false);
-				RightHandEVA.ChangeGrab(false);
+				LeftHand.UseIVAProfile = useIVAProfile;
+				RightHand.UseIVAProfile = useIVAProfile;
 			}
 		}
 
-		public Hand LeftHand { get => UseIVAProfile ? LeftHandIVA : LeftHandEVA; }
-		public Hand RightHand { get => UseIVAProfile ? RightHandIVA : RightHandEVA; }
-
-		private Hand LeftHandIVA;
-		private Hand LeftHandEVA;
-		private Hand RightHandIVA;
-		private Hand RightHandEVA;
+		public Hand LeftHand;
+		public Hand RightHand;
 
 		//public GameObject HeadUpDisplay { get; private set; }
 		#endregion
@@ -135,16 +108,12 @@ namespace KerbalVR
 			HandProfileManager.Instance.LoadAllProfiles();
 
 			// set up the hand objects
-			LeftHandIVA = SetupHand("KVR_HandL_IVA");
-			RightHandIVA = SetupHand("KVR_HandR_IVA");
-			LeftHandEVA = SetupHand("KVR_HandL_EVA");
-			RightHandEVA = SetupHand("KVR_HandR_EVA");
+			LeftHand = SetupHand("KVR_HandL");
+			RightHand = SetupHand("KVR_HandR");
 
 			// can init the skeleton behavior now
-			LeftHandIVA.Initialize(SteamVR_Input_Sources.LeftHand, RightHandIVA, true);
-			RightHandIVA.Initialize(SteamVR_Input_Sources.RightHand, LeftHandIVA, true);
-			LeftHandEVA.Initialize(SteamVR_Input_Sources.LeftHand, RightHandEVA, false);
-			RightHandEVA.Initialize(SteamVR_Input_Sources.RightHand, LeftHandEVA, false);
+			LeftHand.Initialize(SteamVR_Input_Sources.LeftHand, RightHand);
+			RightHand.Initialize(SteamVR_Input_Sources.RightHand, LeftHand);
 
 			// init the head up display
 			//HeadUpDisplay = new GameObject("KVR_HeadUpDisplay");

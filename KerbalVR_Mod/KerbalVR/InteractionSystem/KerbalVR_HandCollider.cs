@@ -6,16 +6,16 @@ namespace KerbalVR
 	{
 		public InteractableBehaviour HoveredObject { get; private set; }
 
-		protected SphereCollider handCollider;
+		public SphereCollider collider;
 		protected Rigidbody handRigidbody;
 		protected VRLadder ladder;
 
 		internal void Initialize(Hand hand)
 		{
 			// add interactable collider
-			handCollider = this.gameObject.AddComponent<SphereCollider>();
-			handCollider.isTrigger = true;
-			handCollider.radius = hand.profile.gripColliderSize;
+			collider = this.gameObject.AddComponent<SphereCollider>();
+			collider.isTrigger = true;
+			collider.radius = 0.001f; // this will be modified by Hand
 
 			handRigidbody = this.gameObject.AddComponent<Rigidbody>();
 			handRigidbody.useGravity = false;

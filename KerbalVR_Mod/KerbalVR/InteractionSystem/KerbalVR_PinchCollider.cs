@@ -10,7 +10,7 @@ namespace KerbalVR
 
 		protected Hand hand;
 
-		protected SphereCollider collider;
+		public SphereCollider collider;
 		protected Rigidbody rigidBody;
 
 		IPinchInteractable hoveredInteractable;
@@ -27,7 +27,7 @@ namespace KerbalVR
 
 			collider = gameObject.AddComponent<SphereCollider>();
 			collider.isTrigger = true;
-			collider.radius = hand.profile.pinchColliderSize;
+			collider.radius = 0.001f; // this will be modified by Hand
 
 			rigidBody = gameObject.AddComponent<Rigidbody>();
 			rigidBody.useGravity = false;
@@ -71,7 +71,7 @@ namespace KerbalVR
 			{
 				var fingertipDistance = Vector3.Distance(hand.handSkeleton.indexTip.position, hand.handSkeleton.thumbTip.position);
 
-				if (fingertipDistance <= hand.profile.pinchColliderSize * 4.0f)
+				if (fingertipDistance <= collider.radius * 4.0f)
 				{
 					return true;
 				}

@@ -10,18 +10,11 @@ namespace KerbalVR
 	{
 		public class Profile
 		{
-			public class RetargetableSetting
-			{
-				[PersistentField("destinationSkeletonRootPath")]
-				public string destinationSkeletonRootPath;
-				[PersistentField("wrist")]
-				public string wrist;
-				[PersistentField("joint", isCollection = true)]
-				public List<string> names = new List<string>();
-			}
-
 			[PersistentField("name")]
 			public string name;
+
+			[PersistentField("scale")]
+			public float scale = 1.0f;
 
 			[PersistentField("gripOffset")]
 			public Vector3 gripOffset;
@@ -48,14 +41,12 @@ namespace KerbalVR
 			[PersistentField("gripTransformPath")]
 			public string gripTransformPath;
 
-			[PersistentField("sourceSkeletonRootPath")]
-			public string sourceSkeletonRootPath;
-
-			[PersistentField("useSkeletonHelper")]
-			public bool useSkeletonHelper = false;
-
-			[PersistentField("RetargetableSetting")]
-			public RetargetableSetting retargetableSetting = null;
+			[PersistentField("skeletonRootTransformPath")]
+			public string destinationSkeletonRootPath;
+			[PersistentField("wrist")]
+			public string wrist;
+			[PersistentField("joint", isCollection = true)]
+			public List<string> joints = new List<string>();
 		}
 
 		public static HandProfileManager _instance;
@@ -71,6 +62,13 @@ namespace KerbalVR
 
 		[PersistentField("HandProfile/fullRangeOfMotion")]
 		public bool fullRangeOfMotion;
+
+		[PersistentField("HandProfile/skeletonPrefabNameRight")]
+		public string skeletonPrefabNameRight;
+		[PersistentField("HandProfile/skeletonPrefabNameLeft")]
+		public string skeletonPrefabNameLeft;
+		[PersistentField("HandProfile/skeletonRootPath")]
+		public string skeletonRootPath;
 
 		[PersistentField("HandProfile/Profile", isCollection = true)]
 		public static List<Profile> profiles = new List<Profile>();
