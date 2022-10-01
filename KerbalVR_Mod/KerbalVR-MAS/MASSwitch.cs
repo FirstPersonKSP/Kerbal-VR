@@ -33,6 +33,7 @@ namespace KerbalVR_MAS
 		MASComponentColliderEvent m_colliderEvent;
 		MASComponentRotation m_rotation;
 		MASComponentAnimationPlayer m_animationPlayer;
+		MASComponentAnimation m_animation;
 
 		public MASSwitch(MASComponent masComponent, MASComponentColliderEvent colliderEvent)
 		{
@@ -44,12 +45,21 @@ namespace KerbalVR_MAS
 				{
 					m_rotation = rotation;
 				}
-				else if (action is MASComponentAnimationPlayer animation && animation.name.Contains("Switch"))
+				else if (action is MASComponentAnimationPlayer animationPlayer && animationPlayer.name.Contains("Switch"))
 				{
 					// TODO: how to handle props that have more than one animation player?  There's no way to correlate the animation with the switch
 					// might need to have something in the VRSwitch cfg that explicitly specifies it
-					m_animationPlayer = animation;
+					m_animationPlayer = animationPlayer;
 				}
+				else if (action is MASComponentAnimation animation && animation.name.Contains("Switch"))
+				{
+					m_animation = animation;
+				}
+			}
+
+			if (m_rotation == null && m_animationPlayer == null)
+			{
+				Debug.LogError($"[KerbalVR] Failed to find MAS rotation, animationPlayer, or animation in prop {masComponent.internalProp.name}");
 			}
 		}
 
@@ -69,6 +79,10 @@ namespace KerbalVR_MAS
 				else if (m_animationPlayer != null)
 				{
 					return m_animationPlayer.currentState;
+				}
+				else if (m_animation != null)
+				{
+					return m_animation.currentBlend == 1;
 				}
 
 				return false;
