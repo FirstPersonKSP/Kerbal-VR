@@ -22,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KerbalVR", "KerbalVR\Kerbal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KerbalVR-RPM", "KerbalVR-RPM\KerbalVR-RPM.csproj", "{132C7D00-6367-4312-BAE1-4286435638E0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KerbalVR-MAS", "KerbalVR-MAS\KerbalVR-MAS.csproj", "{D2EFBFE8-DA01-427F-ABFA-F2F52278787D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{132C7D00-6367-4312-BAE1-4286435638E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{132C7D00-6367-4312-BAE1-4286435638E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{132C7D00-6367-4312-BAE1-4286435638E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2EFBFE8-DA01-427F-ABFA-F2F52278787D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2EFBFE8-DA01-427F-ABFA-F2F52278787D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2EFBFE8-DA01-427F-ABFA-F2F52278787D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2EFBFE8-DA01-427F-ABFA-F2F52278787D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
