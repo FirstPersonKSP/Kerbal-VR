@@ -133,6 +133,7 @@ namespace KerbalVR
 		{
 			m_grabbedHand = hand;
 			m_rotationUtil.Grabbed(m_grabbedHand.GripPosition);
+			HapticUtils.Heavy(hand.handType);
 			StartCoroutine(UpdateHatchTransform());
 		}
 	}

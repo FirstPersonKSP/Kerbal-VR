@@ -5,11 +5,6 @@ namespace KerbalVR
 {
 	public class KerbalSkeletonHelper : MonoBehaviour
 	{
-		public Transform sourceSkeletonRoot;
-		public Transform destinationSkeletonRoot;
-
-		public HandProfileManager.Profile profile;
-
 		private Retargetable wrist;
 		private List<Retargetable> retargetables;
 
@@ -25,7 +20,7 @@ namespace KerbalVR
 			}
 		}
 
-		private void Awake()
+		public void Initialize(HandProfileManager.Profile profile, Transform sourceSkeletonRoot, Transform destinationSkeletonRoot)
 		{
 			wrist = new Retargetable(Utils.RecursiveFindChild(sourceSkeletonRoot, profile.wrist), Utils.RecursiveFindChild(destinationSkeletonRoot, profile.wrist));
 

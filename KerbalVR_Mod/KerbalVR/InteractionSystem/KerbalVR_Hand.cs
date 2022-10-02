@@ -65,8 +65,8 @@ namespace KerbalVR
 				// the grip collider can now be attached to some bone other than the hand root
 				// when the hand is attached to an object, the colliders on the hand aren't moving, so we need to use the transform from the tracking object instead
 				// find the collider center relative to the hand object root, then apply that offset to the tracked hand
-				Vector3 relativeGripLocation = CurrentHandObject.transform.InverseTransformPoint(palmCollider.transform.position);
-				return CurrentHandObject.transform.TransformPoint(relativeGripLocation);
+				Vector3 relativeGripLocation = handObject.transform.InverseTransformPoint(palmCollider.transform.position);
+				return transform.TransformPoint(relativeGripLocation);
 			}
 		}
 
@@ -171,8 +171,9 @@ namespace KerbalVR
 			handSkeleton.fallbackPoser = handPoser;
 			handSkeleton.Initialize();
 
+			Utils.Log($"This is {handType} adding tracking");
 			// add tracking
-			SteamVR_Behaviour_Pose pose = handObject.AddComponent<SteamVR_Behaviour_Pose>();
+			SteamVR_Behaviour_Pose pose = gameObject.AddComponent<SteamVR_Behaviour_Pose>();
 			pose.inputSource = handType;
 
 			// set up actions
@@ -233,18 +234,21 @@ namespace KerbalVR
 			#region Setup skeleton helper
 
 			KerbalSkeletonHelper ivaSkeletonHelper = IVAObject.AddComponent<KerbalSkeletonHelper>();
-			ivaSkeletonHelper.profile = IVAProfile;
-			ivaSkeletonHelper.sourceSkeletonRoot = handSkeleton.skeletonRoot;
-			ivaSkeletonHelper.destinationSkeletonRoot = IVAObject.transform.Find(IVAProfile.skeletonRootTransformPath);
+			ivaSkeletonHelper.Initialize(IVAProfile, handSkeleton.skeletonRoot, IVAObject.transform.Find(IVAProfile.skeletonRootTransformPath));
 
 			KerbalSkeletonHelper evaSkeletonHelper = EVAObject.AddComponent<KerbalSkeletonHelper>();
-			evaSkeletonHelper.profile = EVAProfile;
-			evaSkeletonHelper.sourceSkeletonRoot = handSkeleton.skeletonRoot;
-			evaSkeletonHelper.destinationSkeletonRoot = EVAObject.transform.Find(EVAProfile.skeletonRootTransformPath);
+			evaSkeletonHelper.Initialize(EVAProfile, handSkeleton.skeletonRoot, EVAObject.transform.Find(EVAProfile.skeletonRootTransformPath));
 
 			#endregion
 
 			UseIVAProfile = false;
+
+#if HAND_GIZMOS
+			var g = Utils.CreateGizmo(0.05f);
+			g.transform.SetParent(handObject.transform);
+			var g2 = Utils.CreateGizmo(0.2f);
+			g2.transform.SetParent(transform);
+#endif
 		}
 
 		private void SetupModel(HandProfileManager.Profile profile, ref GameObject profileObject)
@@ -424,7 +428,7 @@ namespace KerbalVR
 
 		private void SwitchProfile()
 		{
-			Utils.SetLayer(handObject, UseIVAProfile ? 20 : 0);
+			Utils.SetLayer(gameObject, UseIVAProfile ? 20 : 0);
 			palmTransform.gameObject.layer = UseIVAProfile ? 20 : 3;
 
 			IVAObject.SetActive(UseIVAProfile);
