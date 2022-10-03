@@ -30,7 +30,7 @@ namespace Valve.VR
         {
             get
             {
-#if UNITY_2020_1_OR_NEWER || OPENVR_XR_API
+#if UNITY_2019_3_OR_NEWER || OPENVR_XR_API // Changed to "UNITY_2019_3_OR_NEWER" because https://github.com/ValveSoftware/steamvr_unity_plugin/issues/793                                                                                                                            
                 if (XRSettings.supportedDevices.Length == 0)
                     enabled = false;
 #else

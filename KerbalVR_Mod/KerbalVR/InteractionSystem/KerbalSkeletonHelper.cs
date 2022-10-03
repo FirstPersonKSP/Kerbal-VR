@@ -5,13 +5,8 @@ namespace KerbalVR
 {
 	public class KerbalSkeletonHelper : MonoBehaviour
 	{
-		public Transform sourceSkeletonRoot;
-		public Transform destinationSkeletonRoot;
-
-		public HandProfileManager.Profile.RetargetableSetting retargetableSetting;
-
-		public Retargetable wrist;
-		public List<Retargetable> retargetables;
+		private Retargetable wrist;
+		private List<Retargetable> retargetables;
 
 		public class Retargetable
 		{
@@ -25,18 +20,18 @@ namespace KerbalVR
 			}
 		}
 
-		private void Awake()
+		public void Initialize(HandProfileManager.Profile profile, Transform sourceSkeletonRoot, Transform destinationSkeletonRoot)
 		{
-			wrist = new Retargetable(Utils.RecursiveFindChild(sourceSkeletonRoot, retargetableSetting.wrist), Utils.RecursiveFindChild(destinationSkeletonRoot,retargetableSetting.wrist));
+			wrist = new Retargetable(Utils.RecursiveFindChild(sourceSkeletonRoot, profile.wrist), Utils.RecursiveFindChild(destinationSkeletonRoot, profile.wrist));
 
-			retargetables = new List<Retargetable>(retargetableSetting.names.Count);
-			foreach (string name in retargetableSetting.names)
+			retargetables = new List<Retargetable>(profile.joints.Count);
+			foreach (string name in profile.joints)
 			{
 				retargetables.Add(new Retargetable(Utils.RecursiveFindChild(sourceSkeletonRoot, name), Utils.RecursiveFindChild(destinationSkeletonRoot, name)));
 			}
 		}
 
-		private void Update()
+		private void LateUpdate()
 		{
 			wrist.destination.position = wrist.source.position;
 			wrist.destination.rotation = wrist.source.rotation;
