@@ -13,15 +13,15 @@ namespace KerbalVR.IVAAdaptors
 	/// </summary>
 	public abstract class IVAKnob
 	{
-		public static List<Func<GameObject, VRKnobCustomRotation, IVAKnob>> CreationFunctions = new List<Func<GameObject, VRKnobCustomRotation, IVAKnob>>();
+		public static List<Func<VRKnob, IVAKnob>> CreationFunctions = new List<Func<VRKnob, IVAKnob>>();
 
-		public static IVAKnob ConstructKnob(GameObject gameObject, VRKnobCustomRotation customRotation)
+		public static IVAKnob ConstructKnob(VRKnob vrKnob)
 		{
 			foreach (var creationFunction in CreationFunctions)
 			{
 				try
 				{
-					var knob = creationFunction(gameObject, customRotation);
+					var knob = creationFunction(vrKnob);
 					if (knob != null)
 					{
 						return knob;
@@ -38,6 +38,6 @@ namespace KerbalVR.IVAAdaptors
 		public abstract float MinRotation { get; protected set; }
 		public abstract float MaxRotation { get; protected set; }
 		public abstract void SetUpdateEnabled(bool enabled);
-		public abstract void SetRotationFraction(string customRotationFunction, float fraction);
+		public abstract void SetRotationFraction(float fraction);
 	}
 }

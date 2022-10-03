@@ -11,15 +11,15 @@ using UnityEngine;
 
 namespace KerbalVR_RPM
 {
-    public class RPMKnob : IVAKnob
+	public class RPMKnob : IVAKnob
 	{
-		static public RPMKnob TryConstruct(GameObject gameObject, VRKnobCustomRotation customRotation)
+		static public RPMKnob TryConstruct(VRKnob vrKnob)
 		{
-			var rpmComponent = gameObject.GetComponent<JSI.JSIVariableAnimator>();
+			var rpmComponent = vrKnob.GetComponent<JSI.JSIVariableAnimator>();
 
 			if (rpmComponent != null)
 			{
-				return new RPMKnob(rpmComponent, customRotation);
+				return new RPMKnob(rpmComponent, vrKnob);
 			}
 
 			return null;
@@ -34,7 +34,7 @@ namespace KerbalVR_RPM
 		bool m_perPodPersistenceIsGlobal;
 		JSI.JSIActionGroupSwitch m_jsiActionGroupSwitch;
 
-		VRKnobCustomRotation m_customRotation;
+		VRKnob m_knob;
 
 		public override float MinRotation { get; protected set; }
 
@@ -59,15 +59,15 @@ namespace KerbalVR_RPM
 			throw new ArgumentException("Invalid fraction");
 		}
 
-		public override void SetRotationFraction(string customRotationFunction, float fraction)
+		public override void SetRotationFraction(float fraction)
 		{
-			if (!string.IsNullOrEmpty(customRotationFunction))
+			if (!string.IsNullOrEmpty(m_knob.customRotationHandler))
 			{
 				//var im = m_jsiVariableAnimator as InternalModule;
 				//var vessel = im.vessel;
 
 				// TODO: build a registry for these
-				switch (customRotationFunction)
+				switch (m_knob.customRotationHandler)
 				{
 					case "SpeedDisplayMode":
 						FlightGlobals.SetSpeedMode(SpeedDisplayModeFromRotationFraction(fraction));
@@ -103,16 +103,16 @@ namespace KerbalVR_RPM
 			}
 		}
 
-		public RPMKnob(JSI.JSIVariableAnimator knobComponent, VRKnobCustomRotation customRotation)
+		public RPMKnob(JSI.JSIVariableAnimator knobComponent, VRKnob vrKnob)
 		{
 			m_jsiVariableAnimator = knobComponent;
-			m_customRotation = customRotation;
+			m_knob = vrKnob;
 
 			// try to calculate min/max rotation angles
-			if (m_customRotation != null)
+			if (m_knob.customRotation != null)
 			{
-				MinRotation = customRotation.minRotation;
-				MaxRotation = customRotation.maxRotation;
+				MinRotation = m_knob.customRotation.minRotation;
+				MaxRotation = m_knob.customRotation.maxRotation;
 			}
 			else
 			{

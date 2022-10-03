@@ -16,6 +16,12 @@ namespace KerbalVR.InternalModules
 
 		[Persistent]
 		public float maxRotation;
+
+		[Persistent]
+		public float minValue;
+
+		[Persistent]
+		public float maxValue;
 	}
 
 	/// <summary>
@@ -37,6 +43,9 @@ namespace KerbalVR.InternalModules
 
 		[KSPField]
 		public string customRotationHandler = String.Empty;
+
+		[KSPField]
+		public string userVariable = string.Empty;
 
 		public VRKnobCustomRotation customRotation = null;
 
@@ -60,6 +69,8 @@ namespace KerbalVR.InternalModules
 			if (customRotationNode != null)
 			{
 				customRotation = ScriptableObject.CreateInstance<VRKnobCustomRotation>();
+				customRotation.minValue = 0.0f;
+				customRotation.maxValue = stepCount-1;
 				ConfigNode.LoadObjectFromConfig(customRotation, customRotationNode);
 			}
 		}
@@ -96,7 +107,7 @@ namespace KerbalVR.InternalModules
 
 		public void Start()
 		{
-			m_ivaKnob = IVAKnob.ConstructKnob(gameObject, customRotation);
+			m_ivaKnob = IVAKnob.ConstructKnob(this);
 		}
 	}
 
@@ -144,7 +155,7 @@ namespace KerbalVR.InternalModules
 
 			if (knobModule.stepCount == 0)
 			{
-				knobModule.m_ivaKnob.SetRotationFraction(knobModule.customRotationHandler, interp);
+				knobModule.m_ivaKnob.SetRotationFraction(interp);
 			}
 			else
 			{
@@ -155,7 +166,7 @@ namespace KerbalVR.InternalModules
 				if (knobModule.lastStep != stepIndex)
 				{
 					knobModule.lastStep = stepIndex;
-					knobModule.m_ivaKnob.SetRotationFraction(knobModule.customRotationHandler, rotationFraction);
+					knobModule.m_ivaKnob.SetRotationFraction(rotationFraction);
 					HapticUtils.Light(source);
 				}
 			}

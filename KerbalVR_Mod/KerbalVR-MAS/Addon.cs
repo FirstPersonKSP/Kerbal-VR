@@ -9,10 +9,11 @@ namespace KerbalVR_MAS
 {
 	[KSPAddon(KSPAddon.Startup.Instantly, true)]
 	public class KerbalVR_MAS_Addon : MonoBehaviour
-    {
+	{
 		public void Awake()
 		{
 			KerbalVR.IVAAdaptors.IVASwitch.CreationFunctions.Add(MASSwitch.TryConstruct);
+			KerbalVR.IVAAdaptors.IVAKnob.CreationFunctions.Add(MASKnob.TryConstruct);
 		}
-    }
+	}
 }
