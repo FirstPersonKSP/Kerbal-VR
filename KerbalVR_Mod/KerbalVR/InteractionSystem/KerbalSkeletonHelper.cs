@@ -31,7 +31,7 @@ namespace KerbalVR
 			}
 		}
 
-		private void Update()
+		private void LateUpdate()
 		{
 			wrist.destination.position = wrist.source.position;
 			wrist.destination.rotation = wrist.source.rotation;
