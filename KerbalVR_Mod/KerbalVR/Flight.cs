@@ -18,7 +18,7 @@ namespace KerbalVR
 		public static FirstPersonKerbalFlight Instance { get; private set; }
 
 		Transform m_lastKerbalTransform = null;
-		Collider m_lastSeatCollider = null;
+		VRInternalSeat m_lastSeatInteractable = null;
 
 		static readonly float EVA_PRECISION_MODE_SCALE = 0.5f;
 		static float EVA_FLOATING_ROTATION_SCALE = 0.25f;
@@ -152,10 +152,10 @@ namespace KerbalVR
 				m_lastKerbalTransform = null;
 			}
 
-			if (m_lastSeatCollider != null)
+			if (m_lastSeatInteractable != null)
 			{
-				m_lastSeatCollider.enabled = true;
-				m_lastSeatCollider = null;
+				m_lastSeatInteractable.enabled = true;
+				m_lastSeatInteractable = null;
 			}
 		}
 
@@ -270,10 +270,10 @@ namespace KerbalVR
 				SetArmBoneScale(m_lastKerbalTransform, Vector3.zero);
 
 				var seatTransform = m_lastKerbalTransform.parent;
-				m_lastSeatCollider = seatTransform.GetComponent<Collider>();
-				if (m_lastSeatCollider != null)
+				m_lastSeatInteractable = seatTransform.GetComponent<VRInternalSeat>();
+				if (m_lastSeatInteractable != null)
 				{
-					m_lastSeatCollider.enabled = false;
+					m_lastSeatInteractable.enabled = false;
 				}
 			}
 		}

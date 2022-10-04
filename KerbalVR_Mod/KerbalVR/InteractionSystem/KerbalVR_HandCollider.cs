@@ -31,6 +31,12 @@ namespace KerbalVR
 #endif
 		}
 
+		public void ClearHoveredObject()
+		{
+			HoveredObject = null;
+			ladder.LadderTransform = null;
+		}
+
 		protected void OnTriggerEnter(Collider other)
 		{
 			InteractableBehaviour interactable = other.gameObject.GetComponent<InteractableBehaviour>();
