@@ -129,6 +129,26 @@ namespace KerbalVR
 		}
 	}
 
+	[HarmonyPatch(typeof(InternalCamera), nameof(InternalCamera.Update))]
+	class InternalCamera_Patch
+	{
+		public static void Prefix(InternalCamera __instance, ref float __state)
+		{
+			__state = __instance.orbitSensitivity;
+
+			if (Core.IsVrRunning)
+			{
+				__instance.currentPitch = 0.0f;
+				__instance.currentRot = 0.0f;
+				__instance.orbitSensitivity = 0.0f;
+			}
+		}
+
+		public static void Postfix(InternalCamera __instance, float __state)
+		{
+			__instance.orbitSensitivity = __state;
+		}
+	}
 
 	// [harmonyPatch(typeof(PlanetariumCamera), nameof(PlanetariumCamera.Activate))]
 

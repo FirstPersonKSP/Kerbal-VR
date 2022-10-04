@@ -87,6 +87,10 @@ namespace KerbalVR
 				if (running)
 				{
 					ResetVRPosition();
+					if (InternalCamera.Instance)
+					{
+						InternalCamera.Instance.ResetCamera();
+					}
 				}
 
 				UISystem.Instance.VRRunningChanged(running);
