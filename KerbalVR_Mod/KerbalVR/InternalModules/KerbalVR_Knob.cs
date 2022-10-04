@@ -42,10 +42,16 @@ namespace KerbalVR.InternalModules
 		public int stepCount = 2;
 
 		[KSPField]
-		public string customRotationHandler = String.Empty;
+		public string stepSound = string.Empty;
+
+		[KSPField]
+		public string customRotationHandler = string.Empty;
 
 		[KSPField]
 		public string userVariable = string.Empty;
+
+		[SerializeField]
+		AudioSource m_audioSource;
 
 		public VRKnobCustomRotation customRotation = null;
 
@@ -72,6 +78,26 @@ namespace KerbalVR.InternalModules
 				customRotation.minValue = 0.0f;
 				customRotation.maxValue = stepCount-1;
 				ConfigNode.LoadObjectFromConfig(customRotation, customRotationNode);
+			}
+
+			if (HighLogic.LoadedScene == GameScenes.LOADING)
+			{
+				if (stepSound != string.Empty)
+				{
+					var audioClip = GameDatabase.Instance.GetAudioClip(stepSound);
+
+					if (audioClip != null)
+					{
+						m_audioSource = internalProp.gameObject.AddComponent<AudioSource>();
+						m_audioSource.clip = audioClip;
+						m_audioSource.Stop();
+						m_audioSource.volume = GameSettings.SHIP_VOLUME;
+						m_audioSource.minDistance = 2;
+						m_audioSource.maxDistance = 10;
+						m_audioSource.panStereo = 0;
+						m_audioSource.playOnAwake = false;
+					}
+				}
 			}
 		}
 
@@ -108,6 +134,14 @@ namespace KerbalVR.InternalModules
 		public void Start()
 		{
 			m_ivaKnob = IVAKnob.ConstructKnob(this);
+		}
+
+		internal void PlayStepSound()
+		{
+			if (m_audioSource != null)
+			{
+				m_audioSource.Play();
+			}
 		}
 	}
 
@@ -168,6 +202,7 @@ namespace KerbalVR.InternalModules
 					knobModule.lastStep = stepIndex;
 					knobModule.m_ivaKnob.SetRotationFraction(rotationFraction);
 					HapticUtils.Light(source);
+					knobModule.PlayStepSound();
 				}
 			}
 
