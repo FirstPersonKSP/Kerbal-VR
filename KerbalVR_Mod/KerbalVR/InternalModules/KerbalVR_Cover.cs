@@ -47,6 +47,12 @@ namespace KerbalVR.InternalModules
 		[KSPField]
 		public float snapClosedThreshold = 0.1f;
 
+		[KSPField]
+		public string sound = "";
+
+		[SerializeField]
+		AudioSource m_audioSource;
+
 		VRCoverInteractionListener interactionListener = null;
 		internal float currentAngle = 0;
 		internal float snappedAngle = 0;
@@ -85,6 +91,34 @@ namespace KerbalVR.InternalModules
 			return transform;
 		}
 
+		public override void OnLoad(ConfigNode node)
+		{
+			base.OnLoad(node);
+
+			if (HighLogic.LoadedScene != GameScenes.LOADING) return;
+
+			if (sound != String.Empty)
+			{
+				var audioClip = GameDatabase.Instance.GetAudioClip(sound);
+
+				if (audioClip != null)
+				{
+					m_audioSource = internalProp.gameObject.AddComponent<AudioSource>();
+					m_audioSource.clip = audioClip;
+					m_audioSource.Stop();
+					m_audioSource.volume = GameSettings.SHIP_VOLUME;
+					m_audioSource.minDistance = 2;
+					m_audioSource.maxDistance = 10;
+					m_audioSource.panStereo = 0;
+					m_audioSource.playOnAwake = false;
+				}
+				else
+				{
+					Utils.LogError($"Unable to find sound '{sound}' for VRCover in prop '{internalProp.name}'");
+				}
+			}
+		}
+
 		public override void OnAwake()
 		{
 			base.OnAwake();
@@ -120,7 +154,10 @@ namespace KerbalVR.InternalModules
 
 		internal void CoverOpen()
 		{
-			// play a snap sound here?
+			if (m_audioSource != null)
+			{
+				m_audioSource.Play();
+			}
 
 			if (OnCoverOpen != null)
 			{
@@ -130,7 +167,10 @@ namespace KerbalVR.InternalModules
 
 		internal void CoverClose()
 		{
-			// play a snap sound here?
+			if (m_audioSource != null)
+			{
+				m_audioSource.Play();
+			}
 
 			if (OnCoverClose != null)
 			{
