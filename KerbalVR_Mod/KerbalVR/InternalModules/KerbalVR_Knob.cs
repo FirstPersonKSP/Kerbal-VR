@@ -164,7 +164,9 @@ namespace KerbalVR.InternalModules
 			if (delta < -180) delta += 360;
 
 			float angle = knobModule.currentAngle + delta;
-			angle = Mathf.Clamp(angle, knobModule.m_ivaKnob.MinRotation, knobModule.m_ivaKnob.MaxRotation);
+			float lowerBound = Mathf.Min(knobModule.m_ivaKnob.MinRotation, knobModule.m_ivaKnob.MaxRotation);
+			float upperBound = Mathf.Max(knobModule.m_ivaKnob.MinRotation, knobModule.m_ivaKnob.MaxRotation);
+			angle = Mathf.Clamp(angle, lowerBound, upperBound);
 
 			// todo: change state, etc.
 

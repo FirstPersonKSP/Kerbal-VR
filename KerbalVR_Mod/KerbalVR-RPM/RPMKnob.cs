@@ -73,10 +73,17 @@ namespace KerbalVR_RPM
 						FlightGlobals.SetSpeedMode(SpeedDisplayModeFromRotationFraction(fraction));
 						break;
 					case "ThrustLimit":
-						var del = m_rpmComp.GetInternalMethod("JSIInternalRPMButtons:SetThrottleLimit", typeof(Action<double>));
-						if (del != null)
+						var thrustLImitDel = m_rpmComp.GetInternalMethod("JSIInternalRPMButtons:SetThrottleLimit", typeof(Action<double>));
+						if (thrustLImitDel != null)
 						{
-							((Action<double>)del).Invoke(fraction * 100.0f);
+							((Action<double>)thrustLImitDel).Invoke(fraction * 100.0f);
+						}
+						break;
+					case "StageLocked":
+						var stageLockedDel = m_rpmComp.GetInternalMethod("JSIInternalRPMButtons:ButtonStageLock", typeof(Action<bool>));
+						if (stageLockedDel != null)
+						{
+							((Action<bool>)stageLockedDel).Invoke(fraction == 1.0f);
 						}
 						break;
 					case "IntLight":
@@ -92,7 +99,7 @@ namespace KerbalVR_RPM
 						break;
 				}
 			}
-			else
+			else if (m_jsiNumericInput != null)
 			{
 				float minValue = m_jsiNumericInput.minRange.AsFloat();
 				float maxValue = m_jsiNumericInput.maxRange.AsFloat();
@@ -107,6 +114,7 @@ namespace KerbalVR_RPM
 		{
 			m_jsiVariableAnimator = knobComponent;
 			m_knob = vrKnob;
+			m_rpmComp = knobComponent.rpmComp;
 
 			// try to calculate min/max rotation angles
 			if (m_knob.customRotation != null)
@@ -148,7 +156,6 @@ namespace KerbalVR_RPM
 
 			if (m_jsiNumericInput != null)
 			{
-				m_rpmComp = m_jsiNumericInput.rpmComp;
 				m_perPodPersistenceName = m_jsiNumericInput.perPodPersistenceName;
 				m_perPodPersistenceIsGlobal = m_jsiNumericInput.perPodPersistenceIsGlobal;
 			}
