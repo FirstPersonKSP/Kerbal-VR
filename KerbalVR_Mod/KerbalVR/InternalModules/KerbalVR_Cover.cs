@@ -123,7 +123,7 @@ namespace KerbalVR.InternalModules
 		{
 			base.OnAwake();
 
-			var coverTransform = internalProp.FindModelTransform(coverTransformName);
+			var coverTransform = this.FindTransform(coverTransformName);
 
 			if (coverTransform != null && interactionListener == null)
 			{

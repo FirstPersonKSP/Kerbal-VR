@@ -19,6 +19,9 @@ namespace KerbalVR.InternalModules
 		[KSPField]
 		public float pressThreshold = 0.004f;
 
+		[KSPField]
+		public string coverTransformName = String.Empty;
+
 		VRButtonInteractionListener interactionListener = null;
 		VRCover cover = null;
 
@@ -45,7 +48,26 @@ namespace KerbalVR.InternalModules
 #endif
 			}
 
-			cover = gameObject.GetComponent<VRCover>();
+			if (coverTransformName == String.Empty)
+			{
+				cover = gameObject.GetComponent<VRCover>();
+			}
+			else
+			{
+				foreach (var c in gameObject.GetComponents<VRCover>())
+				{
+					if (c.coverTransformName == coverTransformName)
+					{
+						cover = c;
+						break;
+					}
+				}
+
+				if (cover == null)
+				{
+					Utils.LogError($"VRButton - unable to find cover with transform '{coverTransformName}' for prop {internalProp.propName}");
+				}
+			}
 		}
 
 		class VRButtonInteractionListener : MonoBehaviour, IFingertipInteractable
