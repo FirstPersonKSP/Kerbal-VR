@@ -41,7 +41,6 @@ namespace KerbalVR
 		{
 			var fpCameraManager = FirstPerson.FirstPersonEVA.instance.fpCameraManager;
 			fpCameraManager.isFirstPerson = false;
-			fpCameraManager.saveCameraState(FlightCamera.fetch);
 			fpCameraManager.CheckAndSetFirstPerson(FlightGlobals.ActiveVessel);
 		}
 
