@@ -46,13 +46,13 @@
     <ManagedRelativePath Condition="$([MSBuild]::IsOsPlatform('Windows'))">KSP_x64_Data\Managed</ManagedRelativePath>
     <ManagedRelativePath Condition="$([MSBuild]::IsOsPlatform('OSX'))">KSP.app\Contents\Resources\Data\Managed</ManagedRelativePath>
     <ManagedRelativePath Condition="$([MSBuild]::IsOsPlatform('Linux'))">KSP_Data\Managed</ManagedRelativePath>
-    <ManagedPath>$(ReferencePath)\$(ManagedRelativePath)</ManagedPath>
+    <ManagedPath>$(ReferencePath)$(ManagedRelativePath)</ManagedPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="$(ManagedPath)\Assembly-CSharp.dll">
       <Private>False</Private>
     </Reference>
-    <Reference Include="$(ReferencePath)\GameData\JSI\RasterPropMonitor\Plugins\RasterPropMonitor.dll">
+    <Reference Include="$(ReferencePath)GameData\JSI\RasterPropMonitor\Plugins\RasterPropMonitor.dll">
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
