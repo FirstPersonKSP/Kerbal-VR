@@ -22,8 +22,9 @@ namespace KerbalVR.InternalModules
 			else if (nameOrPath.Contains('/'))
 			{
 				// try to find the path relative to the prop's model
-				var propModelInstance = internalModule.internalProp.transform.Find("model").GetChild(0);
-				result = propModelInstance.Find(nameOrPath);
+				var modelRoot = internalModule.internalProp.transform.Find("model");
+				var propModelInstance = modelRoot.GetChild(0);
+				result = propModelInstance.Find(nameOrPath) ?? modelRoot.Find(nameOrPath);
 			}
 			else
 			{

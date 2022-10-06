@@ -23,40 +23,11 @@ namespace KerbalVR
 		[Persistent] public string tag;
 #pragma warning restore 0649
 
-		static Transform FindTransformRecursive(Transform root, string transformName)
-		{
-			if (root.name == transformName) return root.transform;
-			for (int i = 0; i < root.childCount; i++)
-			{
-				var child = FindTransformRecursive(root.GetChild(i), transformName);
-				if (child != null)
-				{
-					return child;
-				}
-			}
-
-			return null;
-		}
-
-		// this could maybe be extracted out to a separate util
-		static Transform FindTransform(Transform root, string transformNameOrPath)
-		{
-			if (string.IsNullOrEmpty(transformNameOrPath)) return null;
-			else if (transformNameOrPath.IndexOf('/') >= 0)
-			{
-				return root.Find("model").GetChild(0).Find(transformNameOrPath);
-			}
-			else
-			{
-				return FindTransformRecursive(root, transformNameOrPath);
-			}
-		}
-
 		public Collider Create(Transform root)
 		{
 			Transform parentTransform = string.IsNullOrEmpty(parentTransformName)
 					? root
-					: FindTransform(root, parentTransformName);
+					: Utils.FindTransform(root, parentTransformName);
 
 			if (parentTransform == null)
 			{

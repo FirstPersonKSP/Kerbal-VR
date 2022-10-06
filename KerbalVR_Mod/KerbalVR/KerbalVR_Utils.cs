@@ -484,6 +484,35 @@ namespace KerbalVR
 			return null;
 		}
 
+		public static Transform FindTransformRecursive(Transform root, string transformName)
+		{
+			if (root.name == transformName) return root.transform;
+			for (int i = 0; i < root.childCount; i++)
+			{
+				var child = FindTransformRecursive(root.GetChild(i), transformName);
+				if (child != null)
+				{
+					return child;
+				}
+			}
+
+			return null;
+		}
+
+		public static Transform FindTransform(Transform root, string transformNameOrPath)
+		{
+			if (string.IsNullOrEmpty(transformNameOrPath)) return null;
+			else if (transformNameOrPath.IndexOf('/') >= 0)
+			{
+				var modelRoot = root.Find("model");
+				return modelRoot.GetChild(0).Find(transformNameOrPath) ?? modelRoot.Find(transformNameOrPath);
+			}
+			else
+			{
+				return FindTransformRecursive(root, transformNameOrPath);
+			}
+		}
+
 		public class DataCollection
 		{
 			public double[] DataSamples { get; private set; }
