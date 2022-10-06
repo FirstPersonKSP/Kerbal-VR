@@ -39,7 +39,7 @@ namespace KerbalVR.InternalModules
 				if (gizmo == null)
 				{
 					gizmo = Utils.CreateGizmo();
-					gizmo.transform.SetParent(transform, false);
+					gizmo.transform.SetParent(buttonTransform, false);
 					Utils.SetLayer(gizmo, 20);
 				}
 #endif
