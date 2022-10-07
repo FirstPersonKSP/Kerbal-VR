@@ -14,6 +14,7 @@ namespace KerbalVR_RPM
 		{
 			KerbalVR.IVAAdaptors.IVASwitch.CreationFunctions.Add(RPMSwitch.TryConstruct);
 			KerbalVR.IVAAdaptors.IVAKnob.CreationFunctions.Add(RPMKnob.TryConstruct);
+			KerbalVR.IVAAdaptors.IVALever.CreationFunctions.Add(RPMLever.TryConstruct);
 		}
 	}
 }

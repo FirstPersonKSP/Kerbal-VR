@@ -144,12 +144,14 @@
     <Compile Include="InternalModules\KerbalVR_HandRail.cs" />
     <Compile Include="InternalModules\KerbalVR_InternalHatch.cs" />
     <Compile Include="InternalModules\KerbalVR_Knob.cs" />
+    <Compile Include="InternalModules\KerbalVR_Lever.cs" />
     <Compile Include="InternalModules\KerbalVR_Switch.cs" />
     <Compile Include="InternalModules\KerbalVR_Throttle.cs" />
     <Compile Include="InternalModules\KerbalVR_TouchDisplay.cs" />
     <Compile Include="InternalModules\KerbalVR_TranslationControl.cs" />
     <Compile Include="InternalModules\KerbalVR_Yoke.cs" />
     <Compile Include="IVAAdaptors\IVAKnob.cs" />
+    <Compile Include="IVAAdaptors\IVALever.cs" />
     <Compile Include="IVAAdaptors\IVASwitch.cs" />
     <Compile Include="Components\KerbalVR_ArmScaler.cs" />
     <Compile Include="KerbalVR_AssetLoader.cs" />
