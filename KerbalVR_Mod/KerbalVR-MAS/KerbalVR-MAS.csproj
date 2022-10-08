@@ -65,12 +65,16 @@
     <Reference Include="$(ManagedPath)\UnityEngine.CoreModule.dll">
       <Private>False</Private>
     </Reference>
+    <Reference Include="$(ManagedPath)\UnityEngine.AnimationModule.dll">
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Addon.cs" />
     <Compile Include="MASKnob.cs" />
     <Compile Include="MASSwitch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="MASLever.cs" />
   </ItemGroup>
   <ItemGroup>
     <Publicize Include="AvionicsSystems" />
