@@ -84,19 +84,7 @@ namespace KerbalVR.InternalModules
 			{
 				if (stepSound != string.Empty)
 				{
-					var audioClip = GameDatabase.Instance.GetAudioClip(stepSound);
-
-					if (audioClip != null)
-					{
-						m_audioSource = internalProp.gameObject.AddComponent<AudioSource>();
-						m_audioSource.clip = audioClip;
-						m_audioSource.Stop();
-						m_audioSource.volume = GameSettings.SHIP_VOLUME;
-						m_audioSource.minDistance = 2;
-						m_audioSource.maxDistance = 10;
-						m_audioSource.panStereo = 0;
-						m_audioSource.playOnAwake = false;
-					}
+					m_audioSource = Utils.CreateAudioSourceFromClip(internalProp.gameObject, stepSound);
 				}
 			}
 		}
