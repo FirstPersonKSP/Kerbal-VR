@@ -46,7 +46,7 @@ namespace KerbalVR_RPM
 					if ((jSIActionGroupSwitch.currentState ? 1 : 0) != stepId)
 					{
 						jSIActionGroupSwitch.Click();
-						jSIActionGroupSwitch.currentState = stepId == 1;
+						jSIActionGroupSwitch.currentState = stepId > 0;
 					}
 					break;
 				case "Flap":
@@ -56,7 +56,7 @@ namespace KerbalVR_RPM
 					}
 					break;
 				default:
-					Utils.LogWarning($"Unknown lever handler {lever.handler}");
+					Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
 					break;
 			}
 		}
@@ -75,7 +75,7 @@ namespace KerbalVR_RPM
 					}
 					break;
 				default:
-					Utils.LogWarning($"Unknown lever handler {lever.handler}");
+					Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
 					break;
 			}
 

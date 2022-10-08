@@ -86,7 +86,7 @@ namespace KerbalVR_MAS
 					}
 					break;
 				default:
-					Utils.LogWarning($"Unknown lever handler {lever.handler}");
+					Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
 					break;
 			}
 
@@ -100,7 +100,7 @@ namespace KerbalVR_MAS
 			}
 			if (componentAnimationPlayer != null)
 			{
-				componentAnimationPlayer.currentState = stepId == 1;
+				componentAnimationPlayer.currentState = stepId > 0;
 			}
 			if (componentRotation != null)
 			{
@@ -124,7 +124,7 @@ namespace KerbalVR_MAS
 				case "Flap":
 					return (int)Math.Round(flightComputer.farProxy.GetFlapSetting());
 				default:
-					Utils.LogWarning($"Unknown lever handler {lever.handler}");
+					Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
 					break;
 			}
 

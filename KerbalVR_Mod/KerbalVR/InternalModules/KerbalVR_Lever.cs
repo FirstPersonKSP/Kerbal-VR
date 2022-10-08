@@ -136,7 +136,7 @@ namespace KerbalVR.InternalModules
 		{
 			base.OnAwake();
 
-			rotationTransform = internalProp.FindModelTransform(rotationTransformName);
+			rotationTransform = this.FindTransform(rotationTransformName);
 
 			if (rotationTransform)
 			{
@@ -154,7 +154,7 @@ namespace KerbalVR.InternalModules
 
 			if (pullable)
 			{
-				pullTransform = internalProp.FindModelTransform(pullTransformName);
+				pullTransform = this.FindTransform(pullTransformName);
 
 				if (pullTransform)
 				{
@@ -171,12 +171,12 @@ namespace KerbalVR.InternalModules
 				}
 			}
 
-			Transform leverTransform = internalProp.FindModelTransform(leverTransformName);
+			Transform leverTransform = this.FindTransform(leverTransformName);
 
 			if (leverTransform && !interactionListener)
 			{
 				interactionListener = Utils.GetOrAddComponent<VRLeverInteractionListener>(leverTransform.gameObject);
-				interactionListener.Initilize(this);
+				interactionListener.Initialize(this);
 
 #if PROP_GIZMOS
 				if (!topGizmo)
@@ -225,7 +225,7 @@ namespace KerbalVR.InternalModules
 
 		public GameObject GameObject => gameObject;
 
-		public void Initilize(VRLever leverModule)
+		public void Initialize(VRLever leverModule)
 		{
 			this.leverModule = leverModule;
 			float currentRotation = Vector3.Scale(leverModule.rotationTransform.localEulerAngles, leverModule.rotationAxis).magnitude;

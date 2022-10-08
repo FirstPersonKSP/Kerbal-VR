@@ -105,7 +105,7 @@ namespace KerbalVR.InternalModules
 		{
 			base.OnAwake();
 
-			var knobTransform = internalProp.FindModelTransform(knobTransformName);
+			var knobTransform = this.FindTransform(knobTransformName);
 
 			if (knobTransform != null && interactionListener == null)
 			{
