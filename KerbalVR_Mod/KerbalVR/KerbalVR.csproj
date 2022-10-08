@@ -178,7 +178,16 @@
     <Compile Include="PartModules\VRExternalThrottle.cs" />
     <Compile Include="RotationUtil.cs" />
     <Compile Include="SkeletonPoses\KerbalVR_FallbackRelaxedPose.cs" />
+    <Compile Include="SkeletonPoses\KerbalVR_FlapLeverPose_Human.cs" />
+    <Compile Include="SkeletonPoses\KerbalVR_FlapLeverPose_Kerbal.cs" />
+    <Compile Include="SkeletonPoses\KerbalVR_FlapLeverPose.cs" />
+    <Compile Include="SkeletonPoses\KerbalVR_GearLeverPose_Human.cs" />
+    <Compile Include="SkeletonPoses\KerbalVR_GearLeverPose_Kerbal.cs" />
     <Compile Include="SkeletonPoses\KerbalVR_HandleRailGrabPose.cs" />
+    <Compile Include="SkeletonPoses\KerbalVR_GearLeverPose.cs" />
+    <Compile Include="SkeletonPoses\KerbalVR_KnobPose.cs" />
+    <Compile Include="SkeletonPoses\KerbalVR_KnobPose_Human.cs" />
+    <Compile Include="SkeletonPoses\KerbalVR_KnobPose_Kerbal.cs" />
     <Compile Include="SteamVR_Input\ActionSetClasses\SteamVR_Input_ActionSet_default.cs" />
     <Compile Include="SteamVR_Input\ActionSetClasses\SteamVR_Input_ActionSet_editor.cs" />
     <Compile Include="SteamVR_Input\ActionSetClasses\SteamVR_Input_ActionSet_EVA.cs" />

@@ -27,6 +27,8 @@ namespace KerbalVR
 			[PersistentField("pinchColliderSize")]
 			public float pinchColliderSize;
 
+			[PersistentField("isKerbalHand")]
+			public bool isKerbalHand;
 			[PersistentField("prefabNameRight")]
 			public string PrefabNameRight;
 			[PersistentField("prefabNameLeft")]
@@ -49,7 +51,7 @@ namespace KerbalVR
 			public List<string> joints = new List<string>();
 		}
 
-		public static HandProfileManager _instance;
+		private static HandProfileManager _instance;
 		public static HandProfileManager Instance
 		{
 			get { return _instance ?? (_instance = new HandProfileManager()); }
@@ -91,6 +93,11 @@ namespace KerbalVR
 		public Profile GetProfile(bool isIVA)
 		{
 			return profiles.First(x => x.name == (isIVA ? ivaProfile : evaProfile)) ?? profiles[0];
+		}
+
+		public bool IsKerbalHand(bool isIVA)
+		{
+			return GetProfile(isIVA).isKerbalHand;
 		}
 	}
 }

@@ -118,13 +118,10 @@ namespace KerbalVR_MAS
 			switch (lever.handler)
 			{
 				case "Gear":
-					Utils.Log($"Gear {flightComputer.fcProxy.GetGear()}");
 					return (int)Math.Round(flightComputer.fcProxy.GetGear());
 				case "Spoiler":
-					Utils.Log($"Spoiler {flightComputer.farProxy.GetSpoilerSetting()}");
 					return (int)Math.Round(flightComputer.farProxy.GetSpoilerSetting());
 				case "Flap":
-					Utils.Log($"Flap {flightComputer.farProxy.GetFlapSetting()}");
 					return (int)Math.Round(flightComputer.farProxy.GetFlapSetting());
 				default:
 					Utils.LogWarning($"Unknown lever handler {lever.handler}");
