@@ -3,6 +3,7 @@ using System.Collections;
 using Valve.VR;
 using UnityEngine.Serialization;
 
+[ExecuteInEditMode]
 public class KerbalSkeletonHelper : MonoBehaviour
 {
 	public Retargetable wrist;

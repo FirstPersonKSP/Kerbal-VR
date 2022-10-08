@@ -543,6 +543,38 @@ namespace KerbalVR
 				}
 			}
 		}
+
+		/// <summary>
+		/// Create an audio source on a game object from given clip name
+		/// </summary>
+		/// <param name="target">the game object this audio source will be attached on</param>
+		/// <param name="clipUrl">URL of the clip in the GameData</param>
+		/// <param name="minDistance">the AudioSource will cease to grow louder in volume within the this distance </param>
+		/// <param name="maxDistance">the distance a sound stops attenuating at</param>
+		/// <returns>the AudioSource created, <see langword="null"/> if <paramref name="clipUrl"/> is not found in the Game Database</returns>
+		public static AudioSource CreateAudioSourceFromClip(GameObject target, string clipUrl, float minDistance = 2, float maxDistance = 10)
+		{
+			AudioClip audioClip = GameDatabase.Instance.GetAudioClip(clipUrl);
+			AudioSource audioSource = null;
+
+			if (audioClip)
+			{
+				audioSource = target.AddComponent<AudioSource>();
+				audioSource.clip = audioClip;
+				audioSource.Stop();
+				audioSource.volume = GameSettings.SHIP_VOLUME;
+				audioSource.minDistance = minDistance;
+				audioSource.maxDistance = maxDistance;
+				audioSource.panStereo = 0;
+				audioSource.playOnAwake = false;
+			}
+			else
+			{
+				LogError($"Audio clip '{clipUrl}' was not found in the Game Database! Stack trace:\n{Environment.StackTrace}");
+			}
+
+			return audioSource;
+		}
 	}
 
 	/// <summary>

@@ -14,6 +14,7 @@ namespace KerbalVR_MAS
 		{
 			KerbalVR.IVAAdaptors.IVASwitch.CreationFunctions.Add(MASSwitch.TryConstruct);
 			KerbalVR.IVAAdaptors.IVAKnob.CreationFunctions.Add(MASKnob.TryConstruct);
+			KerbalVR.IVAAdaptors.IVALever.CreationFunctions.Add(MASLever.TryConstruct);
 		}
 	}
 }

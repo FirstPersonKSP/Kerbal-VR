@@ -29,6 +29,14 @@ namespace KerbalVR
 			InitialRotation = transform.localRotation;
 		}
 
+		public RotationUtil(Transform transform, Vector3 rotationAxis, float minRotation, float maxRotation, float currentRotation) 
+			: this(transform, rotationAxis, minRotation, maxRotation)
+		{
+			m_currentRotation = Mathf.Clamp(currentRotation, minRotation, maxRotation);
+			InitialRotation = transform.localRotation * Quaternion.AngleAxis((maxRotation - minRotation)/2f, RotationAxis);
+		}
+
+
 		Vector3 GetCurrentGrabDirection(Vector3 gripPosition)
 		{
 			Vector3 direction = gripPosition - Transform.position;
