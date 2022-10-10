@@ -14,12 +14,9 @@ namespace KerbalVR
 	{
 		static bool m_shouldEnableVR;
 
-		// This is now at Start instead of Awake so that the install checker gets to go first
-		// The install checker can't reference KerbalVR.dll because KerbalVR.dll might be missing dependencies and fail to load
-		// We could, however, call into the installchecker from here if that works better
-		public void Start()
+		public void Awake()
 		{
-			Utils.Log("Addon Start");
+			Utils.Log("Addon Awake");
 
 			// for whatever reason, enabling VR mode during loading makes it super slow (vsync maybe?)
 			m_shouldEnableVR = XRSettings.enabled;

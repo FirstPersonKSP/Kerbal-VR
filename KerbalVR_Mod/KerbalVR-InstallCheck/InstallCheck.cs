@@ -49,21 +49,9 @@ namespace InstallCheck
 
 		private static void CheckVREnabled()
 		{
-			if (!XRSettings.enabled)
+			if (XRSettings.supportedDevices.Length != 2)
 			{
-				bool intentionallyDisabled = false;
-
-				var args = Environment.GetCommandLineArgs();
-				int vrmodeIndex = args.IndexOf("-vrmode");
-				if (vrmodeIndex != -1 && vrmodeIndex +1 < args.Length && string.Equals(args[vrmodeIndex+1], "none", StringComparison.InvariantCultureIgnoreCase))
-				{
-					intentionallyDisabled = true;
-				}
-				
-				if (!intentionallyDisabled)
-				{
-					Alert("Unity VR is not enabled.  Please run VRInstaller.exe and point it at your KSP directory.");
-				}
+				Alert("Unity VR is not enabled.  Please run VRInstaller.exe and point it at your KSP directory.");
 			}
 		}
 
