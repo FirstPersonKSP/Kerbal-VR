@@ -33,7 +33,7 @@ namespace KerbalVR.InternalModules
 			{
 				if (collider == null)
 				{
-					collider = colliderParams.Create(internalProp.transform);
+					collider = colliderParams.Create(internalProp.hasModel ? internalProp.transform : internalProp.internalModel.transform);
 
 					if (collider != null)
 					{

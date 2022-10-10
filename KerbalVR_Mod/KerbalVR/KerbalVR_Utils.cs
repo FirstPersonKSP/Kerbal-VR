@@ -504,6 +504,7 @@ namespace KerbalVR
 			if (string.IsNullOrEmpty(transformNameOrPath)) return null;
 			else if (transformNameOrPath.IndexOf('/') >= 0)
 			{
+				transformNameOrPath = transformNameOrPath.TrimStart('/');
 				var modelRoot = root.Find("model");
 				return modelRoot.GetChild(0).Find(transformNameOrPath) ?? modelRoot.Find(transformNameOrPath);
 			}
