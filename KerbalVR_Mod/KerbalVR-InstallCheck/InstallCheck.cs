@@ -45,6 +45,7 @@ namespace InstallCheck
 			CheckDependencies();
 			CheckOptionalMods();
 			CheckRequiredFiles();
+			CheckMAS();
 		}
 
 		private static void CheckVREnabled()
@@ -133,6 +134,23 @@ namespace InstallCheck
 			if (errorMessage != string.Empty)
 			{
 				Alert(errorMessage);
+			}
+		}
+
+		private static void CheckMAS()
+		{
+			bool masInstalled = AssemblyLoader.loadedAssemblies.Any(a => a.name == "AvionicsSystems");
+			bool masVRInstalled = AssemblyLoader.loadedAssemblies.Any(a => a.name == "KerbalVR-MAS");
+
+			// This should only be temporary until MAS starts using the KSPAssembly attribute
+
+			if (masInstalled && !masVRInstalled)
+			{
+				Alert("You have MAS (MOARdV's Avionics Systems) installed but not KerbalVR-MAS.  Please install KerbalVR-MAS.dll from the Optional Mods folder or uninstall MAS.");
+			}
+			else if (!masInstalled && masVRInstalled)
+			{
+				Alert("You have KerbalVR-MAS.dll installed by not MAS itself.  Please uninstall KerbalVR-MAS.dll or install MAS.");
 			}
 		}
 
