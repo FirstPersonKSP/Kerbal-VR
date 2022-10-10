@@ -50,7 +50,7 @@ namespace InstallCheck
 
 		private static void CheckVREnabled()
 		{
-			if (XRSettings.supportedDevices.Length != 2)
+			if (XRSettings.supportedDevices.IndexOf("OpenVR") == -1)
 			{
 				Alert("Unity VR is not enabled.  Please run VRInstaller.exe and point it at your KSP directory.");
 			}
