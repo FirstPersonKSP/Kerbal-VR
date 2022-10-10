@@ -86,6 +86,13 @@ namespace KerbalVR_RPM
 							((Action<bool>)stageLockedDel).Invoke(fraction == 1.0f);
 						}
 						break;
+					case "PrecisionMode":
+						var precModeDel = m_rpmComp.GetInternalMethod("JSIInternalRPMButtons:ButtonPrecisionMode", typeof(Action<bool>));
+						if (precModeDel != null)
+						{
+							((Action<bool>)precModeDel).Invoke(fraction == 1.0f);
+						}
+						break;
 					case "IntLight":
 						if (m_jsiVariableAnimator.gameObject.GetComponentCached(ref m_jsiActionGroupSwitch) != null &&
 							m_jsiActionGroupSwitch.lightObjects != null)
