@@ -142,6 +142,12 @@ namespace KerbalVR.InternalModules
 
 		public GameObject GameObject => gameObject;
 		float m_grabbedAngle = 0;
+		Quaternion m_initialRotation;
+
+		private void Awake()
+		{
+			m_initialRotation = transform.localRotation;
+		}
 
 		public void OnHold(Hand hand)
 		{
@@ -214,7 +220,7 @@ namespace KerbalVR.InternalModules
 		void SetAngle(float angle)
 		{
 			knobModule.currentAngle = angle;
-			transform.localRotation = Quaternion.AngleAxis(knobModule.currentAngle, knobModule.rotationAxis);
+			transform.localRotation = m_initialRotation * Quaternion.AngleAxis(knobModule.currentAngle, knobModule.rotationAxis);
 		}
 
 		float GetGrabbedAngle(Hand hand)
