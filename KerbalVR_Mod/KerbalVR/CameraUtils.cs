@@ -75,15 +75,23 @@ namespace KerbalVR
 
 		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
+			bool found = false;
+
 			foreach (var instruction in instructions)
 			{
-				if (instruction.opcode == OpCodes.Callvirt && ReferenceEquals(instruction.operand, set_fieldOfView))
+				if (instruction.Calls(set_fieldOfView))
 				{
 					instruction.opcode = OpCodes.Call;
 					instruction.operand = AccessTools.Method(typeof(CameraFOVPatch), nameof(SetCameraFOV));
+					found = true;
 				}
 
 				yield return instruction;
+			}
+
+			if (!found)
+			{
+				Utils.LogError("Failed to patch set_fieldOfView call");
 			}
 		}
 
@@ -99,6 +107,7 @@ namespace KerbalVR
 				(typeof(InternalCamera), nameof(InternalCamera.SetFOV)),
 				(typeof(InternalCamera), nameof(InternalCamera.UpdateState)),
 				(typeof(FlightCamera), nameof(FlightCamera.SetFoV)),
+				(typeof(FlightCamera), nameof(FlightCamera.EnableCamera)),
 				(typeof(ScaledCamera), nameof(ScaledCamera.SetFoV)),
 				(typeof(GalaxyCameraControl), nameof(GalaxyCameraControl.SetFoV)),
 				(typeof(InternalSpaceOverlay), nameof(InternalSpaceOverlay.LateUpdate)),
