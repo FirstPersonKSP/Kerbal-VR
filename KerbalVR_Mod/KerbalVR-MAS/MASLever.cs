@@ -3,6 +3,8 @@ using KerbalVR;
 using KerbalVR.InternalModules;
 using KerbalVR.IVAAdaptors;
 using System;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
+using UnityEngine;
 
 namespace KerbalVR_MAS
 {
@@ -25,6 +27,9 @@ namespace KerbalVR_MAS
 		MASComponentAnimationPlayer componentAnimationPlayer;
 		MASComponentRotation componentRotation;
 		MASFlightComputer flightComputer;
+
+		int customAxisNumber = -1;
+		float customAxisTarget;
 
 		// cache it because some MAS functions won't update value instantly
 		int lastStep;
@@ -51,7 +56,25 @@ namespace KerbalVR_MAS
 
 			flightComputer = vrLever.part.GetComponent<MASFlightComputer>();
 
+			if (lever.handler.StartsWith("CustomAxis"))
+			{
+				if (int.TryParse(lever.handler.Remove(0, 10), out int result))
+				{
+					customAxisNumber = result - 1;
+					FlightInputHandler.OnRawAxisInput += OnRawAxisInput;
+				}
+				else
+				{
+					Utils.LogError($"Invalid custom axis name '{lever.handler}' on {lever.internalProp.propName}");
+				}
+			}
+
 			lastStep = RefreshState();
+		}
+
+		~MASLever()
+		{
+			FlightInputHandler.OnRawAxisInput -= OnRawAxisInput;
 		}
 
 		public override void SetStep(int stepId)
@@ -86,7 +109,14 @@ namespace KerbalVR_MAS
 					}
 					break;
 				default:
-					Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
+					if (customAxisNumber >= 0)
+					{
+						customAxisTarget = stepId / (lever.stepCount - 1f);
+					}
+					else
+					{
+						Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
+					}
 					break;
 			}
 
@@ -104,8 +134,13 @@ namespace KerbalVR_MAS
 			}
 			if (componentRotation != null)
 			{
-				componentRotation.currentBlend = (float)stepId / (lever.stepCount - 1);
+				componentRotation.currentBlend = stepId / (lever.stepCount - 1f);
 			}
+		}
+
+		private void OnRawAxisInput(FlightCtrlState st)
+		{
+			st.custom_axes[customAxisNumber] = customAxisTarget;
 		}
 
 		public override int GetStep()
@@ -124,6 +159,12 @@ namespace KerbalVR_MAS
 				case "Flap":
 					return (int)Math.Round(flightComputer.farProxy.GetFlapSetting());
 				default:
+					if (customAxisNumber >= 0)
+					{
+						float axisValue = FlightInputHandler.state.custom_axes[customAxisNumber];
+						return Math.Max(0, Mathf.FloorToInt((lever.stepCount - 1) * axisValue + 0.5f));
+					}
+
 					Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
 					break;
 			}

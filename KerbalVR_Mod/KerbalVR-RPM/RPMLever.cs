@@ -2,8 +2,8 @@
 using KerbalVR;
 using KerbalVR.InternalModules;
 using KerbalVR.IVAAdaptors;
+using System;
 using UnityEngine;
-using System.Collections;
 
 namespace KerbalVR_RPM
 {
@@ -55,6 +55,14 @@ namespace KerbalVR_RPM
 						jSIFAR.SetFlaps(stepId);
 					}
 					break;
+				case "CustomAxis1":
+				case "CustomAxis2":
+				case "CustomAxis3":
+				case "CustomAxis4":
+					// this is 40 times faster than int.Parse(input[input.Length - 1].ToString())
+					int axisNumber = lever.handler[lever.handler.Length - 1] - 48; // 48 is ASCII 0
+					FlightInputHandler.state.custom_axes[axisNumber - 1] = stepId / (lever.stepCount - 1f);
+					break;
 				default:
 					Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
 					break;
@@ -74,6 +82,14 @@ namespace KerbalVR_RPM
 						return (int)jSIFAR.GetFlapSetting();
 					}
 					break;
+				case "CustomAxis1":
+				case "CustomAxis2":
+				case "CustomAxis3":
+				case "CustomAxis4":
+					// this is 40 times faster than int.Parse(input[input.Length - 1].ToString())
+					int axisNumber = lever.handler[lever.handler.Length - 1] - 48; // 48 is ASCII 0
+					float axisValue = FlightInputHandler.state.custom_axes[axisNumber - 1];
+					return Math.Max(0, Mathf.FloorToInt((lever.stepCount - 1) * axisValue + 0.5f));
 				default:
 					Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
 					break;
