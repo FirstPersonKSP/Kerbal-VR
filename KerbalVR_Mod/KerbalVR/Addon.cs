@@ -13,6 +13,7 @@ namespace KerbalVR
 	public class FirstPersonKerbalAddon : MonoBehaviour
 	{
 		static bool m_shouldEnableVR;
+		static KeyBinding m_vrToggle = new KeyBinding(KeyCode.V);
 
 		public void Awake()
 		{
@@ -118,7 +119,7 @@ namespace KerbalVR
 
 		public void LateUpdate()
 		{
-			if (GameSettings.CAMERA_NEXT.GetKeyDown() && GameSettings.MODIFIER_KEY.GetKey())
+			if (m_vrToggle.GetKeyDown() && GameSettings.MODIFIER_KEY.GetKey())
 			{
 				KerbalVR.Core.SetVrRunningDesired(!KerbalVR.Core.IsVrRunning);
 			}
@@ -169,7 +170,7 @@ namespace KerbalVR
 		{
 			public static bool Prefix()
 			{
-				if (GameSettings.CAMERA_NEXT.GetKeyDown() && GameSettings.MODIFIER_KEY.GetKey())
+				if (m_vrToggle.GetKeyDown() && GameSettings.MODIFIER_KEY.GetKey())
 				{
 					return false;
 				}
