@@ -52,7 +52,7 @@ namespace KerbalVR.InternalModules
 			{
 				cover = gameObject.GetComponent<VRCover>();
 			}
-			else
+			else if (coverTransformName != "none")
 			{
 				foreach (var c in gameObject.GetComponents<VRCover>())
 				{
