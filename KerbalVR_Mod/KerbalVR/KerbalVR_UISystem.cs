@@ -887,4 +887,14 @@ namespace KerbalVR
 			}
 		}
 	}
+
+	[HarmonyPatch(typeof(UIPartActionGroup), nameof(UIPartActionGroup.AddItemToContent))]
+	class UIPartActionGroup_AddItemToContent_Patch
+	{
+		public static void Postfix(UIPartActionGroup __instance, Transform t)
+		{
+			__instance.transform.localRotation = Quaternion.identity;
+			t.transform.localRotation = Quaternion.identity;
+		}
+	}
 }
