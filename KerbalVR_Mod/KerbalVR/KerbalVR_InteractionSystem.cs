@@ -143,4 +143,25 @@ namespace KerbalVR
 			}
 		}
 	}
+
+	[HarmonyPatch(typeof(FirstPerson.FirstPersonCameraManager), "enableRenderers")]
+	class FirstPerson_enableRenderers_Patch
+	{
+		public static void Prefix(ref Transform __state)
+		{
+			if (Core.IsVrEnabled)
+			{
+				__state = InteractionSystem.Instance.transform.parent;
+				InteractionSystem.Instance.transform.SetParent(null, false);
+			}
+		}
+
+		public static void Postfix(Transform __state)
+		{
+			if (__state != null)
+			{
+				InteractionSystem.Instance.transform.SetParent(__state, false);
+			}
+		}
+	}
 } // namespace KerbalVR
