@@ -53,7 +53,6 @@ namespace KerbalVR
 			{
 				window.gameObject.SetLayerRecursive(0);
 				window.rectTransform.anchoredPosition3D = Vector3.zero;
-				window.GetComponentInChildren<Graphic>().material.shader = Shader.Find("UI/Default"); // this defaults to "UI/KSP/Color Overlay" which has z-write on, which causes z-fighting when rendered in worldspace
 
 				VRFingerTipInputModule.Instance.PushCanvas(UIMasterController.Instance.actionCanvas);
 
@@ -895,6 +894,18 @@ namespace KerbalVR
 		{
 			__instance.transform.localRotation = Quaternion.identity;
 			t.transform.localRotation = Quaternion.identity;
+		}
+	}
+
+	[HarmonyPatch(typeof(UIPartActionWindow), nameof(UIPartActionWindow.CreatePartList))]
+	class UIPartActionWindow_CreatePartList_Patch
+	{
+		public static void Postfix(UIPartActionWindow __instance)
+		{
+			if (Core.IsVrRunning)
+			{
+				__instance.GetComponentInChildren<Graphic>().material.shader = Shader.Find("UI/Default"); // this defaults to "UI/KSP/Color Overlay" which has z-write on, which causes z-fighting when rendered in worldspace
+			}
 		}
 	}
 }
