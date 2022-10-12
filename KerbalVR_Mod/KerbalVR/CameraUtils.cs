@@ -12,17 +12,22 @@ namespace KerbalVR
 
 		public static GameObject CreateVRAnchor(Camera camera)
 		{
-			var anchor = new GameObject(camera.name + " VRAnchor");
-			anchor.transform.localPosition = camera.transform.localPosition;
-			anchor.transform.localRotation = camera.transform.localRotation;
-			anchor.transform.localScale = camera.transform.localScale;
-			anchor.transform.SetParent(camera.transform.parent, false);
-			camera.transform.SetParent(anchor.transform, false);
+			var anchorName = camera.name + "VRAnchor";
+			var anchorTransform = camera.transform.parent.Find(anchorName);
+			if (anchorTransform == null)
+			{
+				anchorTransform = new GameObject(anchorName).transform;
+			}
+			anchorTransform.localPosition = camera.transform.localPosition;
+			anchorTransform.localRotation = camera.transform.localRotation;
+			anchorTransform.localScale = camera.transform.localScale;
+			anchorTransform.SetParent(camera.transform.parent, false);
+			camera.transform.SetParent(anchorTransform, false);
 			camera.transform.localPosition = Vector3.zero;
 			camera.transform.localRotation = Quaternion.identity;
 			camera.transform.localScale = Vector3.one;
 
-			return anchor;
+			return anchorTransform.gameObject;
 		}
 
 		public static T CloneComponent<T>(T oldComponent, GameObject to) where T : Component
@@ -156,6 +161,22 @@ namespace KerbalVR
 		public static void Postfix(InternalCamera __instance, float __state)
 		{
 			__instance.orbitSensitivity = __state;
+		}
+	}
+
+	[HarmonyPatch(typeof(InternalCamera), nameof(InternalCamera.UpdateState))]
+	class InternalCamera_UpdateState_Patch
+	{
+		public static void Postfix(InternalCamera __instance)
+		{
+			// copy the camera wobble offsets to the parent transform since it can't drive the transform that is controlled by the VR rig
+			if (Core.IsVrRunning && Scene.IsInIVA())
+			{
+				__instance.transform.parent.localPosition = __instance.transform.localPosition;
+				__instance.transform.parent.localRotation = __instance.transform.localRotation;
+				__instance.transform.localPosition = Vector3.zero;
+				__instance.transform.localRotation = Quaternion.identity;
+			}
 		}
 	}
 
