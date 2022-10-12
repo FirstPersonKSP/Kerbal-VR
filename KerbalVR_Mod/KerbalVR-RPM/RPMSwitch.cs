@@ -1,4 +1,5 @@
 ﻿using KerbalVR;
+using KerbalVR.InternalModules;
 using KerbalVR.IVAAdaptors;
 using System;
 using System.Collections.Generic;
@@ -12,16 +13,27 @@ namespace KerbalVR_RPM
 {
 	internal class RPMSwitch : IVASwitch
 	{
-		static public RPMSwitch TryConstruct(GameObject prop, Transform switchTransform)
+		static public IVASwitch TryConstruct(VRSwitch prop, Transform switchTransform)
 		{
 			string transformName = switchTransform.name;
-			var switchComponents = prop.GetComponents<JSI.JSIActionGroupSwitch>();
 
-			var switchComponent = switchComponents.FirstOrDefault(x => x.switchTransform == transformName);
-
-			if (switchComponent != null)
+			if (prop.triState)
 			{
-				return new RPMSwitch(switchComponent);
+				var numericInputComponents = prop.GetComponents<JSI.JSINumericInput>();
+				if (numericInputComponents.Length > 0)
+				{
+					return new RPMTriStateSwitch(numericInputComponents);
+				}
+			}
+			else
+			{
+				var switchComponents = prop.GetComponents<JSI.JSIActionGroupSwitch>();
+				var switchComponent = switchComponents.FirstOrDefault(x => x.switchTransform == transformName);
+
+				if (switchComponent != null)
+				{
+					return new RPMSwitch(switchComponent);
+				}
 			}
 
 			return null;
@@ -44,6 +56,55 @@ namespace KerbalVR_RPM
 			if (newState != CurrentState)
 			{
 				m_rpmComponent.Click();
+			}
+		}
+	}
+
+	internal class RPMTriStateSwitch : IVASwitch
+	{
+		JSI.JSINumericInput.NumericInput m_incrementInput;
+		JSI.JSINumericInput.NumericInput m_decrementInput;
+
+		Animation m_incrementAnimation;
+		Animation m_decrementAnimation;
+
+		public RPMTriStateSwitch(JSI.JSINumericInput[] inputs)
+		{
+			foreach (var input in inputs)
+			{
+				foreach(var numericInput in input.numericInputs)
+				{
+					if (numericInput.increment > 0)
+					{
+						m_incrementInput = numericInput;
+					}
+					else if (numericInput.increment < 0)
+					{
+						m_decrementInput = numericInput;
+					}
+				}
+			}
+		}
+
+		public override void SetState(bool newState)
+		{
+			var input = newState ? m_incrementInput : m_decrementInput;
+			input.Click();
+		}
+
+		public override void SetAnimationsEnabled(bool enabled)
+		{
+			if (enabled)
+			{
+				m_incrementInput.anim = m_incrementAnimation;
+				m_decrementInput.anim = m_decrementAnimation;
+			}
+			else
+			{
+				m_incrementAnimation = m_incrementInput.anim;
+				m_incrementInput.anim = null;
+				m_decrementAnimation = m_decrementInput.anim;
+				m_decrementInput.anim = null;
 			}
 		}
 	}

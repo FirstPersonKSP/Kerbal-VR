@@ -1,4 +1,5 @@
 ﻿using AvionicsSystems;
+using KerbalVR.InternalModules;
 using KerbalVR.IVAAdaptors;
 using System;
 using System.Collections.Generic;
@@ -12,17 +13,24 @@ namespace KerbalVR_MAS
 	internal class MASSwitch : IVASwitch
 
 	{
-		static public MASSwitch TryConstruct(GameObject prop, Transform switchTransform)
+		static public IVASwitch TryConstruct(VRSwitch prop, Transform switchTransform)
 		{
 			var masComponent = prop.GetComponent<MASComponent>();
 
 			if (masComponent != null)
 			{
-				foreach (var action in masComponent.actions)
+				if (prop.triState)
 				{
-					if (action is MASComponentColliderEvent colliderEvent && colliderEvent.buttonObject.transform == switchTransform)
+					return new MASTriStateSwitch(masComponent);
+				}
+				else
+				{
+					foreach (var action in masComponent.actions)
 					{
-						return new MASSwitch(masComponent, colliderEvent);
+						if (action is MASComponentColliderEvent colliderEvent && colliderEvent.buttonObject.transform == switchTransform)
+						{
+							return new MASSwitch(masComponent, colliderEvent);
+						}
 					}
 				}
 			}
@@ -95,6 +103,40 @@ namespace KerbalVR_MAS
 			{
 				m_colliderEvent.buttonObject.onClick();
 			}
+		}
+	}
+
+	// There aren't many good examples of 3-state MAS switches yet; this is kind of a placeholder until there's content to test this with
+	internal class MASTriStateSwitch : IVASwitch
+	{
+		MASComponent m_masComponent;
+		MASComponentColliderEvent m_incrementEvent;
+		MASComponentColliderEvent m_decrementEvent;
+
+		public MASTriStateSwitch(MASComponent masComponent)
+		{
+			m_masComponent = masComponent;
+			foreach (var action in masComponent.actions)
+			{
+				// this isn't fully complete; some switches have multiple entries for "up" and "down" - one for sound, one for logic, etc
+				if (action is MASComponentColliderEvent colliderEvent)
+				{
+					if (action.name.IndexOf("up", StringComparison.InvariantCultureIgnoreCase) != -1)
+					{
+						m_incrementEvent = colliderEvent;
+					}
+					else if (action.name.IndexOf("down", StringComparison.InvariantCultureIgnoreCase) != -1)
+					{
+						m_decrementEvent = colliderEvent;
+					}
+				}
+			}
+		}
+
+		public override void SetState(bool newState)
+		{
+			var colliderEvent = newState ? m_incrementEvent : m_decrementEvent;
+			colliderEvent.buttonObject.onClick();
 		}
 	}
 }

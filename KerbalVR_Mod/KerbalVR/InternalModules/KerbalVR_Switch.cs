@@ -13,7 +13,7 @@ namespace KerbalVR.InternalModules
 	public class VRSwitch : InternalModule
 	{
 		[KSPField]
-		public string switchTransformName = null;
+		public string switchTransformName = string.Empty;
 
 		[KSPField]
 		public Vector3 rotationAxis = Vector3.right;
@@ -33,6 +33,9 @@ namespace KerbalVR.InternalModules
 		[KSPField]
 		public bool coverTurnsOffSwitch = true;
 
+		[KSPField]
+		public bool triState = false;
+
 		VRSwitchInteractionListener interactionListener = null;
 		VRCover cover = null;
 		internal float currentAngle = 0;
@@ -49,7 +52,7 @@ namespace KerbalVR.InternalModules
 			middleAngle = (maxAngle + minAngle) / 2f;
 
 			var switchTransform = internalProp.FindModelTransform(switchTransformName);
-			m_ivaSwitch = IVASwitch.ConstructSwitch(gameObject, switchTransform);
+			m_ivaSwitch = IVASwitch.ConstructSwitch(this, switchTransform);
 
 			if (interactionListener == null)
 			{
@@ -143,6 +146,8 @@ namespace KerbalVR.InternalModules
 
 					HapticUtils.Light(hand.handType);
 				}
+
+				switchModule.m_ivaSwitch.SetAnimationsEnabled(false);
 			}
 
 			public void OnStay(Hand hand, Collider buttonCollider)
@@ -158,29 +163,36 @@ namespace KerbalVR.InternalModules
 					float angle = switchModule.currentAngle + delta;
 					float clampedAngle = Mathf.Clamp(angle, switchModule.minAngle, switchModule.maxAngle);
 
-					if (switchModule.m_ivaSwitch.CurrentState)
+					bool canSwitchOn, canSwitchOff;
+					float switchOnThreshold, switchOffThreshold;
+					if (switchModule.triState)
 					{
-						// it was on (min angle)
-						if (clampedAngle > switchModule.middleAngle)
-						{
-							// snap off
-							switchModule.m_ivaSwitch.SetState(false);
-							clampedAngle = switchModule.maxAngle;
-							m_stateChanged = true;
-							HapticUtils.Snap(hand.handType);
-						}
+						canSwitchOn = canSwitchOff = true;
+						switchOnThreshold = (switchModule.minAngle + switchModule.middleAngle) / 2;
+						switchOffThreshold = (switchModule.maxAngle + switchModule.middleAngle) / 2;
 					}
 					else
 					{
-						// it was off (max angle)
-						if (clampedAngle < switchModule.middleAngle)
-						{
-							// snap on
-							switchModule.m_ivaSwitch.SetState(true);
-							clampedAngle = switchModule.minAngle;
-							m_stateChanged = true;
-							HapticUtils.Snap(hand.handType);
-						}
+						canSwitchOff = switchModule.m_ivaSwitch.CurrentState;
+						canSwitchOn = !canSwitchOff;
+						switchOnThreshold = switchOffThreshold = switchModule.middleAngle;
+					}
+
+					if (canSwitchOff && clampedAngle > switchOffThreshold)
+					{
+						// snap off
+						switchModule.m_ivaSwitch.SetState(false);
+						clampedAngle = switchModule.maxAngle;
+						m_stateChanged = true;
+						HapticUtils.Snap(hand.handType);
+					}
+					else if (canSwitchOn && clampedAngle < switchOnThreshold)
+					{
+						// snap on
+						switchModule.m_ivaSwitch.SetState(true);
+						clampedAngle = switchModule.minAngle;
+						m_stateChanged = true;
+						HapticUtils.Snap(hand.handType);
 					}
 
 					SetAngle(clampedAngle);
@@ -191,11 +203,19 @@ namespace KerbalVR.InternalModules
 			public void OnExit(Hand hand, Collider buttonCollider)
 			{
 				SetAngleToSwitchState();
+				switchModule.m_ivaSwitch.SetAnimationsEnabled(true);
 			}
 
 			internal void SetAngleToSwitchState()
 			{
-				SetAngle(switchModule.m_ivaSwitch.CurrentState ? switchModule.minAngle : switchModule.maxAngle);
+				if (switchModule.triState)
+				{
+					SetAngle(switchModule.middleAngle);
+				}
+				else
+				{
+					SetAngle(switchModule.m_ivaSwitch.CurrentState ? switchModule.minAngle : switchModule.maxAngle);
+				}
 			}
 
 			internal void SetAngle(float angle)
