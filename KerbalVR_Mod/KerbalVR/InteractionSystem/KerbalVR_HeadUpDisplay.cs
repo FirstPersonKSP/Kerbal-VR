@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Valve.VR;
 using TMPro;
+using KSP.UI.Screens.Flight;
 
 namespace KerbalVR
 {
@@ -20,15 +21,20 @@ namespace KerbalVR
 
 		static readonly float hudDistance = 0.32f;
 
+		TMP_FontAsset font;
 		protected TextMeshPro altitudeLabel;
 		protected Image compassImage;
+		protected TextMeshPro horizontalSpeed;
+		protected TextMeshPro verticalSpeed;
+		protected TextMeshPro totalSpeed;
+		NavBall navball;
 		#endregion
 
 
 		public void Awake()
 		{
-			// create a texture we can draw on the HUD
 			hudMaterial = new Material(Shader.Find("KSP/Alpha/Translucent Additive"));
+			font = KerbalVR.AssetLoader.Instance.GetTmpFont("Futura_Medium_BT");
 
 			// create a UI Canvas for this screen.
 			var hudCanvasGameObject = new GameObject("KVR_HeadUpDisplay_Canvas");
@@ -39,6 +45,8 @@ namespace KerbalVR
 			hudCanvas.worldCamera = FlightCamera.fetch.cameras[0];
 			hudCanvas.planeDistance = 2f;
 			hudCanvasGameObject.AddComponent<CanvasScaler>();
+
+			navball = GameObject.FindObjectOfType<NavBall>();
 
 			// create UI elements
 			CreateHeadUpDisplayUI();
@@ -72,15 +80,33 @@ namespace KerbalVR
 			hudCanvas.gameObject.SetActive(false);
 		}
 
+		string GetSpeedString(float speed)
+		{
+			Utils.HumanizeQuantity(speed, "m/s", out float displaySpeed, out string displayUnits);
+			return displaySpeed.ToString("F1") + " " + displayUnits;
+		}
+
 		protected void Update()
 		{
 			if (altitudeLabel != null && FlightGlobals.ActiveVessel != null)
 			{
-				Utils.HumanizeQuantity((float)FlightGlobals.ActiveVessel.radarAltitude, "m", out float altitude, out string altitudeUnits);
+				var activeVessel = FlightGlobals.ActiveVessel;
 
-				var formatString = FlightGlobals.ActiveVessel.radarAltitude < 10 ? "F1" : "F0";
+				Utils.HumanizeQuantity((float)activeVessel.radarAltitude, "m", out float altitude, out string altitudeUnits);
+
+				var formatString = activeVessel.radarAltitude < 10 ? "F1" : "F0";
 
 				altitudeLabel.text = "Altitude: " + altitude.ToString(formatString) + " " + altitudeUnits;
+
+
+				horizontalSpeed.text = GetSpeedString((float)activeVessel.horizontalSrfSpeed);
+				verticalSpeed.text = GetSpeedString((float)activeVessel.verticalSpeed);
+				totalSpeed.text = GetSpeedString((float)activeVessel.speed);
+
+				Quaternion quaternion = Quaternion.LookRotation(activeVessel.north, activeVessel.upAxis);
+				Quaternion quaternion2 = Quaternion.Inverse(Quaternion.Euler(90f, 0f, 0f) * Quaternion.Inverse(activeVessel.GetTransform().rotation) * quaternion);
+				float heading = quaternion2.eulerAngles.y;
+				compassImage.material.mainTextureOffset = new Vector2(heading / 360.0f + 0.5f, 0);
 			}
 		}
 
@@ -115,7 +141,7 @@ namespace KerbalVR
 			compassImage.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 80);
 
 			// information text labels
-			TMP_FontAsset font = KerbalVR.AssetLoader.Instance.GetTmpFont("Futura_Medium_BT");
+			
 			altitudeLabel = new GameObject("AltitudeLabel").AddComponent<TextMeshPro>();
 			altitudeLabel.text = "Altitude: ";
 			altitudeLabel.font = font;
@@ -129,6 +155,25 @@ namespace KerbalVR
 			altitudeLabel.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 1000);
 			altitudeLabel.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 300);
 			altitudeLabel.rectTransform.localPosition = new Vector3(-hudPixelWidth * 0.45f, hudPixelHeight * 0.4f);
+
+			// speed labels
+			horizontalSpeed = CreateLabel("HorizontalSpeed", 200, 0.92f, 0.15f, 240, 32);
+			verticalSpeed = CreateLabel("VerticalSpeed", 200, 0.95f, 0.17f, 240, 32);
+			totalSpeed = CreateLabel("TotalSpeed", 200, 0.90f, 0.20f, 240, 32);
+		}
+
+		TextMeshPro CreateLabel(string name, float fontSize, float relPositionX, float relPositionY, float width, float height)
+		{
+			var label = new GameObject(name).AddComponent<TextMeshPro>();
+			label.font = font;
+			label.fontSize = fontSize;
+			label.color = Color.white;
+			label.transform.SetParent(hudCanvas.transform, false);
+			label.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+			label.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+			label.rectTransform.localPosition = new Vector3(hudPixelWidth * (relPositionX - 0.5f), hudPixelHeight * (relPositionY -0.5f));
+
+			return label;
 		}
 	}
 #endif
