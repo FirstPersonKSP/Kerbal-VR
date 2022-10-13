@@ -9,6 +9,7 @@ using HarmonyLib;
 using KSP.UI;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Collections;
 
 namespace KerbalVR
 {
@@ -19,6 +20,7 @@ namespace KerbalVR
 
 		Transform m_lastKerbalTransform = null;
 		VRInternalSeat m_lastSeatInteractable = null;
+		HeadUpDisplay m_headUpDisplay = null;
 
 		static readonly float EVA_PRECISION_MODE_SCALE = 0.5f;
 		static float EVA_FLOATING_ROTATION_SCALE = 0.25f;
@@ -74,6 +76,8 @@ namespace KerbalVR
 			m_swapRollYawAction.onStateDown += SwapRollYaw_OnStateDown;
 			m_jumpAction.onStateDown += Jump_OnStateDown;
 			m_plantFlagAction.onStateDown += PlantFlag_OnStateDown;
+
+			m_headUpDisplay = gameObject.AddComponent<HeadUpDisplay>();
 		}
 
 		private void OnVesselChange(Vessel data)
@@ -170,6 +174,7 @@ namespace KerbalVR
 		{
 			RestoreLastKerbal();
 			UISystem.Instance.ModeChanged();
+			m_headUpDisplay.enabled = false;
 
 			var kerbalEVA = KerbalVR.Scene.GetKerbalEVA();
 
@@ -287,6 +292,8 @@ namespace KerbalVR
 
 			KerbalVR.InteractionSystem.Instance.transform.SetParent(FlightCamera.fetch.transform, false);
 
+			StartCoroutine(SetupHeadsUpDisplay());
+
 			Utils.GetOrAddComponent<KerbalVR_ArmScaler>(kerbalEVA.gameObject);
 
 			if (!kerbalEVA.IsSeated())
@@ -303,6 +310,12 @@ namespace KerbalVR
 				JetpackPrecisionMode = true;
 				m_isSprinting = false;
 			}
+		}
+
+		IEnumerator SetupHeadsUpDisplay()
+		{
+			yield return null; // wait a frame so that ThroughTheEyes can update
+			m_headUpDisplay.enabled = Scene.IsFirstPersonEVA();
 		}
 
 		public void HandleMovementInput_Prefix(KerbalEVA kerbalEVA)
