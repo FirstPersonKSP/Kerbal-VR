@@ -287,6 +287,8 @@ namespace KerbalVR
 
 			KerbalVR.InteractionSystem.Instance.transform.SetParent(FlightCamera.fetch.transform, false);
 
+			m_headUpDisplay.enabled = true;
+
 			Utils.GetOrAddComponent<KerbalVR_ArmScaler>(kerbalEVA.gameObject);
 
 			if (!kerbalEVA.IsSeated())
@@ -295,11 +297,10 @@ namespace KerbalVR
 				FirstPerson.FirstPersonEVA.instance.fpStateWalkRun.evt_OnEnterFirstPerson(kerbalEVA);
 				FirstPerson.FirstPersonEVA.instance.fpStateFloating.evt_OnEnterFirstPerson(kerbalEVA);
 
-				kerbalEVA.On_jump_start.OnCheckCondition = (KFSMState currentState) => kerbalEVA.VesselUnderControl && m_jumpAction.state && !kerbalEVA.PartPlacementMode && !EVAConstructionModeController.MovementRestricted;
+				kerbalEVA.On_jump_start.OnCheckCondition = (KFSMState currentState) => kerbalEVA.VesselUnderControl && (m_jumpAction.state || GameSettings.EVA_Jump.GetKeyDown()) && !kerbalEVA.PartPlacementMode && !EVAConstructionModeController.MovementRestricted;
 
-
-				kerbalEVA.On_startRun.OnCheckCondition = (KFSMState currentState) => kerbalEVA.VesselUnderControl && m_isSprinting;
-				kerbalEVA.On_endRun.OnCheckCondition = (KFSMState currentState) => kerbalEVA.VesselUnderControl && !m_isSprinting;
+				kerbalEVA.On_startRun.OnCheckCondition = (KFSMState currentState) => kerbalEVA.VesselUnderControl && (m_isSprinting || GameSettings.EVA_Run.GetKeyDown());
+				kerbalEVA.On_endRun.OnCheckCondition = (KFSMState currentState) => kerbalEVA.VesselUnderControl && !m_isSprinting && !GameSettings.EVA_Run.GetKeyDown());
 
 				JetpackPrecisionMode = true;
 				m_isSprinting = false;
