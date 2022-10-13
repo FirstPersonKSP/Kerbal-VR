@@ -18,7 +18,10 @@ namespace KerbalVR
 		protected int hudPixelHeight = 1024;
 		protected float hudHeight = 1f;
 
-		protected TextMeshPro label;
+		static readonly float hudDistance = 0.32f;
+
+		protected TextMeshPro altitudeLabel;
+		protected Image compassImage;
 		#endregion
 
 
@@ -39,7 +42,7 @@ namespace KerbalVR
 
 			// create UI elements
 			CreateHeadUpDisplayUI();
-			Utils.SetLayer(hudCanvasGameObject, 0);
+			Utils.SetLayer(hudCanvasGameObject, 20); // put on internal layer so it renders with the kerbal
 
 			enabled = false;
 		}
@@ -51,10 +54,15 @@ namespace KerbalVR
 
 		protected void OnEnable()
 		{
-			hudCanvas.transform.SetParent(FlightCamera.fetch.transform, false);
-			hudCanvas.transform.localPosition = Vector3.forward * 1f;
+			// possible helmet scene path: 		Scene path	"kerbalEVAfemale (Valentina Kerman)/globalMove01/joints01/bn_spA01/bn_spB01/bn_spc01/bn_spD01/be_spE01/bn_helmet01/be_helmetEnd01"	string
+			// var anchor = Scene.GetKerbalEVA().transform.Find("globalMove01/joints01/bn_spA01/bn_spB01/bn_spc01/bn_spD01/be_spE01/bn_helmet01");
+			var anchor = FlightCamera.fetch.transform;
+			// anchor = Scene.GetKerbalEVA().helmetTransform;
+
+			hudCanvas.transform.SetParent(anchor, false);
+			hudCanvas.transform.localPosition = Vector3.forward * hudDistance;
 			hudCanvas.transform.localRotation = Quaternion.identity;
-			hudCanvas.transform.localScale = 1.0f / hudPixelWidth * Vector3.one;
+			hudCanvas.transform.localScale = 0.5f / hudPixelWidth * Vector3.one;
 			hudCanvas.gameObject.SetActive(true);
 		}
 
@@ -66,19 +74,20 @@ namespace KerbalVR
 
 		protected void Update()
 		{
-			if (label != null && FlightGlobals.ActiveVessel != null)
+			if (altitudeLabel != null && FlightGlobals.ActiveVessel != null)
 			{
 				Utils.HumanizeQuantity((float)FlightGlobals.ActiveVessel.radarAltitude, "m", out float altitude, out string altitudeUnits);
 
 				var formatString = FlightGlobals.ActiveVessel.radarAltitude < 10 ? "F1" : "F0";
 
-				label.text = "Altitude: " + altitude.ToString(formatString) + " " + altitudeUnits;
+				altitudeLabel.text = "Altitude: " + altitude.ToString(formatString) + " " + altitudeUnits;
 			}
 		}
 
 		protected void CreateHeadUpDisplayUI()
 		{
 			// create a static reticle in the center
+			/*
 			GameObject reticleImageGO = new GameObject("Reticle");
 			reticleImageGO.AddComponent<CanvasRenderer>();
 			Image reticleImage = reticleImageGO.AddComponent<Image>();
@@ -95,24 +104,31 @@ namespace KerbalVR
 			reticleImage.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, hudPixelHeight);
 			reticleImage.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, hudPixelHeight);
 			reticleImage.rectTransform.localPosition = new Vector3(0f, 0f);
+			*/
+
+			compassImage = new GameObject("CompassImage").AddComponent<Image>();
+			compassImage.material = new Material(Shader.Find("Unlit/Transparent"));
+			compassImage.material.mainTexture = GameDatabase.Instance.GetTexture(Path.Combine(Globals.KERBALVR_TEXTURES_DIR, "hud_compass").Replace('\\', '/'), false);
+			compassImage.transform.SetParent(hudCanvas.transform, false);
+			compassImage.transform.localPosition = new Vector3(0.0f, -hudPixelHeight * 0.4f);
+			compassImage.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 1280);
+			compassImage.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 80);
 
 			// information text labels
 			TMP_FontAsset font = KerbalVR.AssetLoader.Instance.GetTmpFont("Futura_Medium_BT");
-			GameObject altitudeLabel = new GameObject("AltitudeLabel");
-			altitudeLabel.AddComponent<CanvasRenderer>();
-			label = altitudeLabel.AddComponent<TextMeshPro>();
-			label.text = "Altitude: ";
-			label.font = font;
-			label.fontSize = 600f;
-			label.color = Color.white;
-			label.alignment = TextAlignmentOptions.TopLeft;
-			label.transform.SetParent(hudCanvas.transform, false);
-			label.rectTransform.anchorMin = new Vector2(0f, 1f);
-			label.rectTransform.anchorMax = new Vector2(0f, 1f);
-			label.rectTransform.pivot = new Vector2(0f, 1f);
-			label.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 1000);
-			label.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 300);
-			label.rectTransform.localPosition = new Vector3(-hudPixelWidth * 0.45f, hudPixelHeight * 0.4f);
+			altitudeLabel = new GameObject("AltitudeLabel").AddComponent<TextMeshPro>();
+			altitudeLabel.text = "Altitude: ";
+			altitudeLabel.font = font;
+			altitudeLabel.fontSize = 600f;
+			altitudeLabel.color = Color.white;
+			altitudeLabel.alignment = TextAlignmentOptions.TopLeft;
+			altitudeLabel.transform.SetParent(hudCanvas.transform, false);
+			altitudeLabel.rectTransform.anchorMin = new Vector2(0f, 1f);
+			altitudeLabel.rectTransform.anchorMax = new Vector2(0f, 1f);
+			altitudeLabel.rectTransform.pivot = new Vector2(0f, 1f);
+			altitudeLabel.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 1000);
+			altitudeLabel.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 300);
+			altitudeLabel.rectTransform.localPosition = new Vector3(-hudPixelWidth * 0.45f, hudPixelHeight * 0.4f);
 		}
 	}
 #endif
