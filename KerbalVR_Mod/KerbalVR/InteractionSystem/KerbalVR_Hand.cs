@@ -119,7 +119,6 @@ namespace KerbalVR
 		/// <exception cref="Exception"></exception>
 		public void Initialize(SteamVR_Input_Sources handType, Hand otherHand)
 		{
-			handActionPose = SteamVR_Input.GetPoseAction("default", "Pose");
 			this.handType = handType;
 			this.otherHand = otherHand;
 
@@ -129,6 +128,14 @@ namespace KerbalVR
 				throw new ArgumentException("handType must be LeftHand or RightHand");
 			}
 			isRightHand = handType == SteamVR_Input_Sources.RightHand;
+
+			if (!Core.IsVrEnabled)
+			{
+				enabled = false;
+				return;
+			}
+
+			handActionPose = SteamVR_Input.GetPoseAction("default", "Pose");
 
 			// load hand profile
 			HandProfileManager handSetting = HandProfileManager.Instance;
@@ -226,7 +233,7 @@ namespace KerbalVR
 			pinchCollider.Initialize(this);
 
 			#endregion
-
+			
 			#region Setup skeleton helper
 
 			KerbalSkeletonHelper ivaSkeletonHelper = IVAObject.AddComponent<KerbalSkeletonHelper>();
@@ -421,6 +428,8 @@ namespace KerbalVR
 
 		private void SwitchProfile()
 		{
+			if (!Core.IsVrEnabled) return;
+
 			Utils.SetLayer(gameObject, UseIVAProfile ? 20 : 0);
 			palmTransform.gameObject.layer = UseIVAProfile ? 20 : 3;
 

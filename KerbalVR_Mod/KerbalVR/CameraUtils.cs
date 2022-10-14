@@ -13,7 +13,7 @@ namespace KerbalVR
 		public static GameObject CreateVRAnchor(Camera camera)
 		{
 			var anchorName = camera.name + "VRAnchor";
-			var anchorTransform = camera.transform.parent.Find(anchorName);
+			var anchorTransform = camera.transform.parent?.Find(anchorName);
 			if (anchorTransform == null)
 			{
 				anchorTransform = new GameObject(anchorName).transform;

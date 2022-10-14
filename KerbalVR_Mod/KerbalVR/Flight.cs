@@ -59,25 +59,28 @@ namespace KerbalVR
 			GameEvents.OnCameraChange.Add(OnCameraChange);
 			GameEvents.onVesselChange.Add(OnVesselChange);
 
-			m_moveStickAction = SteamVR_Input.GetVector2Action("MoveStick");
-			m_lookStickAction = SteamVR_Input.GetVector2Action("LookStick");
-			m_rcsUpAction = SteamVR_Input.GetSingleAction("RCSUp");
-			m_rcsDownAction = SteamVR_Input.GetSingleAction("RCSDown");
-			m_toggleRCSAction = SteamVR_Input.GetBooleanAction("ToggleRCS");
-			m_toggleLightAction = SteamVR_Input.GetBooleanAction("ToggleLight");
-			m_jumpAction = SteamVR_Input.GetBooleanAction("Jump");
-			m_sprintAction = SteamVR_Input.GetBooleanAction("Sprint");
-			m_swapRollYawAction = SteamVR_Input.GetBooleanAction("SwapRollYaw");
-			m_plantFlagAction = SteamVR_Input.GetBooleanAction("PlantFlag");
+			m_headUpDisplay = new GameObject("HUDCanvas").AddComponent<HeadUpDisplay>();
 
-			m_toggleRCSAction.onStateDown += ToggleRCS_OnStateDown;
-			m_toggleLightAction.onStateDown += ToggleLight_OnStateDown;
-			m_sprintAction.onStateDown += Sprint_OnStateDown;
-			m_swapRollYawAction.onStateDown += SwapRollYaw_OnStateDown;
-			m_jumpAction.onStateDown += Jump_OnStateDown;
-			m_plantFlagAction.onStateDown += PlantFlag_OnStateDown;
+			if (Core.IsVrEnabled)
+			{
+				m_moveStickAction = SteamVR_Input.GetVector2Action("MoveStick");
+				m_lookStickAction = SteamVR_Input.GetVector2Action("LookStick");
+				m_rcsUpAction = SteamVR_Input.GetSingleAction("RCSUp");
+				m_rcsDownAction = SteamVR_Input.GetSingleAction("RCSDown");
+				m_toggleRCSAction = SteamVR_Input.GetBooleanAction("ToggleRCS");
+				m_toggleLightAction = SteamVR_Input.GetBooleanAction("ToggleLight");
+				m_jumpAction = SteamVR_Input.GetBooleanAction("Jump");
+				m_sprintAction = SteamVR_Input.GetBooleanAction("Sprint");
+				m_swapRollYawAction = SteamVR_Input.GetBooleanAction("SwapRollYaw");
+				m_plantFlagAction = SteamVR_Input.GetBooleanAction("PlantFlag");
 
-			m_headUpDisplay = gameObject.AddComponent<HeadUpDisplay>();
+				m_toggleRCSAction.onStateDown += ToggleRCS_OnStateDown;
+				m_toggleLightAction.onStateDown += ToggleLight_OnStateDown;
+				m_sprintAction.onStateDown += Sprint_OnStateDown;
+				m_swapRollYawAction.onStateDown += SwapRollYaw_OnStateDown;
+				m_jumpAction.onStateDown += Jump_OnStateDown;
+				m_plantFlagAction.onStateDown += PlantFlag_OnStateDown;
+			}
 		}
 
 		private void OnVesselChange(Vessel data)
@@ -103,14 +106,19 @@ namespace KerbalVR
 				KerbalVR.InteractionSystem.Instance.transform.parent = null;
 			}
 
-			m_toggleRCSAction.onStateDown -= ToggleRCS_OnStateDown;
-			m_toggleLightAction.onStateDown -= ToggleLight_OnStateDown;
-			m_sprintAction.onStateDown -= Sprint_OnStateDown;
-			m_swapRollYawAction.onStateDown -= SwapRollYaw_OnStateDown;
-			m_jumpAction.onStateDown -= Jump_OnStateDown;
-			m_plantFlagAction.onStateDown -= PlantFlag_OnStateDown;
+			Destroy(m_headUpDisplay);
 
 			Instance = null;
+
+			if (Core.IsVrEnabled)
+			{
+				m_toggleRCSAction.onStateDown -= ToggleRCS_OnStateDown;
+				m_toggleLightAction.onStateDown -= ToggleLight_OnStateDown;
+				m_sprintAction.onStateDown -= Sprint_OnStateDown;
+				m_swapRollYawAction.onStateDown -= SwapRollYaw_OnStateDown;
+				m_jumpAction.onStateDown -= Jump_OnStateDown;
+				m_plantFlagAction.onStateDown -= PlantFlag_OnStateDown;
+			}
 		}
 
 		// Note, jumping in EVA isn't handled here; it's hooked into the kerbal FSM.  This is just for exiting an external seat or getting off a ladder
@@ -288,11 +296,11 @@ namespace KerbalVR
 		{
 			Utils.Log("Flight.FixEVACamera");
 
-			if (KerbalVR.InteractionSystem.Instance == null) return;
+			StartCoroutine(SetupHeadsUpDisplay());
+
+			if (!Core.IsVrEnabled) return;
 
 			KerbalVR.InteractionSystem.Instance.transform.SetParent(FlightCamera.fetch.transform, false);
-
-			StartCoroutine(SetupHeadsUpDisplay());
 
 			Utils.GetOrAddComponent<KerbalVR_ArmScaler>(kerbalEVA.gameObject);
 

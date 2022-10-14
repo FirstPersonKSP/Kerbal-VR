@@ -22,12 +22,19 @@ namespace KerbalVR
 
 		void Awake()
 		{
+			Instance = this;
+
+			if (!Core.IsVrEnabled)
+			{
+				enabled = false;
+				return;
+			}
+
 			EventSystem.current.gameObject.AddComponent<VRLaserInputModule>();
 			EventSystem.current.gameObject.AddComponent<VRFingerTipInputModule>();
 
 			GameEvents.onPartActionUIShown.Add(OnPartActionUIShown);
 			GameEvents.onPartActionUIDismiss.Add(OnPartActionUIDismiss);
-			Instance = this;
 
 			m_pdaCanvasAnchor = new GameObject("VR PDA Canvas Anchor").transform;
 			m_pdaCanvasAnchor.localRotation = pdaRotation;
@@ -76,6 +83,8 @@ namespace KerbalVR
 
 		internal void VRRunningChanged(bool running)
 		{
+			if (!Core.IsVrEnabled) return;
+
 			running = running && !Scene.IsInIVA();
 
 			ConfigureCanvas(UIMasterController.Instance.actionCanvas, running);
