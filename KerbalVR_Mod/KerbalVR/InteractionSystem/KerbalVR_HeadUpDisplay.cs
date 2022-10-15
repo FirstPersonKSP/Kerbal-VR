@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using Valve.VR;
 using TMPro;
 using KSP.UI.Screens.Flight;
+using KSP.UI.Screens;
 
 namespace KerbalVR
 {
@@ -27,7 +28,7 @@ namespace KerbalVR
 		protected TextMeshPro horizontalSpeed;
 		protected TextMeshPro verticalSpeed;
 		protected TextMeshPro totalSpeed;
-		NavBall navball;
+		HUDResourceMeter resourceMeter;
 		#endregion
 
 
@@ -45,8 +46,6 @@ namespace KerbalVR
 			hudCanvas.worldCamera = FlightCamera.fetch.cameras[0];
 			hudCanvas.planeDistance = 2f;
 			hudCanvasGameObject.AddComponent<CanvasScaler>();
-
-			navball = GameObject.FindObjectOfType<NavBall>();
 
 			// create UI elements
 			CreateHeadUpDisplayUI();
@@ -99,15 +98,27 @@ namespace KerbalVR
 				altitudeLabel.text = "Altitude: " + altitude.ToString(formatString) + " " + altitudeUnits;
 
 
-				horizontalSpeed.text = GetSpeedString((float)activeVessel.horizontalSrfSpeed);
-				verticalSpeed.text = GetSpeedString((float)activeVessel.verticalSpeed);
-				totalSpeed.text = GetSpeedString((float)activeVessel.speed);
+				horizontalSpeed.text = "H: " + GetSpeedString((float)activeVessel.horizontalSrfSpeed);
+				verticalSpeed.text = "V: " + GetSpeedString((float)activeVessel.verticalSpeed);
+				totalSpeed.text = "T: " + GetSpeedString((float)activeVessel.speed);
 
 				Quaternion quaternion = Quaternion.LookRotation(activeVessel.north, activeVessel.upAxis);
 				Quaternion quaternion2 = Quaternion.Inverse(Quaternion.Euler(90f, 0f, 0f) * Quaternion.Inverse(activeVessel.GetTransform().rotation) * quaternion);
 				float heading = quaternion2.eulerAngles.y;
-				compassImage.material.mainTextureOffset = new Vector2(heading / 360.0f + 0.5f, 0);
+				compassImage.material.mainTextureScale = new Vector2(0.25f, 1.0f);
+				compassImage.material.mainTextureOffset = new Vector2((heading - 90) / 360.0f + 0.5f * 0.25f, 0);
+
+				UpdateResources();
 			}
+		}
+
+		private void UpdateResources()
+		{
+			Vessel activeVessel = FlightGlobals.ActiveVessel;
+
+			var resourceInfo = activeVessel.evaController.propellantResource;
+
+			resourceMeter.SetData(resourceInfo.info.displayName, resourceInfo.amount, resourceInfo.maxAmount);
 		}
 
 		protected void CreateHeadUpDisplayUI()
@@ -158,8 +169,16 @@ namespace KerbalVR
 
 			// speed labels
 			horizontalSpeed = CreateLabel("HorizontalSpeed", 200, 0.92f, 0.15f, 240, 32);
-			verticalSpeed = CreateLabel("VerticalSpeed", 200, 0.95f, 0.17f, 240, 32);
-			totalSpeed = CreateLabel("TotalSpeed", 200, 0.90f, 0.20f, 240, 32);
+			verticalSpeed = CreateLabel("VerticalSpeed", 200, 0.92f, 0.17f, 240, 32);
+			totalSpeed = CreateLabel("TotalSpeed", 200, 0.92f, 0.19f, 240, 32);
+
+			// resources
+			resourceMeter = new GameObject("resourceMeter").AddComponent<HUDResourceMeter>();
+			resourceMeter.transform.SetParent(hudCanvas.transform, false);
+			resourceMeter.rectTransform.anchorMin = new Vector2(1f, 1f);
+			resourceMeter.rectTransform.anchorMax = new Vector2(1f, 1f);
+			resourceMeter.rectTransform.localPosition = new Vector3(hudPixelWidth * 0.4f, hudPixelHeight * 0.45f);
+
 		}
 
 		TextMeshPro CreateLabel(string name, float fontSize, float relPositionX, float relPositionY, float width, float height)
@@ -174,6 +193,37 @@ namespace KerbalVR
 			label.rectTransform.localPosition = new Vector3(hudPixelWidth * (relPositionX - 0.5f), hudPixelHeight * (relPositionY -0.5f));
 
 			return label;
+		}
+	}
+
+	public class HUDResourceMeter : Image
+	{
+		Image m_barImage;
+		TextMeshPro m_nameLabel;
+		TextMeshPro m_amountLabel;
+
+		public void Start()
+		{
+			this.color = Color.white;
+			
+			rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 300);
+			rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 20);
+
+			m_barImage = new GameObject("bar").AddComponent<Image>();
+			m_barImage.transform.SetParent(transform, false);
+			m_barImage.rectTransform.anchorMin = new Vector2(0, 0);
+			m_barImage.rectTransform.anchorMax = new Vector2(1, 1);
+			m_barImage.rectTransform.sizeDelta = new Vector2(0.8f, 0.8f);
+			m_barImage.color = Color.green;
+			m_barImage.type = Type.Filled;
+			m_barImage.fillOrigin = (int)Image.OriginHorizontal.Left;
+			m_barImage.fillMethod = FillMethod.Horizontal;
+			m_barImage.sprite = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 1, 1), Vector2.zero);
+		}
+
+		public void SetData(string resourceName, double currentAmount, double capacity)
+		{
+			m_barImage.fillAmount = (float)(currentAmount / capacity);
 		}
 	}
 #endif
