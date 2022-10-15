@@ -105,8 +105,8 @@ namespace KerbalVR
 				Quaternion quaternion = Quaternion.LookRotation(activeVessel.north, activeVessel.upAxis);
 				Quaternion quaternion2 = Quaternion.Inverse(Quaternion.Euler(90f, 0f, 0f) * Quaternion.Inverse(activeVessel.GetTransform().rotation) * quaternion);
 				float heading = quaternion2.eulerAngles.y;
-				compassImage.material.mainTextureScale = new Vector2(0.25f, 1.0f);
-				compassImage.material.mainTextureOffset = new Vector2((heading - 90) / 360.0f + 0.5f * 0.25f, 0);
+				compassImage.material.mainTextureScale = new Vector2(0.2f, 1.0f);
+				compassImage.material.mainTextureOffset = new Vector2(heading / 360.0f - 0.5f * 0.2f, 0);
 
 				UpdateResources();
 			}
@@ -219,11 +219,37 @@ namespace KerbalVR
 			m_barImage.fillOrigin = (int)Image.OriginHorizontal.Left;
 			m_barImage.fillMethod = FillMethod.Horizontal;
 			m_barImage.sprite = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 1, 1), Vector2.zero);
+
+			m_nameLabel = new GameObject("name").AddComponent<TextMeshPro>();
+			m_nameLabel.transform.SetParent(transform, false);
+			m_nameLabel.color = Color.white;
+			m_nameLabel.fontSize = 100;
+			m_nameLabel.rectTransform.anchoredPosition = new Vector2(-400, 0);
+			//m_nameLabel.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 400);
+			//m_nameLabel.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 100);
+			m_nameLabel.enabled = false;
+
+			m_amountLabel = new GameObject("amount").AddComponent<TextMeshPro>();
+			m_amountLabel.transform.SetParent(m_barImage.transform, false);
+			m_amountLabel.color = Color.black;
+			m_amountLabel.fontSize = 100;
+			m_amountLabel.enabled = false;
+
+		}
+
+		public string ResourceName
+		{
+			get { return m_nameLabel.text; }
+			set { 
+				// m_nameLabel.text = value;
+				}
 		}
 
 		public void SetData(string resourceName, double currentAmount, double capacity)
 		{
 			m_barImage.fillAmount = (float)(currentAmount / capacity);
+			m_nameLabel.text = resourceName;
+			m_amountLabel.text = currentAmount.ToString("F2") + " / " + capacity.ToString("F2");
 		}
 	}
 #endif
