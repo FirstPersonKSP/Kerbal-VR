@@ -156,7 +156,7 @@ namespace KerbalVR
 			altitudeLabel = new GameObject("AltitudeLabel").AddComponent<TextMeshPro>();
 			altitudeLabel.text = "Altitude: ";
 			altitudeLabel.font = font;
-			altitudeLabel.fontSize = 600f;
+			altitudeLabel.fontSize = 200f;
 			altitudeLabel.color = Color.white;
 			altitudeLabel.alignment = TextAlignmentOptions.TopLeft;
 			altitudeLabel.transform.SetParent(hudCanvas.transform, false);
