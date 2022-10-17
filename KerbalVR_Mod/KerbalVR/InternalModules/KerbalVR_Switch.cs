@@ -1,5 +1,6 @@
 ﻿using KerbalVR.IVAAdaptors;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -202,6 +203,12 @@ namespace KerbalVR.InternalModules
 
 			public void OnExit(Hand hand, Collider buttonCollider)
 			{
+				StartCoroutine(OnExitDeferred());
+			}
+
+			IEnumerator OnExitDeferred()
+			{
+				yield return null; // wait a frame so that RPM can update
 				SetAngleToSwitchState();
 				switchModule.m_ivaSwitch.SetAnimationsEnabled(true);
 			}

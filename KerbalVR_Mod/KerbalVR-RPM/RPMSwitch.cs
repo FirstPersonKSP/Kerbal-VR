@@ -40,6 +40,7 @@ namespace KerbalVR_RPM
 		}
 
 		JSI.JSIActionGroupSwitch m_rpmComponent;
+		Animation m_animation;
 
 		public RPMSwitch(JSI.JSIActionGroupSwitch switchComponent)
 		{
@@ -56,6 +57,20 @@ namespace KerbalVR_RPM
 			if (newState != CurrentState)
 			{
 				m_rpmComponent.Click();
+				m_rpmComponent.currentState = newState;
+			}
+		}
+
+		public override void SetAnimationsEnabled(bool enabled)
+		{
+			if (enabled)
+			{
+				m_rpmComponent.anim = m_animation;
+			}
+			else if (m_rpmComponent.anim != null)
+			{
+				m_animation = m_rpmComponent.anim;
+				m_rpmComponent.anim = null;
 			}
 		}
 	}
