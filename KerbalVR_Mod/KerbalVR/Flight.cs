@@ -213,7 +213,7 @@ namespace KerbalVR
 				FixFlightCamera();
 			}
 
-			InteractionSystem.Instance.UseIVAProfile = (mode == CameraManager.CameraMode.IVA);
+			InteractionSystem.Instance.UseIVAProfile = Scene.IsInIVA();
 		}
 		
 		private void FixFlightCamera()
@@ -229,7 +229,8 @@ namespace KerbalVR
 
 			if (KerbalVR.InteractionSystem.Instance == null) return;
 
-			Transform eyeTransform = InternalCamera.Instance.transform.parent;
+			var eyeTransform = CameraUtils.CreateVRAnchor(InternalCamera.Instance._camera).transform;
+
 			eyeTransform.localScale = Vector3.one;
 			InternalCamera.Instance.transform.localScale = Vector3.one;
 			KerbalVR.InteractionSystem.Instance.transform.localScale = Vector3.one;
