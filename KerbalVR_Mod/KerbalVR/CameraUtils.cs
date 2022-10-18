@@ -15,7 +15,7 @@ namespace KerbalVR
 			var anchorName = camera.name + "VRAnchor";
 			
 			Transform anchorTransform;
-			if (camera.transform.parent.name == anchorName)
+			if (camera.transform.parent?.name == anchorName)
 			{
 				anchorTransform = camera.transform.parent;
 			}
