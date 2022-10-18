@@ -13,16 +13,27 @@ namespace KerbalVR
 		public static GameObject CreateVRAnchor(Camera camera)
 		{
 			var anchorName = camera.name + "VRAnchor";
-			var anchorTransform = camera.transform.parent?.Find(anchorName);
-			if (anchorTransform == null)
+			
+			Transform anchorTransform;
+			if (camera.transform.parent.name == anchorName)
 			{
-				anchorTransform = new GameObject(anchorName).transform;
+				anchorTransform = camera.transform.parent;
 			}
-			anchorTransform.localPosition = camera.transform.localPosition;
-			anchorTransform.localRotation = camera.transform.localRotation;
-			anchorTransform.localScale = camera.transform.localScale;
-			anchorTransform.SetParent(camera.transform.parent, false);
-			camera.transform.SetParent(anchorTransform, false);
+			else
+			{
+				anchorTransform = camera.transform.parent?.Find(anchorName);
+				if (anchorTransform == null)
+				{
+					anchorTransform = new GameObject(anchorName).transform;
+					anchorTransform.SetParent(camera.transform.parent, false);
+				}
+
+				anchorTransform.localPosition = camera.transform.localPosition;
+				anchorTransform.localRotation = camera.transform.localRotation;
+				anchorTransform.localScale = camera.transform.localScale;
+				camera.transform.SetParent(anchorTransform, false);
+			}
+			
 			camera.transform.localPosition = Vector3.zero;
 			camera.transform.localRotation = Quaternion.identity;
 			camera.transform.localScale = Vector3.one;
