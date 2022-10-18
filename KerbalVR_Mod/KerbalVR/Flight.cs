@@ -274,6 +274,7 @@ namespace KerbalVR
 				// does this mess with our external view of the rocket...?
 				var anchorTransform = CameraUtils.CreateVRAnchor(InternalCamera.Instance._camera).transform;
 				var eyeTransform = anchorTransform.parent;
+				eyeTransform.localScale = Vector3.one;
 				anchorTransform.localScale = Vector3.one;
 				InternalCamera.Instance.transform.localScale = Vector3.one;
 				KerbalVR.InteractionSystem.Instance.transform.localScale = Vector3.one;
