@@ -6,7 +6,7 @@
     "author": [
         "JonnyOThan"
     ],
-    "version": "2022.06.18.04.20.19",
+    "version": "2022.10.18.04.20.19",
     "ksp_version_min": "1.12.3",
     "license": [
         "unknown"
@@ -46,6 +46,9 @@
       },
       {
         "name": "Chatterer"
+      },
+      {
+        "name": "ProbeControlRoomRecontrolled"
       }
     ],
     "suggests": [
@@ -57,8 +60,11 @@
         },
         {
           "name": "BluedogDB"
-        }
+        },
+      {
+        "name": "AvionicsSystems"
+      }
     ],
     "kind": "metapackage",
-    "release_date": "2022-06-18T12:20:19.2682623-04:00"
+    "release_date": "2022-10-18T12:20:19.2682623-04:00"
 }
