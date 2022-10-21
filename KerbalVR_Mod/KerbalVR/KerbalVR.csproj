@@ -48,16 +48,16 @@
     <ManagedRelativePath Condition="$([MSBuild]::IsOsPlatform('Windows'))">KSP_x64_Data\Managed</ManagedRelativePath>
     <ManagedRelativePath Condition="$([MSBuild]::IsOsPlatform('OSX'))">KSP.app\Contents\Resources\Data\Managed</ManagedRelativePath>
     <ManagedRelativePath Condition="$([MSBuild]::IsOsPlatform('Linux'))">KSP_Data\Managed</ManagedRelativePath>
-    <ManagedPath>$(ReferencePath)\$(ManagedRelativePath)</ManagedPath>
+    <ManagedPath>$(ReferencePath)$(ManagedRelativePath)</ManagedPath>
     <StartAction>Program</StartAction>
-    <StartProgram>$(ReferencePath)\$(KSPExecutable)</StartProgram>
+    <StartProgram>$(ReferencePath)$(KSPExecutable)</StartProgram>
     <StartWorkingDirectory>$(ReferencePath)</StartWorkingDirectory>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="$(ReferencePath)\GameData\KerbalVR\Plugins\KSPDev_Utils.2.7.dll">
+    <Reference Include="$(ReferencePath)GameData\KerbalVR\Plugins\KSPDev_Utils.2.7.dll">
       <Private>False</Private>
     </Reference>
-    <Reference Include="$(ReferencePath)\GameData\000_Harmony\0Harmony.dll">
+    <Reference Include="$(ReferencePath)GameData\000_Harmony\0Harmony.dll">
       <Private>False</Private>
     </Reference>
     <Reference Include="$(ManagedPath)\Assembly-CSharp.dll">
@@ -67,7 +67,7 @@
       <Private>false</Private>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="$(ReferencePath)\GameData\ThroughTheEyes\Plugins\ThroughTheEyes.dll">
+    <Reference Include="$(ReferencePath)GameData\ThroughTheEyes\Plugins\ThroughTheEyes.dll">
       <Private>False</Private>
     </Reference>
     <Reference Include="$(ManagedPath)\UnityEngine.dll">
