@@ -223,7 +223,7 @@ namespace KerbalVR
 			KerbalVR.InteractionSystem.Instance.transform.localRotation = Quaternion.identity;
 		}
 
-		private void FixInternalCamera()
+		internal void FixInternalCamera()
 		{
 			Utils.Log("Flight.FixInternalCamera");
 
@@ -273,7 +273,7 @@ namespace KerbalVR
 				// this messes with the camera projection and the size/movement of the hands.
 				// does this mess with our external view of the rocket...?
 				var anchorTransform = CameraUtils.CreateVRAnchor(InternalCamera.Instance._camera).transform;
-				var eyeTransform = anchorTransform.parent;
+				var eyeTransform = CameraManager.Instance.IVACameraActiveKerbal.protoCrewMember.KerbalRef.eyeTransform;
 				eyeTransform.localScale = Vector3.one;
 				anchorTransform.localScale = Vector3.one;
 				InternalCamera.Instance.transform.localScale = Vector3.one;
@@ -328,6 +328,15 @@ namespace KerbalVR
 			m_headUpDisplay.enabled = Scene.IsFirstPersonEVA();
 		}
 
+		internal Vector3 GetKerbalMovementThrottle()
+		{
+			Vector2 moveStick = m_moveStickAction.GetAxis(SteamVR_Input_Sources.Any);
+			return new Vector3(
+				moveStick.x,
+				m_rcsUpAction.GetAxis(SteamVR_Input_Sources.Any) - m_rcsDownAction.GetAxis(SteamVR_Input_Sources.Any),
+				moveStick.y);
+		}
+
 		public void HandleMovementInput_Prefix(KerbalEVA kerbalEVA)
 		{
 			if (!kerbalEVA.VesselUnderControl || !Core.IsVrRunning)
@@ -338,26 +347,25 @@ namespace KerbalVR
 			// this enables "FPS" controls so the character will strafe instead of turning and walking
 			kerbalEVA.CharacterFrameModeToggle = true;
 
-			Vector2 moveStickInput = m_moveStickAction.GetAxis(SteamVR_Input_Sources.Any);
-			float verticalInput = m_rcsUpAction.GetAxis(SteamVR_Input_Sources.Any) - m_rcsDownAction.GetAxis(SteamVR_Input_Sources.Any);
+			Vector3 movementThrottle = GetKerbalMovementThrottle();
 
 			// TODO: deadzone/exponent? builtin response seems OK
 
-			if (m_sprintAction.state && moveStickInput.y > 0.5f)
+			if (m_sprintAction.state && movementThrottle.y > 0.5f)
 			{
 				m_isSprinting = true;
 			}
 
-			if (m_isSprinting && moveStickInput.y < 0.5f || kerbalEVA.JetpackDeployed)
+			if (m_isSprinting && movementThrottle.y < 0.5f || kerbalEVA.JetpackDeployed)
 			{
 				m_isSprinting = false;
 			}
 
 			Vector3 tgtRpos =
-				moveStickInput.y * kerbalEVA.transform.forward +
-				moveStickInput.x * kerbalEVA.transform.right;
+				movementThrottle.y * kerbalEVA.transform.forward +
+				movementThrottle.x * kerbalEVA.transform.right;
 
-			Vector3 packTgtRpos = tgtRpos + verticalInput * kerbalEVA.transform.up;
+			Vector3 packTgtRpos = tgtRpos + movementThrottle.z * kerbalEVA.transform.up;
 
 			kerbalEVA.tgtRpos = tgtRpos;
 			kerbalEVA.packTgtRPos = packTgtRpos;
@@ -398,6 +406,15 @@ namespace KerbalVR
 			kerbalEVA.parachuteInput.y = Mathf.Clamp(lookStickInput.x + moveStickInput.x, -1.0f, 1.0f);
 		}
 
+		internal void GetKerbalRotationInput(out float yaw, out float pitch, out float roll)
+		{
+			Vector2 lookStickInput = m_lookStickAction.GetAxis(SteamVR_Input_Sources.Any);
+
+			yaw = m_lookStickIsRoll ? 0.0f : lookStickInput.x; // rotation around up
+			pitch = lookStickInput.y; // rotation around right
+			roll = m_lookStickIsRoll ? -lookStickInput.x : 0.0f; // rotation around forward
+		}
+
 		public void FPStateFloating_PreOnFixedUpdate_Postfix(KerbalEVA kerbalEVA)
 		{
 			if (!kerbalEVA.VesselUnderControl ||
@@ -410,11 +427,7 @@ namespace KerbalVR
 
 			// ----- rotation
 
-			Vector2 lookStickInput = m_lookStickAction.GetAxis(SteamVR_Input_Sources.Any);
-
-			float yaw = m_lookStickIsRoll ? 0.0f : lookStickInput.x; // rotation around up
-			float pitch = lookStickInput.y; // rotation around right
-			float roll = m_lookStickIsRoll ? -lookStickInput.x : 0.0f; // rotation around forward
+			GetKerbalRotationInput(out float yaw, out float pitch, out float roll);
 
 			Vector3 cmdRot =
 				yaw * kerbalEVA.transform.up +

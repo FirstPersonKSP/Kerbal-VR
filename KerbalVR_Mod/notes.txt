@@ -1,112 +1,69 @@
-﻿Where are all the cameras?
+﻿when in IVA:
 
-+		[0]	"GalaxyCamera (UnityEngine.Camera)"	UnityEngine.Camera
-			Scene path	"GameManagement/Scenery/VRDisablePositionTracking/GalaxyCamera"	string
-				Scenery transform: identity
-				GameManagement transform: 
-	-		Components		
-		+		[0]	"GalaxyCamera (UnityEngine.Transform)"	UnityEngine.Component
-		+		[1]	"GalaxyCamera (UnityEngine.Camera)"	UnityEngine.Component
-		+		[2]	"GalaxyCamera (FollowRot)"	UnityEngine.Component
-						followX	true	bool
-						followY	true	bool
-						followZ	true	bool
-				-		tgt	"Camera ScaledSpace (UnityEngine.Transform)"	UnityEngine.Transform
+InternalCamera:
+		Scene path	"internalSpace/mk2InlineInternal interior/model/Squad/Spaces/mk2InlineInternal/mk2InlineIVA(Clone)/Seat1/Defred Kerman/IVA EyeTransform/InternalCameraVRAnchor/InternalCamera"	string
+
+		This object contains both the InternalCamera component and the Camera component
+
+		InteractionSystem is also a child of the InternalCameraVRAnchor
+
+FlightCamera.fetch:
+		Scene path	"mk2Cockpit.Inline (Untitled Space Craft)/main camera pivot/Camera LocalSpace"	string
+		-		Components		
++		[0]	"Camera LocalSpace (UnityEngine.Transform)"	UnityEngine.Component
++		[1]	"Camera LocalSpace (FlightCamera)"	UnityEngine.Component
++		[2]	"Camera LocalSpace (VolumeNormalizer)"	UnityEngine.Component
++		[3]	"Camera LocalSpace (LocalPhysXGravity)"	UnityEngine.Component
++		[4]	"Camera LocalSpace (CameraFX)"	UnityEngine.Component
+
+-		Children		
++		[0]	"Camera 01 (UnityEngine.GameObject)"	UnityEngine.GameObject
++		[1]	"Camera 00 (UnityEngine.GameObject)"	UnityEngine.GameObject
++		[2]	"FXCamera (UnityEngine.GameObject)"	UnityEngine.GameObject
++		[3]	"FXDepthCamera (UnityEngine.GameObject)"	UnityEngine.GameObject
 
 
-+		[1]	"Camera ScaledSpace (UnityEngine.Camera)"	UnityEngine.Camera
-			Scene path	"scaledSpace/Camera ScaledSpace"	string
-	-		Children
-		+		[0]	"MapFX Camera 88 (UnityEngine.GameObject)"	UnityEngine.GameObject
-		+		[1]	"MapFX Camera 89 (UnityEngine.GameObject)"	UnityEngine.GameObject
-	-		Components		
-		+		[0]	"Camera ScaledSpace (UnityEngine.Transform)"	UnityEngine.Component
-		+		[1]	"Camera ScaledSpace (UnityEngine.Camera)"	UnityEngine.Component
-		+		[2]	"Camera ScaledSpace (UnityEngine.FlareLayer)"	UnityEngine.Component
-		+		[3]	"Camera ScaledSpace (PlanetariumCamera)"	UnityEngine.Component
-		+		[4]	"Camera ScaledSpace (ScaledCamera)"	UnityEngine.Component
-		+		[5]	"Camera ScaledSpace (UnityEngine.AudioListener)"	UnityEngine.Component
-		+		[6]	"Camera ScaledSpace (FinePrint.WaypointManager)"	UnityEngine.Component
-			transform
-			+		localPosition	"(0.1, 1.3, 0.1)"	UnityEngine.Vector3
-			+		localRotation	"(0.2, 0.2, -0.3, 0.9)"	UnityEngine.Quaternion
-			+		localScale	"(1.0, 1.0, 1.0)"	UnityEngine.Vector3
+FlightCamera.LateUpdate 
+	if (updateActive) // note - when in IVA, updateActive is false
+		UpdateCameraTransform
+			sets this object's transform according to cameraFX (wobble)
 
 
 
-+		[2]	"Camera 00 (UnityEngine.Camera)"	UnityEngine.Camera
-	-		Components		
-		+		[0]	"Camera 00 (UnityEngine.Transform)"	UnityEngine.Component
-		+		[1]	"Camera 00 (UnityEngine.Camera)"	UnityEngine.Component
-		+		[2]	"Camera 00 (UnityEngine.FlareLayer)"	UnityEngine.Component
-		+		[3]	"Camera 00 (UnderwaterFog)"	UnityEngine.Component
-		+		[4]	"Camera 00 (Highlighting.HighlightingSystem)"	UnityEngine.Component
-	-		Children		
-		+		[0]	"AudioListener (UnityEngine.GameObject)"	UnityEngine.GameObject
-		+		[1]	"OverlayCam (UnityEngine.GameObject)"	UnityEngine.GameObject
-		+		[2]	"FXCamera (UnityEngine.GameObject)"	UnityEngine.GameObject
-		+		[3]	"FXDepthCamera (UnityEngine.GameObject)"	UnityEngine.GameObject
-		+		[4]	"markerCam (UnityEngine.GameObject)"	UnityEngine.GameObject
-			Scene path	"mk1pod.v2 (Untitled Space Craft)/main camera pivot/Camera LocalSpace/Camera 00"	string
-	-		transform	"Camera 00 (UnityEngine.Transform)"	UnityEngine.Transform
-		+		localPosition	"(0.4, 1.3, 0.0)"	UnityEngine.Vector3
-		+		localRotation	"(0.0, 0.8, -0.2, 0.6)"	UnityEngine.Quaternion
-		+		localScale	"(1.0, 1.0, 1.0)"	UnityEngine.Vector3
+InternalCamera.Update
+	UpdateState
+		sets this object's local transform according to cameraFX (wobble)
+	sets flightcamera's transform according to this object's transform
+
+InternalCamera_UpdateState_Patch.Postfix
+	copies the internalcamera's local position and rotation to its parent transform (the vranchor)
+	this allows for wobble
+
+--------------------------------------------------
+
+KerbalIvaController.Unbuckle
+	sets InternalCamera transform's parent to the KerbalIva object
+
+KerbalIvaController.Buckle
+	sets InternalCamera transform's parent to the kerbalRef.eyeTransform
 
 
-+		[3]	"markerCam (UnityEngine.Camera)"	UnityEngine.Camera
-+		[4]	"UIMainCamera (UnityEngine.Camera)"	UnityEngine.Camera
-+		[5]	"UIVectorCamera (UnityEngine.Camera)"	UnityEngine.Camera
+FreeIVA's tests for hatches, seats, etc are all based on the camera transform
+
+FreeIVA's movement and rotation is relative to camera direction
+
+FreeIVA sets the rotation of the camera directly, doesn't touch the kerbal rotation
+
+---------------------------------------------------------
+
+goal:
+
+3 objects: kerbalIVA, VRAnchor, Camera
+
+FreeIVA should set the camera local transform to 0 and only drive the root transform around
 
 
-Can we subclass one of the cameras and replace it in the hierarchy?
 
-
-------------------------------------------
-internal controls
-mk1pod:
-	// mk1pod flight stick:
-	// internalSpace / mk1pod_IVA interior / model / Squad / Spaces / mk1pod_IVA / mk1pod_IVA(Clone) / rotation / pilot seat_01 / seat / Stick002
-	throttle: Cylinder007
-
-mk1 cockpit:
-	seat is a prop, but the stick and throttle aren't broken out into subobjects
-	will probably need to swap these out for alcor seats
-
-mk1 lander can:
-	same as mk1pod
-	joystick: rotation/pilot seat/seat/Stick002
-	throttle: rotation/pilot seat/seat/Cylinder007
-
---------------------------------------------
-
-rotary switches:
-
-VRKnob internal module
-	stepCount
-
-JSIActionGroupSwitch // used for 2 step switches or switches without left/right buttons e.g. SAS Mode; activates on Click
-	switchSound
-	PLUGINACTION
-		actionMethod // function to call when clicked
-		stateMethod  // function that reports the current state
-
-JSINumericInput // only used for 3 or more steps
-	perPodPersistenceName // variable name to 
-	stepSize
-	minValue
-	maxValue
-	USERINPUTSET
-		increment amount
-		switchSound
-
-JSIVariableAnimator
-	VARIABLESET
-		localRotationStart
-		localRotationEnd
-		scale // maps numeric value range to rotation
-		variableName // the variable to consume
-
-Proposal:
-VRKnob figures out which step you selected and calls a function on the RPMKnob (via IVAKnob) that figures out the right thing to do
--do we need custom function handlers for all the ones that use JSIActionGroupSwitch?
+TODO:
+on unbuckle, create vranchor
+on buckle, create vranchor

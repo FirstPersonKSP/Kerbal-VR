@@ -37,7 +37,7 @@
   <PropertyGroup>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
-  <!--Import targets now, which will import KSPCommunityFixes.csproj.user where the path to the KSP install root must be defined in ReferencePath-->
+  <!--Import targets now, which will import the .csproj.user where the path to the KSP install root must be defined in ReferencePath-->
   <!--This must be done after the main project poperties are defined because it needs the target framework property to be defined -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!--Parse KSP platform-specific paths and set the start action-->
@@ -68,6 +68,9 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="$(ReferencePath)GameData\ThroughTheEyes\Plugins\ThroughTheEyes.dll">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="$(ReferencePath)Gamedata\FreeIVA\Plugins\FreeIva.dll">
       <Private>False</Private>
     </Reference>
     <Reference Include="$(ManagedPath)\UnityEngine.dll">
@@ -113,6 +116,7 @@
   <ItemGroup>
     <Publicize Include="ThroughTheEyes" />
     <Publicize Include="Assembly-CSharp" />
+    <Publicize Include="FreeIva" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Addon.cs" />
@@ -157,6 +161,7 @@
     <Compile Include="Components\KerbalVR_ArmScaler.cs" />
     <Compile Include="KerbalVR_AssetLoader.cs" />
     <Compile Include="KerbalVR_Core.cs" />
+    <Compile Include="KerbalVR_FreeIVA.cs" />
     <Compile Include="KerbalVR_MainMenu.cs" />
     <Compile Include="KerbalVR_Seat.cs" />
     <Compile Include="KerbalVR_SpaceCenter.cs" />
