@@ -55,6 +55,11 @@ namespace KerbalVR
 	[HarmonyPatch(typeof(FreeIva.KerbalIvaController), nameof(FreeIva.KerbalIvaController.Unbuckle))]
 	class KerbalIvaController_Unbuckle_Patch
 	{
+		static void Prefix()
+		{
+			InteractionSystem.Instance.transform.SetParent(null, false);
+		}
+
 		static void Postfix(FreeIva.KerbalIvaController __instance)
 		{
 			FirstPersonKerbalFlight.Instance.FixInternalCamera();
