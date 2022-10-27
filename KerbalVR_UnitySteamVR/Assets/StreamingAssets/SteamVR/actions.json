@@ -57,6 +57,10 @@
       "type": "boolean"
     },
     {
+      "name": "/actions/flight/in/SeatInteraction",
+      "type": "boolean"
+    },
+    {
       "name": "/actions/EVA/in/MoveStick",
       "type": "vector2",
       "requirement": "mandatory"

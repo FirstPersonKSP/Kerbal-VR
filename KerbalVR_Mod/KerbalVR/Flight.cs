@@ -19,7 +19,6 @@ namespace KerbalVR
 		public static FirstPersonKerbalFlight Instance { get; private set; }
 
 		Transform m_lastKerbalTransform = null;
-		VRInternalSeat m_lastSeatInteractable = null;
 		HeadUpDisplay m_headUpDisplay = null;
 
 		static readonly float EVA_PRECISION_MODE_SCALE = 0.5f;
@@ -163,12 +162,6 @@ namespace KerbalVR
 				SetArmBoneScale(m_lastKerbalTransform, Vector3.one);
 				m_lastKerbalTransform = null;
 			}
-
-			if (m_lastSeatInteractable != null)
-			{
-				m_lastSeatInteractable.enabled = true;
-				m_lastSeatInteractable = null;
-			}
 		}
 
 		public void OnIVACameraKerbalChange()
@@ -284,13 +277,6 @@ namespace KerbalVR
 				m_lastKerbalTransform = eyeTransform.parent;
 
 				SetArmBoneScale(m_lastKerbalTransform, Vector3.zero);
-
-				var seatTransform = m_lastKerbalTransform.parent;
-				m_lastSeatInteractable = seatTransform.GetComponent<VRInternalSeat>();
-				if (m_lastSeatInteractable != null)
-				{
-					m_lastSeatInteractable.enabled = false;
-				}
 			}
 		}
 

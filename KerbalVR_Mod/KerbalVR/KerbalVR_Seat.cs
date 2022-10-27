@@ -9,21 +9,16 @@ using Valve.VR;
 
 namespace KerbalVR
 {
+	public abstract class VRSeatBehaviour : MonoBehaviour
+	{
+		public abstract void OnInteract(Hand hand);
+	}
+
+
 	// interactable behavior that gets attached to internal seats
-	public class VRInternalSeat : InteractableBehaviour
+	public class VRInternalSeat : VRSeatBehaviour
 	{
 		public int internalSeatIndex = -1;
-
-		void Awake()
-		{
-			OnGrab += OnGrabbed;
-			OnRelease += OnReleased;
-		}
-
-		private void OnReleased(Hand hand)
-		{
-			
-		}
 
 		public static void MoveKerbalToSeat(Kerbal kerbal, InternalSeat internalSeat)
 		{
@@ -42,7 +37,7 @@ namespace KerbalVR
 			internalSeat.kerbalRef = kerbal;
 		}
 
-		private void OnGrabbed(Hand hand)
+		public override void OnInteract(Hand hand)
 		{
 			var internalModel = gameObject.GetComponentUpwards<InternalModel>();
 			var internalSeat = internalModel.seats[internalSeatIndex];
@@ -98,14 +93,11 @@ namespace KerbalVR
 	}
 
 	// interactable behavior that gets attached to external seats (i.e. command chair)
-	public class VRExternalSeat : InteractableBehaviour
+	public class VRExternalSeat : VRSeatBehaviour
 	{
 		void Awake()
 		{
 			if (!HighLogic.LoadedSceneIsFlight) return;
-
-			OnGrab += OnGrabbed;
-			OnRelease += OnReleased;
 
 			GameEvents.OnCameraChange.Add(OnCameraChange);
 		}
@@ -132,11 +124,7 @@ namespace KerbalVR
 			GameEvents.OnCameraChange.Remove(OnCameraChange);
 		}
 
-		private void OnReleased(Hand hand)
-		{
-		}
-
-		private void OnGrabbed(Hand hand)
+		public override void OnInteract(Hand hand)
 		{
 			var part = this.gameObject.GetComponentUpwards<Part>();
 			var seatModule = part.FindModuleImplementing<KerbalSeat>();

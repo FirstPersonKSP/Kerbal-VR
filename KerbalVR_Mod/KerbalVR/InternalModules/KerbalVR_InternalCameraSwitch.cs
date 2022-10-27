@@ -6,9 +6,19 @@ using System.Threading.Tasks;
 
 namespace KerbalVR.InternalModules
 {
+	class VRCameraSwitchInteraction : VRSeatBehaviour
+	{
+		public VRInternalCameraSwitch internalModule;
+
+		public override void OnInteract(Hand hand)
+		{
+			internalModule.Button_OnDoubleTap();
+		}
+	}
+
 	internal class VRInternalCameraSwitch : InternalCameraSwitch
 	{
-		InteractableBehaviour interactableBehaviour;
+		VRCameraSwitchInteraction interactionHandler;
 
 		public override void OnAwake()
 		{
@@ -16,17 +26,9 @@ namespace KerbalVR.InternalModules
 
 			if (colliderTransform != null)
 			{
-				interactableBehaviour = Utils.GetOrAddComponent<InteractableBehaviour>(colliderTransform.gameObject);
-
-				interactableBehaviour.OnGrab = OnGrab;
-
-				// TODO: do we need to figure out how to disable the collider on the current camera point?
+				interactionHandler = Utils.GetOrAddComponent<VRCameraSwitchInteraction>(colliderTransform.gameObject);
+				interactionHandler.internalModule = this;
 			}
-		}
-
-		private void OnGrab(Hand hand)
-		{
-			Button_OnDoubleTap();
 		}
 	}
 }

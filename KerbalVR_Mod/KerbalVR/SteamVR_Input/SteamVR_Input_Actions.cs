@@ -43,6 +43,8 @@ namespace Valve.VR
         
         private static SteamVR_Action_Boolean p_flight_ToggleRollYaw;
         
+        private static SteamVR_Action_Boolean p_flight_SeatInteraction;
+        
         private static SteamVR_Action_Vector2 p_eVA_MoveStick;
         
         private static SteamVR_Action_Vector2 p_eVA_LookStick;
@@ -165,6 +167,14 @@ namespace Valve.VR
             }
         }
         
+        public static SteamVR_Action_Boolean flight_SeatInteraction
+        {
+            get
+            {
+                return SteamVR_Actions.p_flight_SeatInteraction.GetCopy<SteamVR_Action_Boolean>();
+            }
+        }
+        
         public static SteamVR_Action_Vector2 eVA_MoveStick
         {
             get
@@ -253,6 +263,7 @@ namespace Valve.VR
                     SteamVR_Actions.default_Haptic,
                     SteamVR_Actions.editor_Move,
                     SteamVR_Actions.flight_ToggleRollYaw,
+                    SteamVR_Actions.flight_SeatInteraction,
                     SteamVR_Actions.eVA_MoveStick,
                     SteamVR_Actions.eVA_LookStick,
                     SteamVR_Actions.eVA_Jump,
@@ -275,6 +286,7 @@ namespace Valve.VR
                     SteamVR_Actions.default_RightClick,
                     SteamVR_Actions.editor_Move,
                     SteamVR_Actions.flight_ToggleRollYaw,
+                    SteamVR_Actions.flight_SeatInteraction,
                     SteamVR_Actions.eVA_MoveStick,
                     SteamVR_Actions.eVA_LookStick,
                     SteamVR_Actions.eVA_Jump,
@@ -298,6 +310,7 @@ namespace Valve.VR
                     SteamVR_Actions.default_PinchThumb,
                     SteamVR_Actions.default_RightClick,
                     SteamVR_Actions.flight_ToggleRollYaw,
+                    SteamVR_Actions.flight_SeatInteraction,
                     SteamVR_Actions.eVA_Jump,
                     SteamVR_Actions.eVA_ToggleRCS,
                     SteamVR_Actions.eVA_ToggleLight,
@@ -325,6 +338,7 @@ namespace Valve.VR
                     SteamVR_Actions.default_RightClick,
                     SteamVR_Actions.editor_Move,
                     SteamVR_Actions.flight_ToggleRollYaw,
+                    SteamVR_Actions.flight_SeatInteraction,
                     SteamVR_Actions.eVA_MoveStick,
                     SteamVR_Actions.eVA_LookStick,
                     SteamVR_Actions.eVA_Jump,
@@ -351,6 +365,7 @@ namespace Valve.VR
             SteamVR_Actions.p_default_Haptic = ((SteamVR_Action_Vibration)(SteamVR_Action.Create<SteamVR_Action_Vibration>("/actions/default/out/Haptic")));
             SteamVR_Actions.p_editor_Move = ((SteamVR_Action_Vector2)(SteamVR_Action.Create<SteamVR_Action_Vector2>("/actions/editor/in/Move")));
             SteamVR_Actions.p_flight_ToggleRollYaw = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/flight/in/ToggleRollYaw")));
+            SteamVR_Actions.p_flight_SeatInteraction = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/flight/in/SeatInteraction")));
             SteamVR_Actions.p_eVA_MoveStick = ((SteamVR_Action_Vector2)(SteamVR_Action.Create<SteamVR_Action_Vector2>("/actions/EVA/in/MoveStick")));
             SteamVR_Actions.p_eVA_LookStick = ((SteamVR_Action_Vector2)(SteamVR_Action.Create<SteamVR_Action_Vector2>("/actions/EVA/in/LookStick")));
             SteamVR_Actions.p_eVA_Jump = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/EVA/in/Jump")));

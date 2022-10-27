@@ -180,8 +180,25 @@ namespace KerbalVR
 			pose.inputSource = handType;
 
 			// set up actions
-			SteamVR_Action_Boolean actionGrab = SteamVR_Input.GetBooleanAction("default", "GrabGrip");
-			actionGrab[handType].onChange += OnChangeGrab;
+			try
+			{
+				SteamVR_Action_Boolean actionGrab = SteamVR_Actions.default_GrabGrip;
+				actionGrab[handType].onChange += OnChangeGrab;
+			}
+			catch (Exception e)
+			{
+				Debug.LogException(e);
+			}
+
+			try
+			{
+				var seatInteract = SteamVR_Actions.flight_SeatInteraction;
+				seatInteract[handType].onStateDown += SeatInteract_OnStateDown;
+			}
+			catch (Exception e)
+			{
+				Debug.LogException(e);
+			}
 
 			#endregion
 
@@ -340,6 +357,18 @@ namespace KerbalVR
 					heldObject = null;
 					Detach();
 				}
+			}
+		}
+
+		private void SeatInteract_OnStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
+		{
+			if (palmCollider.HoveredSeat != null)
+			{
+				palmCollider.HoveredSeat.OnInteract(this);
+			}
+			else if (FreeIva.KerbalIvaController.Instance.buckled)
+			{
+				FreeIva.KerbalIvaController.Instance.Unbuckle();
 			}
 		}
 

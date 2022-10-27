@@ -290,6 +290,24 @@
                   "force_input" : "click"
                },
                "path" : "/user/hand/right/input/thumbstick"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/flight/in/seatinteraction"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/a"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/flight/in/seatinteraction"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/a"
             }
          ]
       },
@@ -304,6 +322,7 @@
    "category" : "steamvr_input",
    "controller_type" : "knuckles",
    "description" : "Default VR controls for use with Kerbal Space Program and the KerbalVR mod.",
+   "interaction_profile" : "",
    "name" : "KerbalVR (Knuckles) Defaults",
    "options" : {},
    "simulated_actions" : []

@@ -5,10 +5,12 @@ namespace KerbalVR
 	public class HandCollider : MonoBehaviour
 	{
 		public InteractableBehaviour HoveredObject { get; private set; }
+		public VRSeatBehaviour HoveredSeat => hoveredSeat;
 
 		public SphereCollider collider;
 		protected Rigidbody handRigidbody;
 		protected VRLadder ladder;
+		protected VRSeatBehaviour hoveredSeat;
 
 		internal void Initialize(Hand hand, VRLadder ladder)
 		{
@@ -35,6 +37,7 @@ namespace KerbalVR
 		{
 			HoveredObject = null;
 			ladder.LadderTransform = null;
+			hoveredSeat = null;
 		}
 
 		protected void OnTriggerEnter(Collider other)
@@ -48,6 +51,14 @@ namespace KerbalVR
 			{
 				HoveredObject = ladder;
 				ladder.LadderTransform = other.transform;
+			}
+			else
+			{
+				var seat = other.gameObject.GetComponent<VRSeatBehaviour>();
+				if (seat != null)
+				{
+					hoveredSeat = seat;
+				}
 			}
 		}
 
@@ -65,6 +76,11 @@ namespace KerbalVR
 					HoveredObject = null;
 					ladder.LadderTransform = null;
 				}
+			}
+
+			if (hoveredSeat != null && hoveredSeat.transform == other.transform)
+			{
+				hoveredSeat = null;
 			}
 		}
 	}

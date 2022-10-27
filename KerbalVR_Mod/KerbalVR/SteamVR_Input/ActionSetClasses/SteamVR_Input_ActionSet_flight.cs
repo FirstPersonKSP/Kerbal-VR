@@ -24,5 +24,13 @@ namespace Valve.VR
                 return SteamVR_Actions.flight_ToggleRollYaw;
             }
         }
+        
+        public virtual SteamVR_Action_Boolean SeatInteraction
+        {
+            get
+            {
+                return SteamVR_Actions.flight_SeatInteraction;
+            }
+        }
     }
 }
