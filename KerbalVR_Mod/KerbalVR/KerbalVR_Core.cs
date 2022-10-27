@@ -23,11 +23,8 @@ namespace KerbalVR
 		private static bool isHeadsetOn; // if the headset-on action is bound, whether or not the headset is on the head.  If it's not bound (perhaps the hardware doesn't support it), then always true
 		private static bool vrRunningDesired; // whether or not the game wants VR running, e.g. based on the current scene or manual toggle
 
-		public static void InitSystems(bool vrEnabled)
+		public static void InitSystems()
 		{
-			IsVrEnabled = vrEnabled;
-			IsVrRunning = vrEnabled;
-
 			//// initialize KerbalVR GameObjects
 			//GameObject kvrConfiguration = new GameObject("KVR_Configuration");
 			//kvrConfiguration.AddComponent<KerbalVR.Configuration>();
@@ -55,6 +52,9 @@ namespace KerbalVR
 
 		public static void InitSteamVRInput()
 		{
+			// a little hacky, but this function only gets called if we WANT VR to be enabled anyway
+			IsVrEnabled = true;
+
 			// initialize SteamVR input
 			SteamVR_Actions.PreInitialize();
 			SteamVR_Input.IdentifyActionsFile();
