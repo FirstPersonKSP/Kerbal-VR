@@ -137,12 +137,15 @@ namespace KerbalVR
 		{
 			Utils.Log($"OnLevelWasLoaded: {gameScene}");
 
+			if (gameScene == GameScenes.PSYSTEM)
+			{
+				KerbalVR.Core.InitSystems();
+			}
+
 			if (KerbalVR.Core.IsVrEnabled)
 			{
 				if (gameScene == GameScenes.PSYSTEM)
 				{
-					KerbalVR.Core.InitSystems();
-
 					Valve.VR.SteamVR_Settings.instance.trackingSpace = Valve.VR.ETrackingUniverseOrigin.TrackingUniverseSeated;
 					Valve.VR.SteamVR_Settings.instance.lockPhysicsUpdateRateToRenderFrequency = false;
 
