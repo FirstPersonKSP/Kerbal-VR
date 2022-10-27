@@ -29,9 +29,26 @@ namespace KerbalVR
 			FreeIva.KerbalIvaController.GetInput -= FreeIva_GetInput;
 		}
 
+		void KeepMax(ref float a, ref float b)
+		{
+			if (Mathf.Abs(a) > Mathf.Abs(b))
+			{
+				b = 0;
+			}
+			else
+			{
+				a = 0;
+			}
+		}
+
 		private void FreeIva_GetInput(ref FreeIva.KerbalIvaController.IVAInput input)
 		{
 			FirstPersonKerbalFlight.Instance.GetKerbalRotationInput(out float yaw, out float pitch, out float roll);
+
+			// restrict rotations to a single axis
+			KeepMax(ref yaw, ref pitch);
+			KeepMax(ref pitch, ref roll);
+			KeepMax(ref yaw, ref roll);
 
 			yaw *= yawRate;
 			pitch *= pitchRate;
@@ -58,12 +75,22 @@ namespace KerbalVR
 		static void Prefix()
 		{
 			InteractionSystem.Instance.transform.SetParent(null, false);
+
+			// FreeIVA is going to take the internal camera's rotation as the transform of the kerbal's body,
+			// and then try to set the internal camera's local rotation to identity
+			// Then the VR system is going to set the internal camera's local rotation back to track the headset.
+			// To counteract this, make sure that FreeIVA thinks the internal camera's localrotation is identity
+			InternalCamera.Instance.transform.localRotation = Quaternion.identity;
 		}
 
 		static void Postfix(FreeIva.KerbalIvaController __instance)
 		{
+			// note: this creates a VRAnchor for the internal camera so that wobble etc can be applied
 			FirstPersonKerbalFlight.Instance.FixInternalCamera();
 			KerbalVR.Core.SetActionSetActive("EVA", true);
+			// zero out the anchor's local transform so that we're directly connected to the kerbal body
+			InternalCamera.Instance.transform.parent.localPosition = Vector3.zero;
+			InternalCamera.Instance.transform.parent.localRotation = Quaternion.identity;
 		}
 	}
 
