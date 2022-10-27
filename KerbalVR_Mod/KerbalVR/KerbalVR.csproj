@@ -142,6 +142,7 @@
     <Compile Include="InternalModules\InternalCollider.cs" />
     <Compile Include="InternalModules\InternalModuleExtensions.cs" />
     <Compile Include="InternalModules\InternalObjectDeleter.cs" />
+    <Compile Include="InternalModules\KerbalVR_BuckleLever.cs" />
     <Compile Include="InternalModules\KerbalVR_Button.cs" />
     <Compile Include="InternalModules\KerbalVR_Cover.cs" />
     <Compile Include="InternalModules\KerbalVR_FlightStick.cs" />
