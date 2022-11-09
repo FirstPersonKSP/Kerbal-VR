@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
-using KerbalVR;
-using KerbalVR.IVAAdaptors;
-using Valve.VR.InteractionSystem;
+﻿using KerbalVR.IVAAdaptors;
+using System;
 using System.Collections;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
+using UnityEngine;
 
 namespace KerbalVR.InternalModules
 {

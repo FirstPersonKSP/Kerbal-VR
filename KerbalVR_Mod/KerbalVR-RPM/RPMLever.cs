@@ -2,7 +2,6 @@
 using KerbalVR;
 using KerbalVR.InternalModules;
 using KerbalVR.IVAAdaptors;
-using System;
 using UnityEngine;
 
 namespace KerbalVR_RPM
