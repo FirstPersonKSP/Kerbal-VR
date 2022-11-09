@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
-using KerbalVR;
-using KerbalVR.IVAAdaptors;
-using Valve.VR.InteractionSystem;
+﻿using KerbalVR.IVAAdaptors;
+using System;
 using System.Collections;
+using UnityEngine;
 
 namespace KerbalVR.InternalModules
 {
@@ -98,6 +92,7 @@ namespace KerbalVR.InternalModules
 		internal VRLeverInteractionListener interactionListener;
 		internal Transform rotationTransform;
 		internal Transform pullTransform;
+		
 
 		public int CurrentStep => interactionListener.CurrentStep;
 
@@ -182,6 +177,11 @@ namespace KerbalVR.InternalModules
 			stepCount = Math.Max(2, stepCount);
 			ivaLever = IVALever.ConstructLever(this);
 			interactionListener.OnStart();
+		}
+
+		public void OnDestroy()
+		{
+			ivaLever.OnDestroy();
 		}
 
 		internal void PlayStepSound()
