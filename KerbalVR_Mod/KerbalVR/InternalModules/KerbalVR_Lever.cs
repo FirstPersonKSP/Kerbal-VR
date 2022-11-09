@@ -8,6 +8,7 @@ using KerbalVR;
 using KerbalVR.IVAAdaptors;
 using Valve.VR.InteractionSystem;
 using System.Collections;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 
 namespace KerbalVR.InternalModules
 {
@@ -98,6 +99,7 @@ namespace KerbalVR.InternalModules
 		internal VRLeverInteractionListener interactionListener;
 		internal Transform rotationTransform;
 		internal Transform pullTransform;
+		internal AxisGroupsModule axisGroupsModule;
 
 		public int CurrentStep => interactionListener.CurrentStep;
 
@@ -182,6 +184,12 @@ namespace KerbalVR.InternalModules
 			stepCount = Math.Max(2, stepCount);
 			ivaLever = IVALever.ConstructLever(this);
 			interactionListener.OnStart();
+			axisGroupsModule = vessel.FindVesselModuleImplementing<AxisGroupsModule>();
+
+			if (!axisGroupsModule)
+			{
+				Utils.LogError($"Cannot find AxisGroupsModule on vessel {vessel.GetDisplayName()}");
+			}
 		}
 
 		internal void PlayStepSound()
@@ -190,6 +198,25 @@ namespace KerbalVR.InternalModules
 			{
 				m_audioSource.Play();
 			}
+		}
+
+		/// <summary>
+		/// Set the specific custom axis to a specific value <br/>
+		/// See <see href="https://forum.kerbalspaceprogram.com/index.php?/topic/200955-cant-change-custom_axes-from-code-solved/"/>
+		/// </summary>
+		/// <param name="customAxisNumber">0-based axis index, 0 for Custom01, 1 for Custom02, etc.</param>
+		/// <param name="value"></param>
+		public void SetCustomAxis(int customAxisNumber, float value)
+		{
+			Utils.Log($"Set custom0{customAxisNumber + 1} to {value}");
+			axisGroupsModule.SetAxisGroup((KSPAxisGroup)(1 << (9 + customAxisNumber)), value);
+		}
+
+		public int GetCustomAxisState(int customAxisNumber)
+		{
+			float axisValue = FlightInputHandler.state.custom_axes[customAxisNumber];
+			Utils.Log($"Get custom0{customAxisNumber + 1} as {axisValue}");
+			return Math.Max(0, Mathf.FloorToInt((stepCount - 1) * axisValue + 0.5f));
 		}
 	}
 

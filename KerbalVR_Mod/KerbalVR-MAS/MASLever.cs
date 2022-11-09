@@ -3,8 +3,6 @@ using KerbalVR;
 using KerbalVR.InternalModules;
 using KerbalVR.IVAAdaptors;
 using System;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
-using UnityEngine;
 
 namespace KerbalVR_MAS
 {
@@ -30,6 +28,7 @@ namespace KerbalVR_MAS
 
 		int customAxisNumber = -1;
 		float customAxisTarget;
+		bool setCustomAxis = false;
 
 		// cache it because some MAS functions won't update value instantly
 		int lastStep;
@@ -77,6 +76,15 @@ namespace KerbalVR_MAS
 			FlightInputHandler.OnRawAxisInput -= OnRawAxisInput;
 		}
 
+		private void OnRawAxisInput(FlightCtrlState st)
+		{
+			if (lever.vessel.isActiveVessel && setCustomAxis)
+			{
+				lever.SetCustomAxis(customAxisNumber, customAxisTarget);
+				st.custom_axes[customAxisNumber] = customAxisTarget;
+			}
+		}
+
 		public override void SetStep(int stepId)
 		{
 			switch (lever.handler)
@@ -112,6 +120,7 @@ namespace KerbalVR_MAS
 					if (customAxisNumber >= 0)
 					{
 						customAxisTarget = stepId / (lever.stepCount - 1f);
+						setCustomAxis = true;
 					}
 					else
 					{
@@ -138,11 +147,6 @@ namespace KerbalVR_MAS
 			}
 		}
 
-		private void OnRawAxisInput(FlightCtrlState st)
-		{
-			st.custom_axes[customAxisNumber] = customAxisTarget;
-		}
-
 		public override int GetStep()
 		{
 			return lastStep;
@@ -161,8 +165,7 @@ namespace KerbalVR_MAS
 				default:
 					if (customAxisNumber >= 0)
 					{
-						float axisValue = FlightInputHandler.state.custom_axes[customAxisNumber];
-						return Math.Max(0, Mathf.FloorToInt((lever.stepCount - 1) * axisValue + 0.5f));
+						return lever.GetCustomAxisState(customAxisNumber);
 					}
 
 					Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");

@@ -29,12 +29,43 @@ namespace KerbalVR_RPM
 		RasterPropMonitorComputer rpmComputer;
 		Animation cachedActionGroupSwitchAnimation;
 
+		int customAxisNumber = -1;
+		float customAxisTarget;
+		bool setCustomAxis = false;
+
 		public RPMLever(JSIVariableAnimator jSIVariableAnimator, JSIActionGroupSwitch jSIActionGroupSwitch, VRLever vrLever)
 		{
 			this.jSIVariableAnimator = jSIVariableAnimator;
 			this.jSIActionGroupSwitch = jSIActionGroupSwitch;
 			rpmComputer = jSIActionGroupSwitch.rpmComp;
 			lever = vrLever;
+
+			if (lever.handler.StartsWith("CustomAxis"))
+			{
+				if (int.TryParse(lever.handler.Remove(0, 10), out int result))
+				{
+					customAxisNumber = result - 1;
+					FlightInputHandler.OnRawAxisInput += OnRawAxisInput;
+				}
+				else
+				{
+					Utils.LogError($"Invalid custom axis name '{lever.handler}' on {lever.internalProp.propName}");
+				}
+			}
+		}
+
+		~RPMLever()
+		{
+			FlightInputHandler.OnRawAxisInput -= OnRawAxisInput;
+		}
+
+		private void OnRawAxisInput(FlightCtrlState st)
+		{
+			if (lever.vessel.isActiveVessel && setCustomAxis)
+			{
+				lever.SetCustomAxis(customAxisNumber, customAxisTarget);
+				st.custom_axes[customAxisNumber] = customAxisTarget;
+			}
 		}
 
 		public override void SetStep(int stepId)
@@ -55,16 +86,16 @@ namespace KerbalVR_RPM
 						jSIFAR.SetFlaps(stepId);
 					}
 					break;
-				case "CustomAxis1":
-				case "CustomAxis2":
-				case "CustomAxis3":
-				case "CustomAxis4":
-					// this is 40 times faster than int.Parse(input[input.Length - 1].ToString())
-					int axisNumber = lever.handler[lever.handler.Length - 1] - 48; // 48 is ASCII 0
-					FlightInputHandler.state.custom_axes[axisNumber - 1] = stepId / (lever.stepCount - 1f);
-					break;
 				default:
-					Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
+					if (customAxisNumber >= 0)
+					{
+						customAxisTarget = stepId / (lever.stepCount - 1f);
+						setCustomAxis = true;
+					}
+					else
+					{
+						Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
+					}
 					break;
 			}
 		}
@@ -82,15 +113,12 @@ namespace KerbalVR_RPM
 						return (int)jSIFAR.GetFlapSetting();
 					}
 					break;
-				case "CustomAxis1":
-				case "CustomAxis2":
-				case "CustomAxis3":
-				case "CustomAxis4":
-					// this is 40 times faster than int.Parse(input[input.Length - 1].ToString())
-					int axisNumber = lever.handler[lever.handler.Length - 1] - 48; // 48 is ASCII 0
-					float axisValue = FlightInputHandler.state.custom_axes[axisNumber - 1];
-					return Math.Max(0, Mathf.FloorToInt((lever.stepCount - 1) * axisValue + 0.5f));
 				default:
+					if (customAxisNumber >= 0)
+					{
+						return lever.GetCustomAxisState(customAxisNumber);
+					}
+
 					Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
 					break;
 			}
