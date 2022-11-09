@@ -20,15 +20,10 @@ namespace KerbalVR_MAS
 			return null;
 		}
 
-		VRLever lever;
 		MASComponentAnimation componentAnimation;
 		MASComponentAnimationPlayer componentAnimationPlayer;
 		MASComponentRotation componentRotation;
 		MASFlightComputer flightComputer;
-
-		int customAxisNumber = -1;
-		float customAxisTarget;
-		bool setCustomAxis = false;
 
 		// cache it because some MAS functions won't update value instantly
 		int lastStep;
@@ -55,34 +50,9 @@ namespace KerbalVR_MAS
 
 			flightComputer = vrLever.part.GetComponent<MASFlightComputer>();
 
-			if (lever.handler.StartsWith("CustomAxis"))
-			{
-				if (int.TryParse(lever.handler.Remove(0, 10), out int result))
-				{
-					customAxisNumber = result - 1;
-					FlightInputHandler.OnRawAxisInput += OnRawAxisInput;
-				}
-				else
-				{
-					Utils.LogError($"Invalid custom axis name '{lever.handler}' on {lever.internalProp.propName}");
-				}
-			}
+			SetupCustomAxis();
 
 			lastStep = RefreshState();
-		}
-
-		~MASLever()
-		{
-			FlightInputHandler.OnRawAxisInput -= OnRawAxisInput;
-		}
-
-		private void OnRawAxisInput(FlightCtrlState st)
-		{
-			if (lever.vessel.isActiveVessel && setCustomAxis)
-			{
-				lever.SetCustomAxis(customAxisNumber, customAxisTarget);
-				st.custom_axes[customAxisNumber] = customAxisTarget;
-			}
 		}
 
 		public override void SetStep(int stepId)
@@ -117,10 +87,9 @@ namespace KerbalVR_MAS
 					}
 					break;
 				default:
-					if (customAxisNumber >= 0)
+					if (UsingCustomAxis)
 					{
-						customAxisTarget = stepId / (lever.stepCount - 1f);
-						setCustomAxis = true;
+						SetCustomAxisTarget(stepId);
 					}
 					else
 					{
@@ -163,9 +132,9 @@ namespace KerbalVR_MAS
 				case "Flap":
 					return (int)Math.Round(flightComputer.farProxy.GetFlapSetting());
 				default:
-					if (customAxisNumber >= 0)
+					if (UsingCustomAxis)
 					{
-						return lever.GetCustomAxisState(customAxisNumber);
+						return GetCustomAxisState();
 					}
 
 					Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");

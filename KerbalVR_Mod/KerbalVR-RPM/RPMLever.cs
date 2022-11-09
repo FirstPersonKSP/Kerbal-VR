@@ -22,15 +22,10 @@ namespace KerbalVR_RPM
 			return null;
 		}
 
-		VRLever lever;
 		JSIVariableAnimator jSIVariableAnimator; // null-able
 		JSIActionGroupSwitch jSIActionGroupSwitch;
 		RasterPropMonitorComputer rpmComputer;
 		Animation cachedActionGroupSwitchAnimation;
-
-		int customAxisNumber = -1;
-		float customAxisTarget;
-		bool setCustomAxis = false;
 
 		public RPMLever(JSIVariableAnimator jSIVariableAnimator, JSIActionGroupSwitch jSIActionGroupSwitch, VRLever vrLever)
 		{
@@ -39,32 +34,7 @@ namespace KerbalVR_RPM
 			rpmComputer = jSIActionGroupSwitch.rpmComp;
 			lever = vrLever;
 
-			if (lever.handler.StartsWith("CustomAxis"))
-			{
-				if (int.TryParse(lever.handler.Remove(0, 10), out int result))
-				{
-					customAxisNumber = result - 1;
-					FlightInputHandler.OnRawAxisInput += OnRawAxisInput;
-				}
-				else
-				{
-					Utils.LogError($"Invalid custom axis name '{lever.handler}' on {lever.internalProp.propName}");
-				}
-			}
-		}
-
-		~RPMLever()
-		{
-			FlightInputHandler.OnRawAxisInput -= OnRawAxisInput;
-		}
-
-		private void OnRawAxisInput(FlightCtrlState st)
-		{
-			if (lever.vessel.isActiveVessel && setCustomAxis)
-			{
-				lever.SetCustomAxis(customAxisNumber, customAxisTarget);
-				st.custom_axes[customAxisNumber] = customAxisTarget;
-			}
+			SetupCustomAxis();
 		}
 
 		public override void SetStep(int stepId)
@@ -86,10 +56,9 @@ namespace KerbalVR_RPM
 					}
 					break;
 				default:
-					if (customAxisNumber >= 0)
+					if (UsingCustomAxis)
 					{
-						customAxisTarget = stepId / (lever.stepCount - 1f);
-						setCustomAxis = true;
+						SetCustomAxisTarget(stepId);
 					}
 					else
 					{
@@ -113,9 +82,9 @@ namespace KerbalVR_RPM
 					}
 					break;
 				default:
-					if (customAxisNumber >= 0)
+					if (UsingCustomAxis)
 					{
-						return lever.GetCustomAxisState(customAxisNumber);
+						return GetCustomAxisState();
 					}
 
 					Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
