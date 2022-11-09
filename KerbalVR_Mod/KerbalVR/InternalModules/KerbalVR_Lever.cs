@@ -181,7 +181,7 @@ namespace KerbalVR.InternalModules
 
 		public void OnDestroy()
 		{
-			ivaLever.OnDestory();
+			ivaLever.OnDestroy();
 		}
 
 		internal void PlayStepSound()

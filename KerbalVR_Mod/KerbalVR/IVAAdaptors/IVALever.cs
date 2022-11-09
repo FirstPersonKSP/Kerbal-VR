@@ -110,7 +110,7 @@ namespace KerbalVR.IVAAdaptors
 			}
 		}
 
-		public virtual void OnDestory()
+		public virtual void OnDestroy()
 		{
 			if (UsingCustomAxis)
 			{
