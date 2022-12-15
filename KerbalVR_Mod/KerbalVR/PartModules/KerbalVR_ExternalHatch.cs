@@ -55,12 +55,20 @@ namespace KerbalVR
 
 			if (hatchTransform == null)
 			{
-				Utils.LogError($"Unable to find transform {hatchTransformName} on part {part.name}");
+				Utils.LogError($"Unable to find transform {hatchTransformName} on part {part.partInfo.name}");
+				return;
 			}
 
 			m_rotationUtil = new RotationUtil(hatchTransform, rotationAxis, 0.0f, maxRotation);
 
-			var collider = m_rotationUtil.Transform.GetComponentInChildren<Collider>();
+			var collider = m_rotationUtil.Transform.GetComponentInChildren<Collider>(true);
+
+			if (collider == null)
+			{
+				Utils.LogError($"No collider found on transform {hatchTransform} on part {part.partInfo.name}");
+				return;
+			}
+
 			m_interactableBehaviour = Utils.GetOrAddComponent<InteractableBehaviour>(collider.gameObject);
 
 			m_interactableBehaviour.SkeletonPoser = Utils.GetOrAddComponent<SteamVR_Skeleton_Poser>(collider.gameObject);
