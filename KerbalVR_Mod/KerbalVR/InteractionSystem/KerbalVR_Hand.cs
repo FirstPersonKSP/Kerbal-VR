@@ -366,9 +366,9 @@ namespace KerbalVR
 			{
 				palmCollider.HoveredSeat.OnInteract(this);
 			}
-			else if (FreeIva.KerbalIvaController.Instance.buckled)
+			else if (FreeIva.KerbalIvaAddon.Instance.buckled)
 			{
-				FreeIva.KerbalIvaController.Instance.Unbuckle();
+				FreeIva.KerbalIvaAddon.Instance.Unbuckle();
 			}
 		}
 

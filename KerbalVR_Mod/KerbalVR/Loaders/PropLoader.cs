@@ -10,19 +10,20 @@ namespace KerbalVR.Loaders
 	[HarmonyPatch(typeof(InternalProp), nameof(InternalProp.Load))]
 	internal class PropLoader
 	{
-		public static void Postfix(InternalProp __instance, ConfigNode node)
-		{
-			string airlockName = null;
-			if (node.TryGetValue("airlockName", ref airlockName))
-			{
-				foreach (var internalModule in __instance.internalModules)
-				{
-					if (internalModule is InternalModules.VRInternalHatch internalHatch)
-					{
-						internalHatch.airlockName = airlockName;
-					}
-				}
-			}
-		}
+		// This isn't necessary anymore (hatches are handled by FreeIva) but this is a good example of how to customize per-placement prop configs that don't require a whole module
+		//public static void Postfix(InternalProp __instance, ConfigNode node)
+		//{
+		//	string airlockName = null;
+		//	if (node.TryGetValue("airlockName", ref airlockName))
+		//	{
+		//		foreach (var internalModule in __instance.internalModules)
+		//		{
+		//			if (internalModule is InternalModules.VRInternalHatch internalHatch)
+		//			{
+		//				internalHatch.airlockName = airlockName;
+		//			}
+		//		}
+		//	}
+		//}
 	}
 }

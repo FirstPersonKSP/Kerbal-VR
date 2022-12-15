@@ -41,29 +41,3 @@ InternalCamera_UpdateState_Patch.Postfix
 
 --------------------------------------------------
 
-KerbalIvaController.Unbuckle
-	sets InternalCamera transform's parent to the KerbalIva object
-
-KerbalIvaController.Buckle
-	sets InternalCamera transform's parent to the kerbalRef.eyeTransform
-
-
-FreeIVA's tests for hatches, seats, etc are all based on the camera transform
-
-FreeIVA's movement and rotation is relative to camera direction
-
-FreeIVA sets the rotation of the camera directly, doesn't touch the kerbal rotation
-
----------------------------------------------------------
-
-goal:
-
-3 objects: kerbalIVA, VRAnchor, Camera
-
-FreeIVA should set the camera local transform to 0 and only drive the root transform around
-
-
-
-TODO:
-on unbuckle, create vranchor
-on buckle, create vranchor

@@ -19,14 +19,14 @@ namespace KerbalVR
 				return;
 			}
 
-			FreeIva.KerbalIvaController.GetInput += FreeIva_GetInput;
+			FreeIva.KerbalIvaAddon.GetInput += FreeIva_GetInput;
 		}
 
 		void OnDestroy()
 		{
 			if (!Core.IsVrEnabled) return;
 
-			FreeIva.KerbalIvaController.GetInput -= FreeIva_GetInput;
+			FreeIva.KerbalIvaAddon.GetInput -= FreeIva_GetInput;
 		}
 
 		void KeepMax(ref float a, ref float b)
@@ -41,7 +41,7 @@ namespace KerbalVR
 			}
 		}
 
-		private void FreeIva_GetInput(ref FreeIva.KerbalIvaController.IVAInput input)
+		private void FreeIva_GetInput(ref FreeIva.KerbalIvaAddon.IVAInput input)
 		{
 			FirstPersonKerbalFlight.Instance.GetKerbalRotationInput(out float yaw, out float pitch, out float roll);
 
@@ -69,8 +69,8 @@ namespace KerbalVR
 		static float rollRate = 0.5f;
 	}
 
-	[HarmonyPatch(typeof(FreeIva.KerbalIvaController), nameof(FreeIva.KerbalIvaController.Unbuckle))]
-	class KerbalIvaController_Unbuckle_Patch
+	[HarmonyPatch(typeof(FreeIva.KerbalIvaAddon), nameof(FreeIva.KerbalIvaAddon.Unbuckle))]
+	class KerbalIvaAddon_Unbuckle_Patch
 	{
 		static void Prefix()
 		{
@@ -83,7 +83,7 @@ namespace KerbalVR
 			InternalCamera.Instance.transform.localRotation = Quaternion.identity;
 		}
 
-		static void Postfix(FreeIva.KerbalIvaController __instance)
+		static void Postfix(FreeIva.KerbalIvaAddon __instance)
 		{
 			// note: this creates a VRAnchor for the internal camera so that wobble etc can be applied
 			FirstPersonKerbalFlight.Instance.FixInternalCamera();
@@ -94,10 +94,10 @@ namespace KerbalVR
 		}
 	}
 
-	[HarmonyPatch(typeof(FreeIva.KerbalIvaController), nameof(FreeIva.KerbalIvaController.Buckle))]
-	class FreeIvaController_Buckle_Patch
+	[HarmonyPatch(typeof(FreeIva.KerbalIvaAddon), nameof(FreeIva.KerbalIvaAddon.Buckle))]
+	class KerbalIvaAddon_Buckle_Patch
 	{
-		static void Postfix(FreeIva.KerbalIvaController __instance)
+		static void Postfix(FreeIva.KerbalIvaAddon __instance)
 		{
 			// buckle is going to need a lot more work, but at a minmum we need to restore the vr anchor
 			FirstPersonKerbalFlight.Instance.FixInternalCamera();

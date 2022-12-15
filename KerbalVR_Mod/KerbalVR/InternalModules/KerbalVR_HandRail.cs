@@ -34,7 +34,7 @@ namespace KerbalVR.InternalModules
 
 		private void Grabbed(Hand hand)
 		{
-			FreeIva.KerbalIvaController.Instance.Unbuckle();
+			FreeIva.KerbalIvaAddon.Instance.Unbuckle();
 		}
 	}
 }
