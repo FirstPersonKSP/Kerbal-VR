@@ -20,7 +20,6 @@ namespace KerbalVR_MAS
 			return null;
 		}
 
-		VRLever lever;
 		MASComponentAnimation componentAnimation;
 		MASComponentAnimationPlayer componentAnimationPlayer;
 		MASComponentRotation componentRotation;
@@ -50,6 +49,8 @@ namespace KerbalVR_MAS
 			}
 
 			flightComputer = vrLever.part.GetComponent<MASFlightComputer>();
+
+			SetupCustomAxis();
 
 			lastStep = RefreshState();
 		}
@@ -86,7 +87,14 @@ namespace KerbalVR_MAS
 					}
 					break;
 				default:
-					Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
+					if (UsingCustomAxis)
+					{
+						SetCustomAxisTarget(stepId);
+					}
+					else
+					{
+						Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
+					}
 					break;
 			}
 
@@ -104,7 +112,7 @@ namespace KerbalVR_MAS
 			}
 			if (componentRotation != null)
 			{
-				componentRotation.currentBlend = (float)stepId / (lever.stepCount - 1);
+				componentRotation.currentBlend = stepId / (lever.stepCount - 1f);
 			}
 		}
 
@@ -124,6 +132,11 @@ namespace KerbalVR_MAS
 				case "Flap":
 					return (int)Math.Round(flightComputer.farProxy.GetFlapSetting());
 				default:
+					if (UsingCustomAxis)
+					{
+						return GetCustomAxisState();
+					}
+
 					Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
 					break;
 			}

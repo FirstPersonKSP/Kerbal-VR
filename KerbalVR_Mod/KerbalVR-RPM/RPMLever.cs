@@ -3,7 +3,6 @@ using KerbalVR;
 using KerbalVR.InternalModules;
 using KerbalVR.IVAAdaptors;
 using UnityEngine;
-using System.Collections;
 
 namespace KerbalVR_RPM
 {
@@ -23,7 +22,6 @@ namespace KerbalVR_RPM
 			return null;
 		}
 
-		VRLever lever;
 		JSIVariableAnimator jSIVariableAnimator; // null-able
 		JSIActionGroupSwitch jSIActionGroupSwitch;
 		RasterPropMonitorComputer rpmComputer;
@@ -35,6 +33,8 @@ namespace KerbalVR_RPM
 			this.jSIActionGroupSwitch = jSIActionGroupSwitch;
 			rpmComputer = jSIActionGroupSwitch.rpmComp;
 			lever = vrLever;
+
+			SetupCustomAxis();
 		}
 
 		public override void SetStep(int stepId)
@@ -56,7 +56,14 @@ namespace KerbalVR_RPM
 					}
 					break;
 				default:
-					Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
+					if (UsingCustomAxis)
+					{
+						SetCustomAxisTarget(stepId);
+					}
+					else
+					{
+						Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
+					}
 					break;
 			}
 		}
@@ -75,6 +82,11 @@ namespace KerbalVR_RPM
 					}
 					break;
 				default:
+					if (UsingCustomAxis)
+					{
+						return GetCustomAxisState();
+					}
+
 					Utils.LogError($"Unknown lever handler {lever.handler} on {lever.internalProp.propName}");
 					break;
 			}
