@@ -83,6 +83,7 @@ namespace KerbalVR.InteractionCommon
 				collider = capsule;
 			}
 
+			collider.gameObject.layer = 20;
 			interactable = Utils.GetOrAddComponent<InteractableBehaviour>(collider.gameObject);
 
 			interactable.SkeletonPoser = Utils.GetOrAddComponent<SteamVR_Skeleton_Poser>(stickTransform.gameObject);

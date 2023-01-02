@@ -49,6 +49,7 @@ namespace KerbalVR.InteractionCommon
 
 			m_rotationUtil = new RotationUtil(leverTransform, axis, angleMin, angleMax);
 
+			collider.gameObject.layer = 20;
 			interactable = Utils.GetOrAddComponent<InteractableBehaviour>(collider.gameObject);
 
 			interactable.SkeletonPoser = Utils.GetOrAddComponent<SteamVR_Skeleton_Poser>(m_rotationUtil.Transform.gameObject);

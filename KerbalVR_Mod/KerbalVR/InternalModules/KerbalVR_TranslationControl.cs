@@ -50,6 +50,7 @@ namespace KerbalVR.InternalModules
 			stickTransform = this.FindTransform(stickCollidername);
 			if (stickTransform == null) { return; }
 
+			stickTransform.gameObject.layer = 20;
 			interactable = Utils.GetOrAddComponent<InteractableBehaviour>(stickTransform.gameObject);
 
 			interactable.OnGrab += OnGrab;

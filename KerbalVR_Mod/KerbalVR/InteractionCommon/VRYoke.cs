@@ -50,6 +50,7 @@ namespace KerbalVR.InteractionCommon
 
 			var collider = steerTransform.GetComponentInChildren<Collider>();
 
+			collider.gameObject.layer = 20;
 			m_interactable = Utils.GetOrAddComponent<InteractableBehaviour>(collider.gameObject);
 
 			m_interactable.SkeletonPoser = Utils.GetOrAddComponent<SteamVR_Skeleton_Poser>(steerTransform.gameObject);
