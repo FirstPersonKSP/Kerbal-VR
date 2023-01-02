@@ -329,13 +329,13 @@ namespace KerbalVR
 		{
 			if (newState)
 			{
-				if (palmCollider.HoveredObject != null && palmCollider.HoveredObject.enabled)
+				if (palmCollider.HoveredObject != null && palmCollider.HoveredObject.isActiveAndEnabled)
 				{
 					heldObject = palmCollider.HoveredObject;
 					heldObject.GrabbedHand = this;
 
 					// the grab callbacks might end up destroying or disabling the object
-					if (!heldObject.enabled)
+					if (!heldObject.isActiveAndEnabled)
 					{
 						palmCollider.ClearHoveredObject();
 					}
