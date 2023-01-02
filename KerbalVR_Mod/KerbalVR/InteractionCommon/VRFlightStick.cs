@@ -96,6 +96,11 @@ namespace KerbalVR.InteractionCommon
 			FlightInputHandler.OnRawAxisInput += GetInput;
 		}
 
+		void OnDestroy()
+		{
+			FlightInputHandler.OnRawAxisInput -= GetInput;
+		}
+
 		public static float ApplyDeadZone(float raw, float deadZoneFraction, float exponent)
 		{
 			float sign = Mathf.Sign(raw);
