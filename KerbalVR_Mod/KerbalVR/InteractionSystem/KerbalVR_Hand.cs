@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Valve.VR;
 using Valve.VR.InteractionSystem;
@@ -153,6 +154,7 @@ namespace KerbalVR
 			}
 
 			handObject = Instantiate(trackingSkeleton, Vector3.zero, Quaternion.identity, transform);
+			GameObject.DontDestroyOnLoad(handObject);
 			handObject.name = "KVR_HandObject_" + handType;
 			handObject.SetActive(false); // default to inactive, to match the default in Update
 			// add behavior scripts to the hands
@@ -271,6 +273,11 @@ namespace KerbalVR
 #endif
 		}
 
+		public void OnDestroy()
+		{
+			Utils.LogWarning("Hand being destroyed");
+		}
+
 		private void SetupModel(HandProfileManager.Profile profile, ref GameObject profileObject)
 		{
 			string prefabName = isRightHand ? profile.PrefabNameRight : profile.PrefabNameLeft;
@@ -297,7 +304,7 @@ namespace KerbalVR
 
 		public void Detach(bool immediate = false)
 		{
-			var handDetacher = handObject.GetComponentInParent<HandDetacher>();
+			var handDetacher = handObject.GetComponentsInParent<HandDetacher>(true).FirstOrDefault();
 			if (handDetacher)
 			{
 				Destroy(handDetacher);
@@ -362,13 +369,16 @@ namespace KerbalVR
 
 		private void SeatInteract_OnStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
 		{
-			if (palmCollider.HoveredSeat != null)
+			if (Scene.IsInIVA())
 			{
-				palmCollider.HoveredSeat.OnInteract(this);
-			}
-			else if (FreeIva.KerbalIvaAddon.Instance.buckled)
-			{
-				FreeIva.KerbalIvaAddon.Instance.Unbuckle();
+				if (palmCollider.HoveredSeat != null)
+				{
+					palmCollider.HoveredSeat.OnInteract(this);
+				}
+				else if (FreeIva.KerbalIvaAddon.Instance.buckled)
+				{
+					FreeIva.KerbalIvaAddon.Instance.Unbuckle();
+				}
 			}
 		}
 

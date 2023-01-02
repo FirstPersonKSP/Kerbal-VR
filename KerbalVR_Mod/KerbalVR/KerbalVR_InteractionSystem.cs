@@ -1,5 +1,6 @@
 using HarmonyLib;
 using KSPAchievements;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -45,6 +46,14 @@ namespace KerbalVR
 		private void Initialize()
 		{
 			InitializeHandScripts();
+
+			GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
+		}
+
+		private void OnGameSceneLoadRequested(GameScenes data)
+		{
+			LeftHand.Detach(true);
+			RightHand.Detach(true);
 		}
 		#endregion
 
@@ -96,8 +105,8 @@ namespace KerbalVR
 		private Hand SetupHand(string name)
 		{
 			GameObject handGameObject = new GameObject(name);
-			handGameObject.transform.SetParent(transform, false);
 			DontDestroyOnLoad(handGameObject);
+			handGameObject.transform.SetParent(transform, false);
 			return handGameObject.AddComponent<Hand>();
 		}
 
