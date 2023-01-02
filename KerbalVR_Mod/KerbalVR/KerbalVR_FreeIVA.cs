@@ -45,6 +45,12 @@ namespace KerbalVR
 		{
 			FirstPersonKerbalFlight.Instance.GetKerbalRotationInput(out float yaw, out float pitch, out float roll);
 
+			if (FreeIva.KerbalIvaAddon.KerbalIva.UseRelativeMovement())
+			{
+				pitch = 0.0f;
+				FreeIva.KerbalIvaAddon.KerbalIva.currentRelativeOrientation.x = 0;
+			}
+
 			// restrict rotations to a single axis
 			KeepMax(ref yaw, ref pitch);
 			KeepMax(ref pitch, ref roll);
@@ -57,11 +63,26 @@ namespace KerbalVR
 			if (input.MovementThrottle == Vector3.zero)
 			{
 				input.MovementThrottle = FirstPersonKerbalFlight.Instance.GetKerbalMovementThrottle();
+
+				if (FreeIva.KerbalIvaAddon.KerbalIva.UseRelativeMovement())
+				{
+					float verticalMovement = input.MovementThrottle.y;
+					input.MovementThrottle.y = 0;
+
+					input.MovementThrottle = InternalCamera.Instance.transform.localRotation * input.MovementThrottle;
+					input.MovementThrottle.y = verticalMovement;
+				}
+				else
+				{
+					input.MovementThrottle = InternalCamera.Instance.transform.localRotation * input.MovementThrottle;
+				}
 			}
 			if (input.RotationInputEuler == Vector3.zero)
 			{
 				input.RotationInputEuler = new Vector3(pitch, yaw, roll);
 			}
+
+			input.Jump = FirstPersonKerbalFlight.Instance.GetJumpState();
 		}
 
 		static float pitchRate = 0.5f;

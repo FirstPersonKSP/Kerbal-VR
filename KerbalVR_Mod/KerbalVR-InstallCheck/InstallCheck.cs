@@ -18,7 +18,7 @@ namespace InstallCheck
 			new Dependency { assemblyName = "0Harmony", minVersion = new Version(2, 0)},
 			new Dependency { assemblyName = "ModuleManager", minVersion = new Version(4, 2, 2) },
 			new Dependency { assemblyName = "ThroughTheEyes", minVersion = new Version(2, 0, 4, 1) },
-			new Dependency { assemblyName = "FreeIva", minVersion = new Version(0, 2, 0)},
+			new Dependency { assemblyName = "FreeIva", minVersion = new Version(0, 2, 4)},
 		};
 
 		// not required, but if they exist then verify the version number
@@ -32,7 +32,7 @@ namespace InstallCheck
 		// these files must exist
 		static readonly string[] requiredFiles = new string[]
 		{
-			"KSP_x64_Data/Managed/System.RUntime.Serialization.dll",
+			"KSP_x64_Data/Managed/System.Runtime.Serialization.dll",
 			"KSP_x64_Data/Managed/System.ServiceModel.Internals.dll",
 			"KSP_x64_Data/Plugins/openvr_api.dll",
 			"KSP_X64_Data/Plugins/XRSDKOpenVR.dll"

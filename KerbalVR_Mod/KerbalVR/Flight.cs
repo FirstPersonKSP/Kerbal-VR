@@ -323,6 +323,11 @@ namespace KerbalVR
 				moveStick.y);
 		}
 
+		internal bool GetJumpState()
+		{
+			return m_jumpAction.state;
+		}
+
 		public void HandleMovementInput_Prefix(KerbalEVA kerbalEVA)
 		{
 			if (!kerbalEVA.VesselUnderControl || !Core.IsVrRunning)
