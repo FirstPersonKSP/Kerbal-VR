@@ -83,6 +83,7 @@ namespace KerbalVR
 			}
 
 			input.Jump = FirstPersonKerbalFlight.Instance.GetJumpState();
+			input.ToggleCrouch = FirstPersonKerbalFlight.Instance.GetCrouchState();
 		}
 
 		static float pitchRate = 0.5f;

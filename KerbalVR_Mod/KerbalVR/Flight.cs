@@ -328,6 +328,13 @@ namespace KerbalVR
 			return m_jumpAction.state;
 		}
 
+		internal bool GetCrouchState()
+		{
+			// crouching is IVA-only and sprinting is EVA-only, so we'll just put them on the same action for now
+			// crouching as a button is intended to only be a temporary solution
+			return m_sprintAction.state;
+		}
+
 		public void HandleMovementInput_Prefix(KerbalEVA kerbalEVA)
 		{
 			if (!kerbalEVA.VesselUnderControl || !Core.IsVrRunning)
