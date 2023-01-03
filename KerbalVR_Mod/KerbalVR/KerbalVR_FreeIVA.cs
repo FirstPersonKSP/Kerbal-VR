@@ -80,6 +80,16 @@ namespace KerbalVR
 			if (input.RotationInputEuler == Vector3.zero)
 			{
 				input.RotationInputEuler = new Vector3(pitch, yaw, roll);
+
+				if (!FreeIva.KerbalIvaAddon.KerbalIva.UseRelativeMovement())
+				{
+					Quaternion inputRotation = InternalCamera.Instance.transform.localRotation * Quaternion.Euler(input.RotationInputEuler) * Quaternion.Inverse(InternalCamera.Instance.transform.localRotation);
+					input.RotationInputEuler = inputRotation.eulerAngles;
+
+					if (input.RotationInputEuler.x > 180) input.RotationInputEuler.x -= 360;
+					if (input.RotationInputEuler.y > 180) input.RotationInputEuler.y -= 360;
+					if (input.RotationInputEuler.z > 180) input.RotationInputEuler.z -= 360;
+				}
 			}
 
 			input.Jump = FirstPersonKerbalFlight.Instance.GetJumpState();
