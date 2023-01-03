@@ -349,21 +349,21 @@ namespace KerbalVR
 
 			// TODO: deadzone/exponent? builtin response seems OK
 
-			if (m_sprintAction.state && movementThrottle.y > 0.5f)
+			if (m_sprintAction.state && movementThrottle.z > 0.5f)
 			{
 				m_isSprinting = true;
 			}
 
-			if (m_isSprinting && movementThrottle.y < 0.5f || kerbalEVA.JetpackDeployed)
+			if (m_isSprinting && movementThrottle.z < 0.5f || kerbalEVA.JetpackDeployed)
 			{
 				m_isSprinting = false;
 			}
 
 			Vector3 tgtRpos =
-				movementThrottle.y * kerbalEVA.transform.forward +
+				movementThrottle.z * kerbalEVA.transform.forward +
 				movementThrottle.x * kerbalEVA.transform.right;
 
-			Vector3 packTgtRpos = tgtRpos + movementThrottle.z * kerbalEVA.transform.up;
+			Vector3 packTgtRpos = tgtRpos + movementThrottle.y * kerbalEVA.transform.up;
 
 			kerbalEVA.tgtRpos = tgtRpos;
 			kerbalEVA.packTgtRPos = packTgtRpos;
