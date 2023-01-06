@@ -126,7 +126,7 @@ namespace InstallCheck
 			string errorMessage = string.Empty;
 			foreach (var filePath in requiredFiles)
 			{
-				if (!File.Exists(Path.Combine(Environment.CurrentDirectory, filePath)))
+				if (!File.Exists(Path.Combine(KSPUtil.ApplicationRootPath, filePath)))
 				{
 					errorMessage += "Missing file: " + filePath + Environment.NewLine;
 				}
