@@ -151,7 +151,7 @@ namespace InstallCheck
 			}
 			else if (!masInstalled && masVRInstalled)
 			{
-				Alert("You have KerbalVR-MAS.dll installed by not MAS itself.  Please uninstall KerbalVR-MAS.dll or install MAS.");
+				Alert("You have KerbalVR-MAS.dll installed but not MAS itself.  Please uninstall KerbalVR-MAS.dll or install MAS.");
 			}
 		}
 
