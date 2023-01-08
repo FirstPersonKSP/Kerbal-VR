@@ -274,6 +274,22 @@ namespace KerbalVR
 
 				KerbalVR.InteractionSystem.Instance.transform.SetParent(InternalCamera.Instance.transform.parent, false);
 
+				if (KerbalVR.InteractionSystem.Instance.transform.lossyScale != Vector3.one)
+				{
+					Utils.LogError($"Interaction system is at non-identity scale!!  Scale {KerbalVR.InteractionSystem.Instance.transform.lossyScale} Internal {CameraManager.Instance.IVACameraActiveKerbal.InPart.internalModel.internalName}");
+
+					for (var t = KerbalVR.InteractionSystem.Instance.transform; t != null; t = t.parent)
+					{
+						Utils.Log($"{t.name} local scale: {t.localScale.x}, {t.localScale.y}, {t.localScale.z}");
+					}
+
+				}
+
+				if (InternalCamera.Instance.transform.lossyScale != Vector3.one)
+				{
+					Utils.LogError($"Internal camera is at non-identity scale!!  Scale {InternalCamera.Instance.transform.lossyScale} Internal {CameraManager.Instance.IVACameraActiveKerbal.InPart.internalModel.internalName}");
+				}
+
 				m_lastKerbalTransform = eyeTransform.parent;
 
 				SetArmBoneScale(m_lastKerbalTransform, Vector3.zero);
