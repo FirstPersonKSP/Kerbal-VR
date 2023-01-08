@@ -304,6 +304,8 @@ namespace KerbalVR
 
 		public void Detach(bool immediate = false)
 		{
+			if (handObject == null) return;
+
 			var handDetacher = handObject.GetComponentsInParent<HandDetacher>(true).FirstOrDefault();
 			if (handDetacher)
 			{
