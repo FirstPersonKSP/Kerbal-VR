@@ -53,7 +53,7 @@ namespace InstallCheck
 		{
 			if (XRSettings.supportedDevices.IndexOf("OpenVR") == -1)
 			{
-				Alert("Unity VR is not enabled.  Please run VRInstaller.exe and point it at your KSP directory.");
+				Alert("Unity VR is not enabled.  Please run VRInstaller.exe and point it at your KSP directory:\r\n" + Path.GetFullPath(KSPUtil.ApplicationRootPath));
 			}
 		}
 
