@@ -292,10 +292,13 @@ namespace KerbalVR
 
 		public void Attach(Transform parent)
 		{
-			handObject.transform.SetParent(parent, true);
-			Vector3 scale = handObject.transform.parent.lossyScale.Reciprocal();
-			scale.Scale(transform.lossyScale);
-			handObject.transform.localScale = scale;
+			var scaleObject = new GameObject().transform;
+			scaleObject.transform.SetParent(parent, false);
+			scaleObject.localScale = parent.lossyScale.Reciprocal();
+
+
+			handObject.transform.SetParent(scaleObject, true);
+			
 			FingertipEnabled = false;
 
 			var detacher = parent.gameObject.AddComponent<HandDetacher>();
@@ -312,6 +315,8 @@ namespace KerbalVR
 				Destroy(handDetacher);
 			}
 
+			var scaleObject = handObject.transform.parent;
+
 			if (immediate)
 			{
 				handSkeleton.skeletonBlend = 1.0f;
@@ -326,6 +331,8 @@ namespace KerbalVR
 			handObject.transform.localRotation = Quaternion.identity;
 			handObject.transform.localScale = Vector3.one;
 			FingertipEnabled = true;
+
+			Destroy(scaleObject);
 		}
 
 		/// <summary>
@@ -472,7 +479,7 @@ namespace KerbalVR
 			if (!Core.IsVrEnabled) return;
 
 			Utils.SetLayer(gameObject, UseIVAProfile ? 20 : 0);
-			palmTransform.gameObject.layer = UseIVAProfile ? 20 : 3;
+			palmTransform.gameObject.layer = 3; //  UseIVAProfile ? 20 : 3; // layer 3 interacts with everything, and we want to be able to grab both layer 16 and layer 20 in IVA
 
 			IVAObject.SetActive(UseIVAProfile);
 			EVAObject.SetActive(!UseIVAProfile);
