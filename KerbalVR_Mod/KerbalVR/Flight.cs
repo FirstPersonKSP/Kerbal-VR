@@ -266,9 +266,14 @@ namespace KerbalVR
 				// this messes with the camera projection and the size/movement of the hands.
 				// does this mess with our external view of the rocket...?
 				var anchorTransform = CameraUtils.CreateVRAnchor(InternalCamera.Instance._camera).transform;
-				var eyeTransform = CameraManager.Instance.IVACameraActiveKerbal.protoCrewMember.KerbalRef.eyeTransform;
+				var eyeTransform = CameraManager.Instance.IVACameraActiveKerbal.eyeTransform;
 				eyeTransform.localScale = Vector3.one;
-				anchorTransform.localScale = Vector3.one;
+				
+				// for some reason, the kerbal scale is sometimes 2.03, which makes the interaction system operate at a larger scale and makes the world appear smaller
+				// try to invert the scale here - but maybe it would be better if we just attached the VRAnchor to the internal model directly instead of the kerbal?
+				Vector3 eyeScale = eyeTransform.lossyScale;
+				anchorTransform.localScale = new Vector3(1.0f / eyeScale.x, 1.0f / eyeScale.y, 1.0f / eyeScale.z);
+
 				InternalCamera.Instance.transform.localScale = Vector3.one;
 				KerbalVR.InteractionSystem.Instance.transform.localScale = Vector3.one;
 
