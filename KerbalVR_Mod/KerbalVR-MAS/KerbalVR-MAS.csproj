@@ -40,32 +40,23 @@
   <!--This must be done after the main project poperties are defined because it needs the target framework property to be defined -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!--Parse KSP platform-specific paths and set the start action-->
-  <PropertyGroup>
-    <KSPExecutable Condition="$([MSBuild]::IsOsPlatform('Windows'))">KSP_x64.exe</KSPExecutable>
-    <KSPExecutable Condition="$([MSBuild]::IsOsPlatform('OSX'))">KSP.app</KSPExecutable>
-    <KSPExecutable Condition="$([MSBuild]::IsOsPlatform('Linux'))">KSP.x86_64</KSPExecutable>
-    <ManagedRelativePath Condition="$([MSBuild]::IsOsPlatform('Windows'))">KSP_x64_Data\Managed</ManagedRelativePath>
-    <ManagedRelativePath Condition="$([MSBuild]::IsOsPlatform('OSX'))">KSP.app\Contents\Resources\Data\Managed</ManagedRelativePath>
-    <ManagedRelativePath Condition="$([MSBuild]::IsOsPlatform('Linux'))">KSP_Data\Managed</ManagedRelativePath>
-    <ManagedPath>$(ReferencePath)\$(ManagedRelativePath)</ManagedPath>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="$(ManagedPath)\Assembly-CSharp.dll">
+    <Reference Include="Assembly-CSharp">
       <Private>False</Private>
     </Reference>
-    <Reference Include="$(ReferencePath)\GameData\MOARdV\AvionicsSystems\AvionicsSystems.dll">
+    <Reference Include="AvionicsSystems">
       <Private>False</Private>
     </Reference>
-    <Reference Include="$(ManagedPath)\UnityEngine.dll">
+    <Reference Include="UnityEngine">
       <Private>False</Private>
     </Reference>
-    <Reference Include="$(ManagedPath)\UnityEngine.CoreModule.dll">
+    <Reference Include="UnityEngine.CoreModule">
       <Private>False</Private>
     </Reference>
-    <Reference Include="$(ManagedPath)\UnityEngine.AnimationModule.dll">
+    <Reference Include="UnityEngine.AnimationModule">
       <Private>False</Private>
     </Reference>
   </ItemGroup>
