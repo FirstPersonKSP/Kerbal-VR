@@ -315,24 +315,28 @@ namespace KerbalVR
 				Destroy(handDetacher);
 			}
 
-			var scaleObject = handObject.transform.parent;
+			if (handObject.transform.parent != transform)
+			{
+				var scaleObject = handObject.transform.parent;
 
-			if (immediate)
-			{
-				handSkeleton.skeletonBlend = 1.0f;
-				handSkeleton.UpdateSkeletonTransforms();
+				if (immediate)
+				{
+					handSkeleton.skeletonBlend = 1.0f;
+					handSkeleton.UpdateSkeletonTransforms();
+				}
+				else
+				{
+					handSkeleton.BlendToSkeleton();
+				}
+				handObject.transform.SetParent(transform, false);
+				handObject.transform.localPosition = Vector3.zero;
+				handObject.transform.localRotation = Quaternion.identity;
+				handObject.transform.localScale = Vector3.one;
+
+				Destroy(scaleObject.gameObject);
 			}
-			else
-			{
-				handSkeleton.BlendToSkeleton();
-			}
-			handObject.transform.SetParent(transform, false);
-			handObject.transform.localPosition = Vector3.zero;
-			handObject.transform.localRotation = Quaternion.identity;
-			handObject.transform.localScale = Vector3.one;
+
 			FingertipEnabled = true;
-
-			Destroy(scaleObject);
 		}
 
 		/// <summary>
