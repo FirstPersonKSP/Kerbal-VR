@@ -27,6 +27,8 @@ namespace InstallCheck
 			new Dependency { assemblyName = "EVEManager", minVersion = new Version(1, 11, 7, 1)},
 			new Dependency { assemblyName = "TUFX", minVersion = new Version(1, 0, 5)},
 			new Dependency { assemblyName = "Scatterer", minVersion = new Version(0, 838, 1)},
+			new Dependency { assemblyName = "AvionicsSystems", minVersion = new Version(1, 3, 6)},
+			new Dependency { assemblyName = "RasterPropMonitor", minVersion = new Version(0, 31, 10, 2)},
 		};
 
 		// these files must exist
@@ -46,7 +48,6 @@ namespace InstallCheck
 			CheckDependencies();
 			CheckOptionalMods();
 			CheckRequiredFiles();
-			CheckMAS();
 		}
 
 		private static void CheckVREnabled()
@@ -135,23 +136,6 @@ namespace InstallCheck
 			if (errorMessage != string.Empty)
 			{
 				Alert(errorMessage);
-			}
-		}
-
-		private static void CheckMAS()
-		{
-			bool masInstalled = AssemblyLoader.loadedAssemblies.Any(a => a.name == "AvionicsSystems");
-			bool masVRInstalled = AssemblyLoader.loadedAssemblies.Any(a => a.name == "KerbalVR-MAS");
-
-			// This should only be temporary until MAS starts using the KSPAssembly attribute
-
-			if (masInstalled && !masVRInstalled)
-			{
-				Alert("You have MAS (MOARdV's Avionics Systems) installed but not KerbalVR-MAS.  Please install KerbalVR-MAS.dll from the Optional Mods folder or uninstall MAS.");
-			}
-			else if (!masInstalled && masVRInstalled)
-			{
-				Alert("You have KerbalVR-MAS.dll installed but not MAS itself.  Please uninstall KerbalVR-MAS.dll or install MAS.");
 			}
 		}
 
