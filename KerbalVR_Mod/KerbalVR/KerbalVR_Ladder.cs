@@ -47,10 +47,10 @@ namespace KerbalVR
 			}
 			else
 			{
-				FreeIva.KerbalIvaAddon.KerbalIva.FreezeUpdates = false;
-				FreeIva.KerbalIvaAddon.KerbalIva.KerbalRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
-				FreeIva.KerbalIvaAddon.KerbalIva.KerbalRigidbody.velocity = velocity;
-				FreeIva.KerbalIvaAddon.KerbalIva.KerbalRigidbody.WakeUp();
+				FreeIva.KerbalIvaAddon.Instance.KerbalIva.FreezeUpdates = false;
+				FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+				FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.velocity = velocity;
+				FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.WakeUp();
 				velocity = Vector3.zero;
 			}
 		}
@@ -84,8 +84,8 @@ namespace KerbalVR
 			else
 			{
 				FreeIva.KerbalIvaAddon.Instance.Unbuckle();
-				FreeIva.KerbalIvaAddon.KerbalIva.FreezeUpdates = true;
-				FreeIva.KerbalIvaAddon.KerbalIva.KerbalRigidbody.interpolation = RigidbodyInterpolation.None;
+				FreeIva.KerbalIvaAddon.Instance.KerbalIva.FreezeUpdates = true;
+				FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.interpolation = RigidbodyInterpolation.None;
 			}
 		}
 
@@ -105,7 +105,7 @@ namespace KerbalVR
 				}
 				else
 				{
-					var rigidBody = FreeIva.KerbalIvaAddon.KerbalIva.KerbalRigidbody;
+					var rigidBody = FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody;
 					rigidBody.MovePosition(rigidBody.position - offset);
 
 					velocity = (x_gain * -offset / Time.fixedDeltaTime + velocity) / (1 + x_gain);

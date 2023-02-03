@@ -45,10 +45,10 @@ namespace KerbalVR
 		{
 			FirstPersonKerbalFlight.Instance.GetKerbalRotationInput(out float yaw, out float pitch, out float roll);
 
-			if (FreeIva.KerbalIvaAddon.KerbalIva.UseRelativeMovement())
+			if (FreeIva.KerbalIvaAddon.Instance.KerbalIva.UseRelativeMovement())
 			{
 				pitch = 0.0f;
-				FreeIva.KerbalIvaAddon.KerbalIva.currentRelativeOrientation.x = 0;
+				FreeIva.KerbalIvaAddon.Instance.KerbalIva.currentRelativeOrientation.x = 0;
 			}
 
 			// restrict rotations to a single axis
@@ -64,7 +64,7 @@ namespace KerbalVR
 			{
 				input.MovementThrottle = FirstPersonKerbalFlight.Instance.GetKerbalMovementThrottle();
 
-				if (FreeIva.KerbalIvaAddon.KerbalIva.UseRelativeMovement())
+				if (FreeIva.KerbalIvaAddon.Instance.KerbalIva.UseRelativeMovement())
 				{
 					float verticalMovement = input.MovementThrottle.y;
 					input.MovementThrottle.y = 0;
@@ -81,7 +81,7 @@ namespace KerbalVR
 			{
 				input.RotationInputEuler = new Vector3(pitch, yaw, roll);
 
-				if (!FreeIva.KerbalIvaAddon.KerbalIva.UseRelativeMovement())
+				if (!FreeIva.KerbalIvaAddon.Instance.KerbalIva.UseRelativeMovement())
 				{
 					Quaternion inputRotation = InternalCamera.Instance.transform.localRotation * Quaternion.Euler(input.RotationInputEuler) * Quaternion.Inverse(InternalCamera.Instance.transform.localRotation);
 					input.RotationInputEuler = inputRotation.eulerAngles;
