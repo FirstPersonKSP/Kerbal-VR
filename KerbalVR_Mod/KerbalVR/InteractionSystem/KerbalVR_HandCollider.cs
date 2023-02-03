@@ -47,7 +47,7 @@ namespace KerbalVR
 			{
 				HoveredObject = interactable;
 			}
-			else if (other.CompareTag(VRLadder.COLLIDER_TAG) || other.gameObject.layer == 16) // for now, anything the kerbal can collide with is grabbable as a ladder
+			else if (other.CompareTag(VRLadder.COLLIDER_TAG) || (other.gameObject.layer == 16 && (other.isTrigger || HoveredObject == null || HoveredObject.gameObject.layer == 16))) // for now, anything the kerbal can collide with is grabbable as a ladder
 			{
 				HoveredObject = ladder;
 				ladder.LadderTransform = other.transform;
