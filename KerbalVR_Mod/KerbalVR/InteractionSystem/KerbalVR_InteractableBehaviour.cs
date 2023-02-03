@@ -30,9 +30,19 @@ namespace KerbalVR
 			{
 				if (lastHand != value)
 				{
-					if (lastHand != null && OnRelease != null)
+					if (lastHand != null && value != null)
 					{
-						OnRelease.Invoke(lastHand);
+						if (OnOtherHandGrab != null)
+						{
+							OnOtherHandGrab.Invoke(value);
+						}
+					}
+					else if (lastHand != null)
+					{
+						if (OnRelease != null)
+						{
+							OnRelease.Invoke(lastHand);
+						}
 					}
 					lastHand = value;
 					if (value != null && OnGrab != null)
@@ -47,5 +57,6 @@ namespace KerbalVR
 		public delegate void GrabDelegate(Hand hand);
 		public GrabDelegate OnGrab;
 		public GrabDelegate OnRelease;
+		public GrabDelegate OnOtherHandGrab;
 	}
 }

@@ -89,7 +89,7 @@ namespace KerbalVR
 		// keep track of held objects
 		protected Transform palmTransform;
 		protected HandCollider palmCollider;
-		protected InteractableBehaviour heldObject;
+		public InteractableBehaviour heldObject { get; protected set; }
 
 		// interacting with mouse-clickable objects
 		protected Transform fingertipTransform;
