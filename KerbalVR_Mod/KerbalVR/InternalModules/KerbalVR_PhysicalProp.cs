@@ -19,6 +19,8 @@ namespace KerbalVR.InternalModules
 		Collider m_collider;
 		bool m_otherHandGrabbed = false;
 
+		bool m_applyGravity = false;
+
 		public override void OnLoad(ConfigNode node)
 		{
 			base.OnLoad(node);
@@ -77,7 +79,8 @@ namespace KerbalVR.InternalModules
 			m_rigidBody.velocity = KerbalVR.InteractionSystem.Instance.transform.TransformVector(hand.handActionPose[hand.handType].lastVelocity);
 
 			// TODO: switch back to kinematic when it comes to rest (or not? it's fun to kick around)
-			// TODO: apply gravity
+
+			m_applyGravity = true;
 		}
 
 		private void OnGrab(Hand hand)
@@ -88,7 +91,17 @@ namespace KerbalVR.InternalModules
 
 			// disable the collider so it doesn't push us around - or possibly we can just use Physics.IgnoreCollision
 			m_collider.enabled = false;
+			m_applyGravity = false;
 			
+		}
+
+		void FixedUpdate()
+		{
+			if (m_applyGravity && FreeIva.KerbalIvaAddon.Instance.KerbalIva.UseRelativeMovement())
+			{
+				Vector3 accel = FreeIva.KerbalIvaAddon.Instance.GetFlightAccelerationInternalSpace();
+				m_rigidBody.AddForce(accel, ForceMode.Acceleration);
+			}
 		}
 	}
 }
