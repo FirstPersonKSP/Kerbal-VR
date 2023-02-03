@@ -19,6 +19,9 @@ namespace KerbalVR
 			get { return GrabbedHand != null; }
 		}
 
+		// whether the hand should attach to this object when grabbing it
+		public bool AttachHandOnGrab = true;
+
 		/// <summary>
 		/// The Hand object that is grabbing this object. Null, if no
 		/// hand is grabbing this object.

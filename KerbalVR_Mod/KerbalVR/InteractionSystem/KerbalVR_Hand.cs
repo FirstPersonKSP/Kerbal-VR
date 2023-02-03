@@ -365,7 +365,11 @@ namespace KerbalVR
 						{
 							handSkeleton.BlendToPoser(heldObject.SkeletonPoser);
 						}
-						Attach(heldObject.transform);
+
+						if (heldObject.AttachHandOnGrab)
+						{
+							Attach(heldObject.transform);
+						}
 					}
 				}
 			}

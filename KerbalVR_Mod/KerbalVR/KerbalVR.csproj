@@ -116,7 +116,6 @@
   <ItemGroup>
     <Publicize Include="ThroughTheEyes" />
     <Publicize Include="Assembly-CSharp" />
-    <Publicize Include="FreeIva" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Addon.cs" />
@@ -150,6 +149,7 @@
     <Compile Include="InternalModules\KerbalVR_InternalHatch.cs" />
     <Compile Include="InternalModules\KerbalVR_Knob.cs" />
     <Compile Include="InternalModules\KerbalVR_Lever.cs" />
+    <Compile Include="InternalModules\KerbalVR_PhysicalProp.cs" />
     <Compile Include="InternalModules\KerbalVR_Switch.cs" />
     <Compile Include="InternalModules\KerbalVR_Throttle.cs" />
     <Compile Include="InternalModules\KerbalVR_TouchDisplay.cs" />
