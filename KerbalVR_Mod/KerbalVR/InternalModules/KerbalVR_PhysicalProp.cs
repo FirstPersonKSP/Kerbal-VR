@@ -105,12 +105,15 @@ namespace KerbalVR.InternalModules
 		{
 			m_otherHandGrabbed = false;
 			transform.SetParent(hand.handObject.transform, true);
-			m_rigidBody.isKinematic = true;
 
 			// disable the collider so it doesn't push us around - or possibly we can just use Physics.IgnoreCollision
 			m_collider.enabled = false;
-			m_applyGravity = false;
-			
+
+			if (m_rigidBody != null)
+			{
+				m_rigidBody.isKinematic = true;
+				m_applyGravity = false;
+			}
 		}
 
 		void FixedUpdate()
