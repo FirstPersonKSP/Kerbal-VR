@@ -12,6 +12,8 @@ namespace KerbalVR
 		protected VRLadder ladder;
 		protected VRSeatBehaviour hoveredSeat;
 
+		bool hoveredObjectIsHighPriority;
+
 		internal void Initialize(Hand hand, VRLadder ladder)
 		{
 			// add interactable collider
@@ -42,15 +44,27 @@ namespace KerbalVR
 
 		protected void OnTriggerEnter(Collider other)
 		{
+			int otherLayer = other.gameObject.layer;
+			if (Scene.IsInIVA())
+			{
+				if (otherLayer != 16 && otherLayer != 20) return;
+			}
+			else
+			{
+				if (otherLayer != 21) return;
+			}
+
 			InteractableBehaviour interactable = other.gameObject.GetComponent<InteractableBehaviour>();
 			if (interactable != null && interactable.enabled)
 			{
 				HoveredObject = interactable;
+				hoveredObjectIsHighPriority = true;
 			}
-			else if (other.CompareTag(VRLadder.COLLIDER_TAG) || (other.gameObject.layer == 16 && (other.isTrigger || HoveredObject == null || HoveredObject.gameObject.layer == 16))) // for now, anything the kerbal can collide with is grabbable as a ladder
+			else if (other.CompareTag(VRLadder.COLLIDER_TAG))
 			{
 				HoveredObject = ladder;
 				ladder.LadderTransform = other.transform;
+				hoveredObjectIsHighPriority = true;
 			}
 			else
 			{
@@ -58,6 +72,14 @@ namespace KerbalVR
 				if (seat != null)
 				{
 					hoveredSeat = seat;
+					hoveredObjectIsHighPriority = true;
+				}
+				else if (other.gameObject.layer == 16 && !hoveredObjectIsHighPriority && !FreeIva.KerbalIvaAddon.Instance.buckled)
+				{
+					// all other layer-16 things are grabbable as ladders when unbuckled, as long as you're not already hovering over something more important
+					HoveredObject = ladder;
+					ladder.LadderTransform = other.transform;
+					hoveredObjectIsHighPriority = false;
 				}
 			}
 		}
@@ -70,17 +92,20 @@ namespace KerbalVR
 				if (interactable != null && interactable == HoveredObject)
 				{
 					HoveredObject = null;
+					hoveredObjectIsHighPriority = false;
 				}
-				if (other.transform == ladder.LadderTransform)
+				if (other.transform == ladder.LadderTransform && HoveredObject == ladder)
 				{
 					HoveredObject = null;
 					ladder.LadderTransform = null;
+					hoveredObjectIsHighPriority = false;
 				}
 			}
 
 			if (hoveredSeat != null && hoveredSeat.transform == other.transform)
 			{
 				hoveredSeat = null;
+				hoveredObjectIsHighPriority = false;
 			}
 		}
 	}
