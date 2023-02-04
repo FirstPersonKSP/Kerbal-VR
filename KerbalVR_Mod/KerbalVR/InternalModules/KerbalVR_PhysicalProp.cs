@@ -12,7 +12,6 @@ namespace KerbalVR.InternalModules
 		[SerializeField]
 		InteractableBehaviour m_interactableBehaviour;
 
-		[SerializeField]
 		Rigidbody m_rigidBody;
 
 		[SerializeField]
@@ -27,7 +26,19 @@ namespace KerbalVR.InternalModules
 
 			if (HighLogic.LoadedScene == GameScenes.LOADING)
 			{
-				m_collider = GetComponentInChildren<Collider>();
+				var colliderNode = node.GetNode("COLLIDER");
+				if (colliderNode != null)
+				{
+					object obj = new ColliderParams();
+					ConfigNode.LoadObjectFromConfig(obj, colliderNode);
+					var colliderParams = (ColliderParams)obj;
+
+					m_collider = colliderParams.Create(transform);
+				}
+				else
+				{
+					m_collider = GetComponentInChildren<Collider>();
+				}
 
 				if (m_collider != null)
 				{
@@ -36,12 +47,7 @@ namespace KerbalVR.InternalModules
 					m_interactableBehaviour = m_collider.gameObject.AddComponent<InteractableBehaviour>();
 					m_interactableBehaviour.AttachHandOnGrab = false;
 					
-					gameObject.SetLayerRecursive(16); // needs to be 16 to bounce off shell colliders, at least while moving.  Not sure if we want it interacting with the player.
-
-					m_rigidBody = gameObject.AddComponent<Rigidbody>();
-					m_rigidBody.isKinematic = true;
-					m_rigidBody.useGravity = false;
-
+					m_collider.gameObject.layer = 16; // needs to be 16 to bounce off shell colliders, at least while moving.  Not sure if we want it interacting with the player.
 				}
 				else
 				{
@@ -70,11 +76,23 @@ namespace KerbalVR.InternalModules
 			if (m_otherHandGrabbed) return;
 
 			transform.SetParent(internalModel.transform, true); // TODO: freeiva centrifuge?
+
+			if (m_rigidBody == null)
+			{
+				m_rigidBody = gameObject.AddComponent<Rigidbody>();
+			}
+
+			m_rigidBody.isKinematic = true;
+			m_rigidBody.useGravity = false;
+
+
 			m_rigidBody.isKinematic = false;
 			m_rigidBody.WakeUp();
 
 
 			m_collider.enabled = true;
+
+
 
 			m_rigidBody.velocity = KerbalVR.InteractionSystem.Instance.transform.TransformVector(hand.handActionPose[hand.handType].lastVelocity);
 
