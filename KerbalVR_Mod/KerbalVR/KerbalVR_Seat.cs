@@ -55,15 +55,16 @@ namespace KerbalVR
 					GameEvents.OnIVACameraKerbalChange.Fire(internalSeat.kerbalRef);
 					FirstPersonKerbalFlight.Instance.OnIVACameraKerbalChange();
 				}
+				else if (!FreeIva.KerbalIvaAddon.Instance.buckled)
+				{
+					FreeIva.KerbalIvaAddon.Instance.TargetedSeat = internalSeat;
+					FreeIva.KerbalIvaAddon.Instance.Buckle();
+				}
 			}
 			else
 			{
-				var kerbal = CameraManager.Instance.IVACameraActiveKerbal;
-				
-				MoveKerbalToSeat(kerbal, internalSeat);
-
-				GameEvents.OnIVACameraKerbalChange.Fire(internalSeat.kerbalRef);
-				FirstPersonKerbalFlight.Instance.OnIVACameraKerbalChange();
+				FreeIva.KerbalIvaAddon.Instance.TargetedSeat = internalSeat;
+				FreeIva.KerbalIvaAddon.Instance.Buckle();
 			}
 
 			GameSettings.IVA_RETAIN_CONTROL_POINT = oldSetting;
