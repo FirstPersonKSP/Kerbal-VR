@@ -240,13 +240,17 @@ namespace KerbalVR
 		{
 			if (kerbalTransform != null)
 			{
-				var meshRenderer = kerbalTransform.gameObject.GetComponentInChildren<SkinnedMeshRenderer>();
-
-				foreach (var b in meshRenderer.bones)
+				foreach (var meshRenderer in kerbalTransform.gameObject.GetComponentsInChildren<SkinnedMeshRenderer>())
 				{
-					if (ArmBones.Contains(b.name))
+					if (meshRenderer.name.Contains("body"))
 					{
-						b.localScale = scale;
+						foreach (var b in meshRenderer.bones)
+						{
+							if (ArmBones.Contains(b.name))
+							{
+								b.localScale = scale;
+							}
+						}
 					}
 				}
 			}
