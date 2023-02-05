@@ -84,6 +84,14 @@ namespace KerbalVR
 			}
 		}
 
+		void OnTriggerStay(Collider other)
+		{
+			if (HoveredObject == null)
+			{
+				OnTriggerEnter(other);
+			}
+		}
+
 		protected void OnTriggerExit(Collider other)
 		{
 			if (HoveredObject != null)
