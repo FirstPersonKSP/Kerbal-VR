@@ -113,6 +113,7 @@ namespace KerbalVR
 				if (LadderTransform == null)
 				{
 					OnReleased(GrabbedHand);
+					return;
 				}
 
 				Vector3 offset = GrabbedHand.GripPosition - LadderTransform.TransformPoint(m_grabbedPosition);
