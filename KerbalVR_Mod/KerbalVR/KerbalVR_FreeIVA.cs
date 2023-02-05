@@ -132,7 +132,7 @@ namespace KerbalVR
 		static void Postfix(FreeIva.KerbalIvaAddon __instance)
 		{
 			// buckle is going to need a lot more work, but at a minmum we need to restore the vr anchor
-			FirstPersonKerbalFlight.Instance.FixInternalCamera();
+			FirstPersonKerbalFlight.Instance.FixIVACamera();
 			KerbalVR.Core.SetActionSetActive("EVA", false);
 		}
 	}

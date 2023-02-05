@@ -225,7 +225,10 @@ namespace KerbalVR
 
 			var eyeTransform = CameraUtils.CreateVRAnchor(InternalCamera.Instance._camera).transform;
 
-			eyeTransform.localScale = Vector3.one;
+			// counter-scale whatever might be on the parent
+			Vector3 eyeScale = eyeTransform.lossyScale;
+			eyeTransform.localScale = new Vector3(1.0f / eyeScale.x, 1.0f / eyeScale.y, 1.0f / eyeScale.z);
+
 			InternalCamera.Instance.transform.localScale = Vector3.one;
 			KerbalVR.InteractionSystem.Instance.transform.localScale = Vector3.one;
 
@@ -256,7 +259,7 @@ namespace KerbalVR
 			}
 		}
 
-		private void FixIVACamera()
+		internal void FixIVACamera()
 		{
 			Utils.Log("Flight.FixIVACamera");
 
@@ -292,7 +295,6 @@ namespace KerbalVR
 					{
 						Utils.Log($"{t.name} local scale: {t.localScale.x}, {t.localScale.y}, {t.localScale.z}");
 					}
-
 				}
 
 				if (InternalCamera.Instance.transform.lossyScale != Vector3.one)
