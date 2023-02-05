@@ -34,9 +34,9 @@ namespace KerbalVR
 
 			kerbalEVA.fsm.AddState(m_vrOnLadderState);
 
-			// add the VR ladder grab event to the same states that the default ladder grab event is
-			kerbalEVA.fsm.AddEvent(m_vrGrabLadderEvent, kerbalEVA.st_idle_fl, kerbalEVA.st_idle_gr, kerbalEVA.st_idle_b_gr, kerbalEVA.st_swim_idle);
-			kerbalEVA.fsm.AddEvent(m_vrReleaseLadderEvent, m_vrOnLadderState);
+			// add the VR ladder grab event to the same states that the default ladder grab event is PLUS ladder idle
+			kerbalEVA.fsm.AddEvent(m_vrGrabLadderEvent, kerbalEVA.st_idle_fl, kerbalEVA.st_idle_gr, kerbalEVA.st_idle_b_gr, kerbalEVA.st_swim_idle, kerbalEVA.st_ladder_idle);
+			kerbalEVA.fsm.AddEvent(m_vrReleaseLadderEvent, m_vrOnLadderState, kerbalEVA.st_ladder_idle);
 		}
 	}
 }

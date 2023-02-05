@@ -84,17 +84,14 @@ namespace KerbalVR
 
 			if (kerbalEVA != null)
 			{
-				if (!kerbalEVA.OnALadder)
-				{
-					var ladderTriggers = AccessTools.FieldRefAccess<KerbalEVA, List<Collider>>(kerbalEVA, "currentLadderTriggers");
-					var evafsm = kerbalEVA.GetComponent<KerbalVR_EVAFSM>();
+				var ladderTriggers = AccessTools.FieldRefAccess<KerbalEVA, List<Collider>>(kerbalEVA, "currentLadderTriggers");
+				var evafsm = kerbalEVA.GetComponent<KerbalVR_EVAFSM>();
 
-					ladderTriggers.Clear();
-					ladderTriggers.Add(LadderTransform.GetComponent<Collider>());
+				ladderTriggers.Clear();
+				ladderTriggers.Add(LadderTransform.GetComponent<Collider>());
 
-					//kerbalEVA.fsm.RunEvent(kerbalEVA.On_ladderGrabStart);
-					kerbalEVA.fsm.RunEvent(evafsm.m_vrGrabLadderEvent);
-				}
+				//kerbalEVA.fsm.RunEvent(kerbalEVA.On_ladderGrabStart);
+				kerbalEVA.fsm.RunEvent(evafsm.m_vrGrabLadderEvent);
 			}
 			else
 			{
