@@ -18,7 +18,7 @@ namespace KerbalVR
 	{
 		public static FirstPersonKerbalFlight Instance { get; private set; }
 
-		Transform m_lastKerbalTransform = null;
+		Kerbal m_lastKerbal= null;
 		HeadUpDisplay m_headUpDisplay = null;
 
 		static readonly float EVA_PRECISION_MODE_SCALE = 0.5f;
@@ -157,10 +157,11 @@ namespace KerbalVR
 		void RestoreLastKerbal()
 		{
 			// restore kerbal arms
-			if (m_lastKerbalTransform != null)
+			if (m_lastKerbal != null)
 			{
-				SetArmBoneScale(m_lastKerbalTransform, Vector3.one);
-				m_lastKerbalTransform = null;
+				SetArmBoneScale(m_lastKerbal.transform, Vector3.one);
+				m_lastKerbal.headTransform.gameObject.SetActive(true);
+				m_lastKerbal = null;
 			}
 		}
 
@@ -295,9 +296,10 @@ namespace KerbalVR
 					Utils.LogError($"Internal camera is at non-identity scale!!  Scale {InternalCamera.Instance.transform.lossyScale} Internal {CameraManager.Instance.IVACameraActiveKerbal.InPart.internalModel.internalName}");
 				}
 
-				m_lastKerbalTransform = eyeTransform.parent;
+				m_lastKerbal = CameraManager.Instance.IVACameraActiveKerbal;
 
-				SetArmBoneScale(m_lastKerbalTransform, Vector3.zero);
+				SetArmBoneScale(m_lastKerbal.transform, Vector3.zero);
+				m_lastKerbal.headTransform.gameObject.SetActive(false);
 			}
 		}
 
