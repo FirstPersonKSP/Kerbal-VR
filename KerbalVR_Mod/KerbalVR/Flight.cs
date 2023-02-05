@@ -324,6 +324,8 @@ namespace KerbalVR
 				kerbalEVA.On_startRun.OnCheckCondition = (KFSMState currentState) => kerbalEVA.VesselUnderControl && (m_isSprinting || GameSettings.EVA_Run.GetKeyDown());
 				kerbalEVA.On_endRun.OnCheckCondition = (KFSMState currentState) => kerbalEVA.VesselUnderControl && !m_isSprinting && !GameSettings.EVA_Run.GetKeyDown();
 
+				Utils.GetOrAddComponent<KerbalVR_EVAFSM>(kerbalEVA.gameObject);
+
 				JetpackPrecisionMode = true;
 				m_isSprinting = false;
 			}

@@ -51,7 +51,7 @@ namespace KerbalVR
 			}
 			else
 			{
-				if (otherLayer != 21) return;
+				if (otherLayer != 21) return; // TODO: what about just grabbing anywhere on the outside of a part?
 			}
 
 			InteractableBehaviour interactable = other.gameObject.GetComponent<InteractableBehaviour>();

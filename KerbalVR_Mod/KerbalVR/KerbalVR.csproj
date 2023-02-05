@@ -121,6 +121,7 @@
     <Compile Include="Addon.cs" />
     <Compile Include="CameraUtils.cs" />
     <Compile Include="ColliderUtil.cs" />
+    <Compile Include="Components\KerbalVR_EVAFSM.cs" />
     <Compile Include="Flight.cs" />
     <Compile Include="Components\KerbalVR_AvionicsComputer.cs" />
     <Compile Include="HapticUtils.cs" />
