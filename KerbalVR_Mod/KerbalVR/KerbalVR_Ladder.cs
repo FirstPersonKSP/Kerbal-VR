@@ -33,7 +33,7 @@ namespace KerbalVR
 		{
 			Utils.Log($"VRLadder.OnReleased: {hand.handType} - LadderTransform {LadderTransform?.name}");
 
-			if (hand.otherHand.heldObject is VRLadder otherLadder)
+			if (hand.otherHand.heldObject is VRLadder otherLadder && otherLadder.GrabbedHand == hand.otherHand)
 			{
 				Utils.Log($"VRLadder.OnReleased: other hand is holding ladder {otherLadder.LadderTransform?.name}");
 				return;
@@ -68,6 +68,8 @@ namespace KerbalVR
 
 		private void OnGrabbed(Hand hand)
 		{
+			Utils.Log($"VRLadder.OnReleased: {hand.handType} - LadderTransform {LadderTransform?.name}");
+
 			m_grabbedPosition = LadderTransform.InverseTransformPoint(hand.GripPosition);
 			HapticUtils.Heavy(hand.handType);
 
