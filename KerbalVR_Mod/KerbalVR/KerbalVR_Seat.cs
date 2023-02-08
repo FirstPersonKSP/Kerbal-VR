@@ -51,6 +51,7 @@ namespace KerbalVR
 				// .. as long as it's not us..
 				if (internalSeat.kerbalRef != CameraManager.Instance.IVACameraActiveKerbal)
 				{
+					FreeIva.KerbalIvaAddon.Instance.ReturnToSeat();
 					CameraManager.Instance.SetCameraIVA(internalSeat.kerbalRef, true);
 					GameEvents.OnIVACameraKerbalChange.Fire(internalSeat.kerbalRef);
 					FirstPersonKerbalFlight.Instance.OnIVACameraKerbalChange();
