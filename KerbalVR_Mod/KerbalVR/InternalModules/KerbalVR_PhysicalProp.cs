@@ -166,9 +166,10 @@ namespace KerbalVR.InternalModules
 
 				m_rigidBody.velocity = KerbalVR.InteractionSystem.Instance.transform.TransformVector(hand.handActionPose[hand.handType].lastVelocity);
 
-				// total hack?
-				if (!FreeIva.KerbalIvaAddon.Instance.buckled)
+				// total hack? - apply reaction velocity in zero-g
+				if (!FreeIva.KerbalIvaAddon.Instance.buckled && !FreeIva.KerbalIvaAddon.Instance.KerbalIva.UseRelativeMovement())
 				{
+					// TODO: should probably have some idea of how much mass this thing is
 					FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.AddForce(-m_rigidBody.velocity, ForceMode.VelocityChange);
 				}
 
