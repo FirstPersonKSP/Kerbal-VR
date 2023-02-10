@@ -2,3 +2,13 @@ velcro4.wav
 (c) HerbertBoland
 https://freesound.org/s/28549/
 https://creativecommons.org/licenses/by/4.0/
+
+
+thunk.wav
+https://freesound.org/s/252265/
+https://creativecommons.org/publicdomain/zero/1.0/
+
+thunk_big.wav
+https://freesound.org/s/332668/
+https://creativecommons.org/publicdomain/zero/1.0/
+
