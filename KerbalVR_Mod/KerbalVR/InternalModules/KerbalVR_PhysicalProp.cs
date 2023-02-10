@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using Valve.VR;
 
 namespace KerbalVR.InternalModules
 {
-	internal class VRPhysicalProp : InternalModule
+	public class VRPhysicalProp : InternalModule
 	{
 		[KSPField]
 		public bool isSticky = false; // when released, if this is overlapping another collider then it will attach to it
@@ -18,7 +20,10 @@ namespace KerbalVR.InternalModules
 		[SerializeField]
 		InteractableBehaviour m_interactableBehaviour;
 		[SerializeField]
-		VRPhysicalPropCollisionTracker m_collisionTracker;
+		CollisionTracker m_collisionTracker;
+
+		[SerializeField]
+		Interaction m_interaction;
 
 		Rigidbody m_rigidBody;
 
@@ -66,7 +71,7 @@ namespace KerbalVR.InternalModules
 					
 					m_collider.gameObject.layer = 16; // needs to be 16 to bounce off shell colliders, at least while moving.  Not sure if we want it interacting with the player.
 
-					m_collisionTracker = m_collider.gameObject.AddComponent<VRPhysicalPropCollisionTracker>();
+					m_collisionTracker = m_collider.gameObject.AddComponent<CollisionTracker>();
 					m_collisionTracker.PhysicalProp = this;
 				}
 				else
@@ -74,22 +79,67 @@ namespace KerbalVR.InternalModules
 					Utils.LogError($"VRPhysicalProp: prop {internalProp.propName} does not have a collider");
 				}
 
-				m_grabAudioClip = LoadAudioClip(node, "grabSound");
-				m_stickAudioClip = LoadAudioClip(node, "stickSound");
-				m_impactAudioClip = LoadAudioClip(node, "impactSound");
-
-				if (m_grabAudioClip != null || m_stickAudioClip != null || m_impactAudioClip != null)
+				// setup audio
 				{
-					m_audioSource = m_collider.gameObject.AddComponent<AudioSource>();
-					m_audioSource.volume = GameSettings.SHIP_VOLUME;
-					m_audioSource.minDistance = 2;
-					m_audioSource.maxDistance = 10;
-					m_audioSource.playOnAwake = false;
+					m_grabAudioClip = LoadAudioClip(node, "grabSound");
+					m_stickAudioClip = LoadAudioClip(node, "stickSound");
+					m_impactAudioClip = LoadAudioClip(node, "impactSound");
+
+					if (m_grabAudioClip != null || m_stickAudioClip != null || m_impactAudioClip != null)
+					{
+						m_audioSource = m_collider.gameObject.AddComponent<AudioSource>();
+						m_audioSource.volume = GameSettings.SHIP_VOLUME;
+						m_audioSource.minDistance = 2;
+						m_audioSource.maxDistance = 10;
+						m_audioSource.playOnAwake = false;
+					}
+				}
+
+				// setup interactions
+				var interactionNode = node.GetNode("INTERACTION");
+				if (interactionNode != null)
+				{
+					CreateInteraction(interactionNode);
 				}
 			}
 		}
 
-		AudioClip LoadAudioClip(ConfigNode node, string key)
+#region static stuff
+		static Dictionary<string, TypeInfo> x_interactionTypes;
+
+		static VRPhysicalProp()
+		{
+			x_interactionTypes = new Dictionary<string, TypeInfo>();
+			foreach (var assembly in AssemblyLoader.loadedAssemblies)
+			{
+				assembly.TypeOperation(type =>
+				{
+					if (type.IsSubclassOf(typeof(Interaction)))
+					{
+						x_interactionTypes.Add(type.Name, type.GetTypeInfo());
+					}
+				});
+			}
+		}
+
+		public void CreateInteraction(ConfigNode interactionNode)
+		{
+			var name = interactionNode.GetValue("name");
+
+			if (x_interactionTypes.TryGetValue(name, out var typeInfo))
+			{
+				m_interaction = (Interaction)gameObject.AddComponent(typeInfo.AsType());
+				m_interaction.PhysicalProp = this;
+				m_interaction.OnLoad(interactionNode);
+			}
+			else
+			{
+				Utils.LogError($"PROP {internalProp.propName}: No VRPhysicalProp.Interaction named {name} exists");
+			}
+		}
+#endregion
+
+		internal AudioClip LoadAudioClip(ConfigNode node, string key)
 		{
 			string clipUrl = node.GetValue(key);
 			if (clipUrl == null) return null;
@@ -104,14 +154,31 @@ namespace KerbalVR.InternalModules
 			return result;
 		}
 
-		void PlayAudioClip(AudioClip clip)
+		public void PlayAudioClip(AudioClip clip)
 		{
 			if (clip == null) return;
+			m_audioSource.pitch = 0;
 			m_audioSource.PlayOneShot(clip);
+		}
+
+		public void StartAudioLoop(AudioClip clip)
+		{
+			if (clip == null) return;
+			m_audioSource.clip = clip;
+			m_audioSource.loop = true;
+			m_audioSource.Play();
+		}
+
+		public void StopAudioLoop()
+		{
+			m_audioSource.loop = false;
+			m_audioSource.Stop();
 		}
 
 		public void OnImpact(float magnitude)
 		{
+			// TOD: maybe randomize a bit?
+			m_audioSource.pitch = UnityEngine.Random.Range(-0.2f, 0.2f);
 			PlayAudioClip(m_impactAudioClip);
 		}
 
@@ -135,6 +202,11 @@ namespace KerbalVR.InternalModules
 			if (m_otherHandGrabbed) return;
 
 			transform.SetParent(internalModel.transform, true); // TODO: freeiva centrifuge?
+
+			if (m_interaction)
+			{
+				m_interaction.OnRelease(hand);
+			}
 
 			if (isSticky && m_collisionTracker.ContactCollider != null)
 			{
@@ -173,7 +245,7 @@ namespace KerbalVR.InternalModules
 				{
 					// TODO: should probably have some idea of how much mass this thing is
 					FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.WakeUp();
-					FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.velocity += -propVelocity;
+					FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.velocity += -propVelocity * 0.8f;
 				}
 
 				m_applyGravity = true;
@@ -205,6 +277,11 @@ namespace KerbalVR.InternalModules
 				m_applyGravity = false;
 			}
 
+			if (m_interaction)
+			{
+				m_interaction.OnGrab(hand);
+			}
+
 			PlayAudioClip(m_grabAudioClip);
 		}
 
@@ -216,30 +293,111 @@ namespace KerbalVR.InternalModules
 				m_rigidBody.AddForce(accel, ForceMode.Acceleration);
 			}
 		}
-	}
 
-	internal class VRPhysicalPropCollisionTracker : MonoBehaviour
-	{
-		public VRPhysicalProp PhysicalProp;
-
-		public Collider ContactCollider;
-
-		void FixedUpdate()
+		internal class CollisionTracker : MonoBehaviour
 		{
-			ContactCollider = null;
-		}
+			public VRPhysicalProp PhysicalProp;
 
-		void OnCollisionEnter(Collision other)
-		{
-			PhysicalProp.OnImpact(other.relativeVelocity.magnitude);
-		}
+			public Collider ContactCollider;
 
-		void OnTriggerStay(Collider other)
-		{
-			// how do we determine if this is a part of the iva shell?
-			if (other.gameObject.layer == 16)
+			void FixedUpdate()
 			{
-				ContactCollider = other;
+				ContactCollider = null;
+			}
+
+			void OnCollisionEnter(Collision other)
+			{
+				PhysicalProp.OnImpact(other.relativeVelocity.magnitude);
+			}
+
+			void OnTriggerStay(Collider other)
+			{
+				// how do we determine if this is a part of the iva shell?
+				if (other.gameObject.layer == 16)
+				{
+					ContactCollider = other;
+				}
+			}
+		}
+
+		// TODO: maybe this should be pushed up to the interaction system level, and PhysicalProp is a certain kind of Interaction?
+		// then stuff like flightStick etc are also just interactions?
+		public class Interaction : MonoBehaviour
+		{
+			public VRPhysicalProp PhysicalProp;
+
+			public virtual void OnLoad(ConfigNode interactionNode) { }
+
+			public virtual void OnGrab(Hand hand) { }
+			public virtual void OnRelease(Hand hand) { }
+		}
+
+
+		public class VRInteractionExtinguisher : Interaction
+		{
+			[SerializeField] Vector3 thrustVector;
+			public Transform thrustTransform;
+			public AudioClip m_audioClip;
+
+			SteamVR_Action_Boolean_Source m_pinchAction;
+			bool m_playingSound;
+
+			public override void OnLoad(ConfigNode interactionNode)
+			{
+				base.OnLoad(interactionNode);
+
+				string transformName = interactionNode.GetValue("thrustTransformName");
+				thrustTransform = PhysicalProp.FindTransform(transformName);
+				enabled = false;
+
+				if (!interactionNode.TryGetValue(nameof(thrustVector), ref thrustVector))
+				{
+					Utils.LogError($"PROP {PhysicalProp.internalProp.propName} VRInteractionExtinguisher could not parse key {nameof(thrustVector)}");
+				}
+
+				m_audioClip = PhysicalProp.LoadAudioClip(interactionNode, "sound");
+			}
+
+			public override void OnGrab(Hand hand)
+			{
+				base.OnGrab(hand);
+
+				// TODO: pinchIndex is a boolean action - should it be a float?
+				m_pinchAction = SteamVR_Input.GetBooleanAction("default", "PinchIndex")[hand.handType];
+				enabled = true;
+			}
+
+			public override void OnRelease(Hand hand)
+			{
+				base.OnRelease(hand);
+
+				m_pinchAction = null;
+				enabled = false;
+			}
+
+			void FixedUpdate()
+			{
+				if (m_pinchAction.state)
+				{
+					Vector3 accelerationVector = thrustTransform.TransformVector(thrustVector);
+
+					FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.WakeUp();
+					FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.AddForceAtPosition(accelerationVector, thrustTransform.position, ForceMode.Acceleration);
+
+					if (!m_playingSound)
+					{
+						PhysicalProp.StartAudioLoop(m_audioClip);
+						m_playingSound = true;
+					}
+				}
+				else
+				{
+					if (m_playingSound)
+					{
+						PhysicalProp.StopAudioLoop();
+						m_playingSound = false;
+					}
+				}
 			}
 		}
 	}

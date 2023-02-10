@@ -12,3 +12,6 @@ thunk_big.wav
 https://freesound.org/s/332668/
 https://creativecommons.org/publicdomain/zero/1.0/
 
+extinguisher.wav
+https://freesound.org/s/155516/
+http://creativecommons.org/publicdomain/zero/1.0/
