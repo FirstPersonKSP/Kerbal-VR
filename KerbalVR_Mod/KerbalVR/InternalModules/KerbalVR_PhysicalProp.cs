@@ -110,6 +110,12 @@ namespace KerbalVR.InternalModules
 				m_rigidBody.WakeUp();
 
 				m_rigidBody.velocity = KerbalVR.InteractionSystem.Instance.transform.TransformVector(hand.handActionPose[hand.handType].lastVelocity);
+
+				// totoal hack?
+				if (!FreeIva.KerbalIvaAddon.Instance.buckled)
+				{
+					FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.AddForce(-m_rigidBody.velocity, ForceMode.VelocityChange);
+				}
 			}
 
 			m_collider.enabled = true;
