@@ -120,7 +120,7 @@ namespace KerbalVR.InternalModules
 		{
 			if (m_applyGravity && FreeIva.KerbalIvaAddon.Instance.KerbalIva.UseRelativeMovement())
 			{
-				Vector3 accel = FreeIva.KerbalIvaAddon.Instance.GetFlightAccelerationInternalSpace();
+				Vector3 accel = FreeIva.KerbalIvaAddon.Instance.KerbalIva.GetInternalAcceleration();
 				m_rigidBody.AddForce(accel, ForceMode.Acceleration);
 			}
 		}
