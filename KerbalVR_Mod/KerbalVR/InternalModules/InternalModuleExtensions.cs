@@ -39,7 +39,7 @@ namespace KerbalVR.InternalModules
 
 			if (result == null && !String.IsNullOrEmpty(nameOrPath))
 			{
-				Utils.LogError($"Unable to find transform named {nameOrPath} in iva {internalModule.internalProp?.internalModel.name} for prop {internalModule.internalProp.name}");
+				Utils.LogError($"Unable to find transform named {nameOrPath} in iva {internalModule.internalProp.internalModel?.name} for prop {internalModule.internalProp.propName}");
 			}
 
 			return result;
