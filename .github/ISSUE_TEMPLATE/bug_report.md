@@ -1,8 +1,13 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Report something that isn't working correctly
+title: ''
+labels: bug
+assignees: ''
 
 ---
+
+# :warning: ALL BUG REPORTS MUST INCLUDE A KSP.LOG FILE :warning:
 
 **Describe the bug**
 A clear and concise description of what the bug is.
