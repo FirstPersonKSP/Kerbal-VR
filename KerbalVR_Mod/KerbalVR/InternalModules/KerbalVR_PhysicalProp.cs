@@ -164,13 +164,16 @@ namespace KerbalVR.InternalModules
 				m_rigidBody.isKinematic = false;
 				m_rigidBody.WakeUp();
 
-				m_rigidBody.velocity = KerbalVR.InteractionSystem.Instance.transform.TransformVector(hand.handActionPose[hand.handType].lastVelocity);
+				Vector3 propVelocity = KerbalVR.InteractionSystem.Instance.transform.TransformVector(hand.handActionPose[hand.handType].lastVelocity);
+				m_rigidBody.velocity = propVelocity;
+				m_rigidBody.angularVelocity = KerbalVR.InteractionSystem.Instance.transform.rotation * hand.handActionPose[hand.handType].lastAngularVelocity;
 
 				// total hack? - apply reaction velocity in zero-g
 				if (!FreeIva.KerbalIvaAddon.Instance.buckled && !FreeIva.KerbalIvaAddon.Instance.KerbalIva.UseRelativeMovement())
 				{
 					// TODO: should probably have some idea of how much mass this thing is
-					FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.AddForce(-m_rigidBody.velocity, ForceMode.VelocityChange);
+					FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.WakeUp();
+					FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.velocity += -propVelocity;
 				}
 
 				m_applyGravity = true;
