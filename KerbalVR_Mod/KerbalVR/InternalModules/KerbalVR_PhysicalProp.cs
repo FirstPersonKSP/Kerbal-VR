@@ -9,8 +9,16 @@ namespace KerbalVR.InternalModules
 {
 	internal class VRPhysicalProp : InternalModule
 	{
+		[KSPField]
+		public bool isSticky = false; // when released, if this is overlapping another collider then it will attach to it
+
+		[KSPField]
+		public string grabAudioName = string.Empty;
+
 		[SerializeField]
 		InteractableBehaviour m_interactableBehaviour;
+		[SerializeField]
+		VRPhysicalPropCollisionTracker m_collisionTracker;
 
 		Rigidbody m_rigidBody;
 
@@ -48,6 +56,8 @@ namespace KerbalVR.InternalModules
 					m_interactableBehaviour.AttachHandOnGrab = false;
 					
 					m_collider.gameObject.layer = 16; // needs to be 16 to bounce off shell colliders, at least while moving.  Not sure if we want it interacting with the player.
+
+					m_collider.gameObject.AddComponent<VRPhysicalPropCollisionTracker>();
 				}
 				else
 				{
@@ -77,24 +87,32 @@ namespace KerbalVR.InternalModules
 
 			transform.SetParent(internalModel.transform, true); // TODO: freeiva centrifuge?
 
-			if (m_rigidBody == null)
+			if (isSticky && m_collisionTracker.ContactCollider != null)
 			{
-				m_rigidBody = gameObject.AddComponent<Rigidbody>();
+				if (m_rigidBody != null)
+				{
+					Component.Destroy(m_rigidBody);
+					m_rigidBody = null;
+				}
+			}
+			else
+			{
+				if (m_rigidBody == null)
+				{
+					m_rigidBody = gameObject.AddComponent<Rigidbody>();
+				}
+
+				m_rigidBody.isKinematic = true;
+				m_rigidBody.useGravity = false;
+
+
+				m_rigidBody.isKinematic = false;
+				m_rigidBody.WakeUp();
+
+				m_rigidBody.velocity = KerbalVR.InteractionSystem.Instance.transform.TransformVector(hand.handActionPose[hand.handType].lastVelocity);
 			}
 
-			m_rigidBody.isKinematic = true;
-			m_rigidBody.useGravity = false;
-
-
-			m_rigidBody.isKinematic = false;
-			m_rigidBody.WakeUp();
-
-
 			m_collider.enabled = true;
-
-
-
-			m_rigidBody.velocity = KerbalVR.InteractionSystem.Instance.transform.TransformVector(hand.handActionPose[hand.handType].lastVelocity);
 
 			// TODO: switch back to kinematic when it comes to rest (or not? it's fun to kick around)
 
@@ -107,7 +125,14 @@ namespace KerbalVR.InternalModules
 			transform.SetParent(hand.handObject.transform, true);
 
 			// disable the collider so it doesn't push us around - or possibly we can just use Physics.IgnoreCollision
-			m_collider.enabled = false;
+			if (isSticky)
+			{
+				m_collider.isTrigger = true;
+			}
+			else
+			{
+				m_collider.enabled = false;
+			}
 
 			if (m_rigidBody != null)
 			{
@@ -123,6 +148,27 @@ namespace KerbalVR.InternalModules
 				Vector3 accel = FreeIva.KerbalIvaAddon.Instance.KerbalIva.GetInternalAcceleration();
 				m_rigidBody.AddForce(accel, ForceMode.Acceleration);
 			}
+		}
+	}
+
+	internal class VRPhysicalPropCollisionTracker : MonoBehaviour
+	{
+		public Collider ContactCollider;
+
+		void FixedUpdate()
+		{
+			ContactCollider = null;
+		}
+
+		void OnTriggerEnter(Collider other)
+		{
+			ContactCollider = other;
+		}
+
+		void OnTriggerStay(Collider other)
+		{
+			// how do we determine if this is a part of the iva shell?
+			ContactCollider = other;
 		}
 	}
 }
