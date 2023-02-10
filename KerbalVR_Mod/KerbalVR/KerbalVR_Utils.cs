@@ -506,6 +506,11 @@ namespace KerbalVR
 			{
 				transformNameOrPath = transformNameOrPath.TrimStart('/');
 				var modelRoot = root.Find("model");
+				if (modelRoot == null)
+				{
+					Utils.LogError($"Could not find transform named 'model' in {root.name} when looking for transform {transformNameOrPath}");
+					return null;
+				}
 				return modelRoot.GetChild(0).Find(transformNameOrPath) ?? modelRoot.Find(transformNameOrPath);
 			}
 			else
