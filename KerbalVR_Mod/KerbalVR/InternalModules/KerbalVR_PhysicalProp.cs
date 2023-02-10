@@ -13,7 +13,7 @@ namespace KerbalVR.InternalModules
 		public bool isSticky = false; // when released, if this is overlapping another collider then it will attach to it
 
 		[KSPField]
-		public string grabAudioName = string.Empty;
+		public string placeSound = string.Empty;
 
 		[SerializeField]
 		InteractableBehaviour m_interactableBehaviour;
@@ -21,6 +21,15 @@ namespace KerbalVR.InternalModules
 		VRPhysicalPropCollisionTracker m_collisionTracker;
 
 		Rigidbody m_rigidBody;
+
+		[SerializeField]
+		AudioSource m_audioSource;
+		[SerializeReference]
+		AudioClip m_grabAudioClip;
+		[SerializeReference]
+		AudioClip m_stickAudioClip;
+		[SerializeReference]
+		AudioClip m_impactAudioClip;
 
 		[SerializeField]
 		Collider m_collider;
@@ -57,13 +66,53 @@ namespace KerbalVR.InternalModules
 					
 					m_collider.gameObject.layer = 16; // needs to be 16 to bounce off shell colliders, at least while moving.  Not sure if we want it interacting with the player.
 
-					m_collider.gameObject.AddComponent<VRPhysicalPropCollisionTracker>();
+					m_collisionTracker = m_collider.gameObject.AddComponent<VRPhysicalPropCollisionTracker>();
+					m_collisionTracker.PhysicalProp = this;
 				}
 				else
 				{
 					Utils.LogError($"VRPhysicalProp: prop {internalProp.propName} does not have a collider");
 				}
+
+				m_grabAudioClip = LoadAudioClip(node, "grabSound");
+				m_stickAudioClip = LoadAudioClip(node, "stickSound");
+				m_impactAudioClip = LoadAudioClip(node, "impactSound");
+
+				if (m_grabAudioClip != null || m_stickAudioClip != null || m_impactAudioClip != null)
+				{
+					m_audioSource = m_collider.gameObject.AddComponent<AudioSource>();
+					m_audioSource.volume = GameSettings.SHIP_VOLUME;
+					m_audioSource.minDistance = 2;
+					m_audioSource.maxDistance = 10;
+					m_audioSource.playOnAwake = false;
+				}
 			}
+		}
+
+		AudioClip LoadAudioClip(ConfigNode node, string key)
+		{
+			string clipUrl = node.GetValue(key);
+			if (clipUrl == null) return null;
+
+			AudioClip result = GameDatabase.Instance.GetAudioClip(clipUrl);
+
+			if (result == null)
+			{
+				Utils.LogError($"Failed to find audio clip {clipUrl} for prop {internalProp.propName}");
+			}
+
+			return result;
+		}
+
+		void PlayAudioClip(AudioClip clip)
+		{
+			if (clip == null) return;
+			m_audioSource.PlayOneShot(clip);
+		}
+
+		public void OnImpact(float magnitude)
+		{
+			PlayAudioClip(m_impactAudioClip);
 		}
 
 		void Start()
@@ -94,6 +143,9 @@ namespace KerbalVR.InternalModules
 					Component.Destroy(m_rigidBody);
 					m_rigidBody = null;
 				}
+
+				PlayAudioClip(m_stickAudioClip);
+				m_applyGravity = false;
 			}
 			else
 			{
@@ -101,6 +153,9 @@ namespace KerbalVR.InternalModules
 				{
 					m_rigidBody = gameObject.AddComponent<Rigidbody>();
 				}
+
+				m_collider.isTrigger = false;
+				m_collider.enabled = true;
 
 				m_rigidBody.isKinematic = true;
 				m_rigidBody.useGravity = false;
@@ -111,18 +166,18 @@ namespace KerbalVR.InternalModules
 
 				m_rigidBody.velocity = KerbalVR.InteractionSystem.Instance.transform.TransformVector(hand.handActionPose[hand.handType].lastVelocity);
 
-				// totoal hack?
+				// total hack?
 				if (!FreeIva.KerbalIvaAddon.Instance.buckled)
 				{
 					FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.AddForce(-m_rigidBody.velocity, ForceMode.VelocityChange);
 				}
+
+				m_applyGravity = true;
 			}
 
 			m_collider.enabled = true;
 
 			// TODO: switch back to kinematic when it comes to rest (or not? it's fun to kick around)
-
-			m_applyGravity = true;
 		}
 
 		private void OnGrab(Hand hand)
@@ -145,6 +200,8 @@ namespace KerbalVR.InternalModules
 				m_rigidBody.isKinematic = true;
 				m_applyGravity = false;
 			}
+
+			PlayAudioClip(m_grabAudioClip);
 		}
 
 		void FixedUpdate()
@@ -159,6 +216,8 @@ namespace KerbalVR.InternalModules
 
 	internal class VRPhysicalPropCollisionTracker : MonoBehaviour
 	{
+		public VRPhysicalProp PhysicalProp;
+
 		public Collider ContactCollider;
 
 		void FixedUpdate()
@@ -166,15 +225,18 @@ namespace KerbalVR.InternalModules
 			ContactCollider = null;
 		}
 
-		void OnTriggerEnter(Collider other)
+		void OnCollisionEnter(Collision other)
 		{
-			ContactCollider = other;
+			PhysicalProp.OnImpact(other.relativeVelocity.magnitude);
 		}
 
 		void OnTriggerStay(Collider other)
 		{
 			// how do we determine if this is a part of the iva shell?
-			ContactCollider = other;
+			if (other.gameObject.layer == 16)
+			{
+				ContactCollider = other;
+			}
 		}
 	}
 }
