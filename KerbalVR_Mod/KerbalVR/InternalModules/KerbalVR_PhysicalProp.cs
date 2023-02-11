@@ -26,6 +26,7 @@ namespace KerbalVR.InternalModules
 		Interaction m_interaction;
 
 		Rigidbody m_rigidBody;
+		FreeIva.InternalModuleFreeIva m_freeIvaModule;
 
 		[SerializeField]
 		AudioSource m_audioSource;
@@ -218,7 +219,9 @@ namespace KerbalVR.InternalModules
 		{
 			if (m_otherHandGrabbed) return;
 
-			transform.SetParent(internalModel.transform, true); // TODO: freeiva centrifuge?
+			m_freeIvaModule = FreeIva.FreeIva.CurrentInternalModuleFreeIva;
+
+			transform.SetParent(m_freeIvaModule.Centrifuge?.IVARotationRoot ?? m_freeIvaModule.internalModel.transform , true);
 
 			if (m_interaction)
 			{
@@ -304,9 +307,9 @@ namespace KerbalVR.InternalModules
 
 		void FixedUpdate()
 		{
-			if (m_applyGravity && FreeIva.KerbalIvaAddon.Instance.KerbalIva.UseRelativeMovement())
+			if (m_applyGravity)
 			{
-				Vector3 accel = FreeIva.KerbalIvaAddon.Instance.KerbalIva.GetInternalAcceleration();
+				var accel = FreeIva.KerbalIvaAddon.GetInternalSubjectiveAcceleration(m_freeIvaModule, transform.position);
 				m_rigidBody.AddForce(accel, ForceMode.Acceleration);
 			}
 		}
