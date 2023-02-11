@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -265,7 +266,7 @@ namespace KerbalVR.InternalModules
 				{
 					// TODO: should probably have some idea of how much mass this thing is
 					FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.WakeUp();
-					FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.velocity += -propVelocity * 0.8f;
+					FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.velocity += -propVelocity * 0.7f;
 				}
 
 				m_applyGravity = true;
@@ -438,6 +439,57 @@ namespace KerbalVR.InternalModules
 						m_particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmitting);
 					}
 				}
+			}
+		}
+
+		public class VRInteractionCamera : Interaction
+		{
+			[SerializeReference] AudioClip m_shutterSound;
+
+			SteamVR_Action_Boolean_Source m_pinchAction;
+
+			public override void OnLoad(ConfigNode interactionNode)
+			{
+				base.OnLoad(interactionNode);
+
+				m_shutterSound = PhysicalProp.LoadAudioClip(interactionNode, "shutterSound");
+			}
+
+			public override void OnGrab(Hand hand)
+			{
+				base.OnGrab(hand);
+
+				m_pinchAction = SteamVR_Input.GetBooleanAction("default", "PinchIndex")[hand.handType];
+				m_pinchAction.onStateDown += OnPinchStateDown;
+				enabled = true;
+			}
+
+			public override void OnRelease(Hand hand)
+			{
+				base.OnRelease(hand);
+
+				m_pinchAction.onStateDown -= OnPinchStateDown;
+			}
+
+			void OnDestroy()
+			{
+				if (m_pinchAction != null)
+				{
+					m_pinchAction.onStateDown -= OnPinchStateDown;
+				}
+			}
+
+			private void OnPinchStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
+			{
+				PhysicalProp.PlayAudioClip(m_shutterSound);
+
+				string screenshotDir = Application.platform == RuntimePlatform.OSXPlayer
+					? Path.Combine(Application.dataPath, "../../Screenshots")
+					: Path.Combine(Application.dataPath, "../Screenshots");
+				string screenshotFileName = Path.GetRandomFileName();
+				string screenshotPath = Path.ChangeExtension(Path.Combine(screenshotDir, screenshotFileName), ".png");
+
+				ScreenCapture.CaptureScreenshot(screenshotPath, ScreenCapture.StereoScreenCaptureMode.BothEyes);
 			}
 		}
 	}

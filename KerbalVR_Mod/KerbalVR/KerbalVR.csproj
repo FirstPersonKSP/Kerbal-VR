@@ -103,6 +103,9 @@
     <Reference Include="$(ManagedPath)\UnityEngine.PhysicsModule.dll">
       <Private>false</Private>
     </Reference>
+    <Reference Include="$(ManagedPath)\UnityEngine.ScreenCaptureModule.dll">
+      <Private>false</Private>
+    </Reference>
     <Reference Include="$(ManagedPath)\UnityEngine.TextRenderingModule.dll">
       <Private>false</Private>
     </Reference>
