@@ -162,10 +162,15 @@ namespace KerbalVR.InternalModules
 			return result;
 		}
 
-		public void PlayAudioClip(AudioClip clip)
+		public void PlayAudioClip(AudioClip clip, float volume, float pitch)
 		{
 			if (clip == null) return;
 			m_audioSource.PlayOneShot(clip);
+		}
+
+		public void PlayAudioClip(AudioClip clip)
+		{
+			PlayAudioClip(clip, GameSettings.SHIP_VOLUME, 1.0f);
 		}
 
 		public void StartAudioLoop(AudioClip clip)
@@ -188,7 +193,10 @@ namespace KerbalVR.InternalModules
 		{
 			// TOD: maybe randomize a bit?
 			// m_audioSource.pitch = UnityEngine.Random.Range(-0.2f, 0.2f);
-			PlayAudioClip(m_impactAudioClip);
+			float volume = Mathf.InverseLerp(1.0f, 5.0f, magnitude);
+			if (volume == 0) return;
+
+			PlayAudioClip(m_impactAudioClip, volume, UnityEngine.Random.Range(0.8f, 1.2f));
 		}
 
 		void Start()
