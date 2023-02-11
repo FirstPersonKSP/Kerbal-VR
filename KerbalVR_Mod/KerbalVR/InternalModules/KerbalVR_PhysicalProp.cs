@@ -237,7 +237,6 @@ namespace KerbalVR.InternalModules
 					m_rigidBody = null;
 				}
 
-				PlayAudioClip(m_stickAudioClip);
 				m_applyGravity = false;
 			}
 			else
@@ -331,13 +330,39 @@ namespace KerbalVR.InternalModules
 				PhysicalProp.OnImpact(other.relativeVelocity.magnitude);
 			}
 
+			void OnTriggerExit(Collider other)
+			{
+				if (other == ContactCollider)
+				{
+					PhysicalProp.PlayStickyFeedback();
+				}
+			}
+
+			void OnTriggerEnter(Collider other)
+			{
+				if (other.gameObject.layer == 16 && !other.isTrigger)
+				{
+					PhysicalProp.PlayStickyFeedback();
+					ContactCollider = other;
+				}
+			}
+
 			void OnTriggerStay(Collider other)
 			{
 				// how do we determine if this is a part of the iva shell?
-				if (other.gameObject.layer == 16)
+				if (other.gameObject.layer == 16 && !other.isTrigger)
 				{
 					ContactCollider = other;
 				}
+			}
+		}
+
+		private void PlayStickyFeedback()
+		{
+			if (isSticky)
+			{
+				HapticUtils.Light(m_interactableBehaviour.GrabbedHand.handType);
+				PlayAudioClip(m_stickAudioClip);
 			}
 		}
 
@@ -490,6 +515,73 @@ namespace KerbalVR.InternalModules
 				string screenshotPath = Path.ChangeExtension(Path.Combine(screenshotDir, screenshotFileName), ".png");
 
 				ScreenCapture.CaptureScreenshot(screenshotPath, ScreenCapture.StereoScreenCaptureMode.BothEyes);
+			}
+		}
+
+		public class VRInteractionFlashlight : Interaction
+		{
+			[SerializeReference] AudioClip m_buttonSound;
+			[SerializeField] Material m_lensMaterial;
+			[SerializeField] Light m_light;
+
+			SteamVR_Action_Boolean_Source m_pinchThumbAction;
+
+			static int EMISSIVE_COLOR_PROPERTY_ID = Shader.PropertyToID("_EmissiveColor");
+
+			public override void OnLoad(ConfigNode interactionNode)
+			{
+				base.OnLoad(interactionNode);
+
+				m_buttonSound = PhysicalProp.LoadAudioClip(interactionNode, "buttonSound");
+				m_lensMaterial = PhysicalProp.FindTransform(interactionNode.GetValue("lensObjectName"))?.GetComponent<MeshRenderer>()?.material;
+				m_light = PhysicalProp.FindTransform(interactionNode.GetValue("lightObjectName"))?.GetComponent<Light>();
+
+				if (m_light != null)
+				{
+					m_light.enabled = false;
+				}
+
+				if (m_lensMaterial != null)
+				{
+					m_lensMaterial.SetColor(EMISSIVE_COLOR_PROPERTY_ID, Color.black);
+				}
+			}
+
+			public override void OnGrab(Hand hand)
+			{
+				base.OnGrab(hand);
+
+				m_pinchThumbAction = SteamVR_Input.GetBooleanAction("default", "PinchThumb")[hand.handType];
+				m_pinchThumbAction.onStateDown += OnButtonStateDown;
+			}
+
+			public override void OnRelease(Hand hand)
+			{
+				base.OnRelease(hand);
+				m_pinchThumbAction.onStateDown -= OnButtonStateDown;
+			}
+
+			void OnDestroy()
+			{
+				if (m_pinchThumbAction != null)
+				{
+					m_pinchThumbAction.onStateDown -= OnButtonStateDown;
+				}
+			}
+
+			private void OnButtonStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
+			{
+				PhysicalProp.PlayAudioClip(m_buttonSound);
+
+				if (m_light != null)
+				{
+					m_light.enabled = !m_light.enabled;
+
+					if (m_lensMaterial != null)
+					{
+						m_lensMaterial.SetColor(EMISSIVE_COLOR_PROPERTY_ID, m_light.enabled ? Color.white : Color.black);
+					}
+				}
 			}
 		}
 	}
