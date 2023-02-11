@@ -8,6 +8,7 @@ namespace KerbalVR
 	/// <summary>
 	/// Manage KerbalVR's asset bundles.
 	/// </summary>
+	[KSPAddon(KSPAddon.Startup.Instantly, true)]
 	public class AssetLoader : MonoBehaviour
 	{
 		#region Constants
@@ -48,25 +49,16 @@ namespace KerbalVR
 		/// <summary>
 		/// This is a singleton class, and there must be exactly one GameObject with this Component in the scene.
 		/// </summary>
-		protected static AssetLoader _instance;
-		public static AssetLoader Instance
+		public static AssetLoader Instance { get; private set; }
+
+		void Start()
 		{
-			get
-			{
-				if (_instance == null)
-				{
-					_instance = FindObjectOfType<AssetLoader>();
-					if (_instance == null)
-					{
-						Utils.LogError("The scene needs to have one active GameObject with an AssetLoader script attached!");
-					}
-					else
-					{
-						_instance.Initialize();
-					}
-				}
-				return _instance;
-			}
+			Instance = this;
+		}
+
+		public void ModuleManagerPostLoad()
+		{
+			Initialize();
 		}
 
 		/// <summary>

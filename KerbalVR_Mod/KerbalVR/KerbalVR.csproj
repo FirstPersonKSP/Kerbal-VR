@@ -97,6 +97,9 @@
     <Reference Include="$(ManagedPath)\UnityEngine.JSONSerializeModule.dll">
       <Private>false</Private>
     </Reference>
+    <Reference Include="$(ManagedPath)\UnityEngine.ParticleSystemModule.dll">
+      <Private>false</Private>
+    </Reference>
     <Reference Include="$(ManagedPath)\UnityEngine.PhysicsModule.dll">
       <Private>false</Private>
     </Reference>

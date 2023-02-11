@@ -31,11 +31,6 @@ namespace KerbalVR
 			//Configuration kvrConfigurationComponent = Configuration.Instance; // init the singleton
 			//DontDestroyOnLoad(kvrConfiguration);
 
-			GameObject kvrAssetLoader = new GameObject("KVR_AssetLoader");
-			kvrAssetLoader.AddComponent<KerbalVR.AssetLoader>();
-			AssetLoader kvrAssetLoaderComponent = AssetLoader.Instance; // init the singleton
-			GameObject.DontDestroyOnLoad(kvrAssetLoader);
-
 			//GameObject kvrScene = new GameObject("KVR_Scene");
 			//kvrScene.AddComponent<KerbalVR.Scene>();
 			//Scene kvrSceneComponent = Scene.Instance; // init the singleton

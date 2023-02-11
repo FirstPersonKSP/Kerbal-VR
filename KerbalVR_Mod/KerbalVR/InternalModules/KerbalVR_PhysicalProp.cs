@@ -55,7 +55,7 @@ namespace KerbalVR.InternalModules
 					ConfigNode.LoadObjectFromConfig(obj, colliderNode);
 					var colliderParams = (ColliderParams)obj;
 
-					m_collider = colliderParams.Create(transform);
+					m_collider = colliderParams.Create(internalProp.hasModel ? transform : internalModel.transform);
 				}
 				else
 				{
@@ -92,6 +92,7 @@ namespace KerbalVR.InternalModules
 						m_audioSource.minDistance = 2;
 						m_audioSource.maxDistance = 10;
 						m_audioSource.playOnAwake = false;
+						m_audioSource.spatialize = true;
 					}
 				}
 
@@ -112,13 +113,20 @@ namespace KerbalVR.InternalModules
 			x_interactionTypes = new Dictionary<string, TypeInfo>();
 			foreach (var assembly in AssemblyLoader.loadedAssemblies)
 			{
-				assembly.TypeOperation(type =>
+				try
 				{
-					if (type.IsSubclassOf(typeof(Interaction)))
+					assembly.TypeOperation(type =>
 					{
-						x_interactionTypes.Add(type.Name, type.GetTypeInfo());
-					}
-				});
+						if (type.IsSubclassOf(typeof(Interaction)))
+						{
+							x_interactionTypes.Add(type.Name, type.GetTypeInfo());
+						}
+					});
+				}
+				catch (Exception ex)
+				{
+					Debug.LogException(ex);
+				}
 			}
 		}
 
@@ -157,7 +165,6 @@ namespace KerbalVR.InternalModules
 		public void PlayAudioClip(AudioClip clip)
 		{
 			if (clip == null) return;
-			m_audioSource.pitch = 0;
 			m_audioSource.PlayOneShot(clip);
 		}
 
@@ -166,6 +173,8 @@ namespace KerbalVR.InternalModules
 			if (clip == null) return;
 			m_audioSource.clip = clip;
 			m_audioSource.loop = true;
+			m_audioSource.volume = GameSettings.SHIP_VOLUME;
+			m_audioSource.pitch = 1.0f;
 			m_audioSource.Play();
 		}
 
@@ -178,7 +187,7 @@ namespace KerbalVR.InternalModules
 		public void OnImpact(float magnitude)
 		{
 			// TOD: maybe randomize a bit?
-			m_audioSource.pitch = UnityEngine.Random.Range(-0.2f, 0.2f);
+			// m_audioSource.pitch = UnityEngine.Random.Range(-0.2f, 0.2f);
 			PlayAudioClip(m_impactAudioClip);
 		}
 
@@ -338,6 +347,7 @@ namespace KerbalVR.InternalModules
 			[SerializeField] Vector3 thrustVector;
 			public Transform thrustTransform;
 			public AudioClip m_audioClip;
+			[SerializeField] ParticleSystem m_particleSystem;
 
 			SteamVR_Action_Boolean_Source m_pinchAction;
 			bool m_playingSound;
@@ -356,6 +366,22 @@ namespace KerbalVR.InternalModules
 				}
 
 				m_audioClip = PhysicalProp.LoadAudioClip(interactionNode, "sound");
+
+				string particleSystemName = string.Empty;
+				if (interactionNode.TryGetValue(nameof(particleSystemName), ref particleSystemName))
+				{
+					var particlePrefab = AssetLoader.Instance.GetGameObject(particleSystemName);
+					if (particlePrefab != null)
+					{
+						var particleObject = GameObject.Instantiate(particlePrefab);
+						
+						particleObject.layer = 20;
+						particleObject.transform.SetParent(thrustTransform, false);
+						particleObject.transform.localRotation = Quaternion.FromToRotation(Vector3.forward, -thrustVector);
+
+						m_particleSystem = particleObject.GetComponent<ParticleSystem>();
+					}
+				}
 			}
 
 			public override void OnGrab(Hand hand)
@@ -365,6 +391,7 @@ namespace KerbalVR.InternalModules
 				// TODO: pinchIndex is a boolean action - should it be a float?
 				m_pinchAction = SteamVR_Input.GetBooleanAction("default", "PinchIndex")[hand.handType];
 				enabled = true;
+				m_particleSystem.gameObject.SetActive(true);
 			}
 
 			public override void OnRelease(Hand hand)
@@ -388,6 +415,7 @@ namespace KerbalVR.InternalModules
 					{
 						PhysicalProp.StartAudioLoop(m_audioClip);
 						m_playingSound = true;
+						m_particleSystem.Play();
 					}
 				}
 				else
@@ -396,6 +424,7 @@ namespace KerbalVR.InternalModules
 					{
 						PhysicalProp.StopAudioLoop();
 						m_playingSound = false;
+						m_particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmitting);
 					}
 				}
 			}
