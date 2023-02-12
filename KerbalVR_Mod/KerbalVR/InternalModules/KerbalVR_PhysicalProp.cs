@@ -216,13 +216,15 @@ namespace KerbalVR.InternalModules
 			m_otherHandGrabbed = true;
 		}
 
+		GameObject rigidBodyObject => internalProp.hasModel ? gameObject : m_collider.gameObject;
+
 		private void OnRelease(Hand hand)
 		{
 			if (m_otherHandGrabbed) return;
 
 			m_freeIvaModule = FreeIva.FreeIva.CurrentInternalModuleFreeIva;
 
-			transform.SetParent(m_freeIvaModule.Centrifuge?.IVARotationRoot ?? m_freeIvaModule.internalModel.transform , true);
+			rigidBodyObject.transform.SetParent(m_freeIvaModule.Centrifuge?.IVARotationRoot ?? m_freeIvaModule.internalModel.transform , true);
 
 			if (m_interaction)
 			{
@@ -243,7 +245,7 @@ namespace KerbalVR.InternalModules
 			{
 				if (m_rigidBody == null)
 				{
-					m_rigidBody = gameObject.AddComponent<Rigidbody>();
+					m_rigidBody = rigidBodyObject.AddComponent<Rigidbody>();
 				}
 
 				m_collider.isTrigger = false;
@@ -279,7 +281,7 @@ namespace KerbalVR.InternalModules
 		private void OnGrab(Hand hand)
 		{
 			m_otherHandGrabbed = false;
-			transform.SetParent(hand.handObject.transform, true);
+			rigidBodyObject.transform.SetParent(hand.handObject.transform, true);
 
 			// disable the collider so it doesn't push us around - or possibly we can just use Physics.IgnoreCollision
 			if (isSticky)
@@ -309,7 +311,7 @@ namespace KerbalVR.InternalModules
 		{
 			if (m_applyGravity)
 			{
-				var accel = FreeIva.KerbalIvaAddon.GetInternalSubjectiveAcceleration(m_freeIvaModule, transform.position);
+				var accel = FreeIva.KerbalIvaAddon.GetInternalSubjectiveAcceleration(m_freeIvaModule, rigidBodyObject.transform.position);
 				m_rigidBody.AddForce(accel, ForceMode.Acceleration);
 			}
 		}
