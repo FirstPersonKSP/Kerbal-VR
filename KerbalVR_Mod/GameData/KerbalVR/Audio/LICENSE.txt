@@ -19,3 +19,8 @@ cameraShutter.wav
 (c) hcolq
 https://freesound.org/s/253342/
 https://creativecommons.org/licenses/by/4.0/
+
+stickyNote.wav
+Modified from original: trimmed 
+https://freesound.org/s/461803/
+http://creativecommons.org/publicdomain/zero/1.0/

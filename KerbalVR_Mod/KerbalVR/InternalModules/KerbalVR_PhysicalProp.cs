@@ -82,6 +82,7 @@ namespace KerbalVR.InternalModules
 				}
 
 				// setup audio
+				if (m_collider != null)
 				{
 					m_grabAudioClip = LoadAudioClip(node, "grabSound");
 					m_stickAudioClip = LoadAudioClip(node, "stickSound");
@@ -363,7 +364,10 @@ namespace KerbalVR.InternalModules
 		{
 			if (isSticky)
 			{
-				HapticUtils.Light(m_interactableBehaviour.GrabbedHand.handType);
+				if (m_interactableBehaviour.GrabbedHand)
+				{
+					HapticUtils.Light(m_interactableBehaviour.GrabbedHand.handType);
+				}
 				PlayAudioClip(m_stickAudioClip);
 			}
 		}
