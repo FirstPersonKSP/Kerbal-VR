@@ -53,11 +53,24 @@ namespace KerbalVR
 			// initialize SteamVR input
 			SteamVR_Actions.PreInitialize();
 			SteamVR_Input.IdentifyActionsFile();
-			SteamVR_Input.Initialize();
-			SetActionSetActive("default", true);
-			//ActivateActionSet("editor");
-			SetActionSetActive("flight", true);
-			//ActivateActionSet("EVA");
+			try
+			{
+				SteamVR_Input.Initialize();
+			}
+			catch (Exception e)
+			{
+				Utils.LogError($"SteamVR_Input.Initialize failed.  SteamVR.InitializedState: {SteamVR.initializedState}");
+				Debug.LogException(e);
+				IsVrEnabled = false;
+			}
+
+			if (IsVrEnabled)
+			{
+				SetActionSetActive("default", true);
+				//ActivateActionSet("editor");
+				SetActionSetActive("flight", true);
+				//ActivateActionSet("EVA");
+			}
 		}
 
 		private static void UpdateVrRunning()
