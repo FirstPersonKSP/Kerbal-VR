@@ -71,7 +71,7 @@ namespace KerbalVR
 			}
 		}
 
-		public Vector3 FingertipPosition => fingertipTransform.position;
+		public Vector3 FingertipPosition => fingertipCollider.transform.position;
 		public float FingertipRadius => fingertipCollider.collider.radius;
 		public bool FingertipEnabled
 		{
@@ -87,17 +87,14 @@ namespace KerbalVR
 		protected Types.ShiftRegister<int> renderLayerHands = new Types.ShiftRegister<int>(2);
 
 		// keep track of held objects
-		protected Transform palmTransform;
 		protected HandCollider palmCollider;
 		public InteractableBehaviour heldObject { get; protected set; }
 
 		// interacting with mouse-clickable objects
-		protected Transform fingertipTransform;
 		protected FingertipCollider fingertipCollider;
 
 		// interacting with pinchable objects
 		protected Transform thumbTransform;
-		protected Transform pinchTransform;
 		protected PinchCollider pinchCollider;
 
 		protected SkinnedMeshRenderer renderModel;
@@ -227,7 +224,7 @@ namespace KerbalVR
 			#region Setup Collider
 
 			// add fingertip collider for "mouse clicks"
-			fingertipTransform = new GameObject("KVR_FingertipCollider").transform;
+			var fingertipTransform = new GameObject("KVR_FingertipCollider").transform;
 			fingertipTransform.SetParent(handObject.transform); // This will be modified in SwitchProfile
 			fingertipCollider = fingertipTransform.gameObject.AddComponent<FingertipCollider>();
 			fingertipCollider.Initialize(this);
@@ -236,7 +233,7 @@ namespace KerbalVR
 			Detach(true);
 
 			// create a child object for the colider so that it can be on a different layer
-			palmTransform = new GameObject("KVR_PalmCollider").transform;
+			var palmTransform = new GameObject("KVR_PalmCollider").transform;
 			palmTransform.SetParent(handObject.transform); // This will be modified in SwitchProfile
 			palmCollider = palmTransform.gameObject.AddComponent<HandCollider>();
 			palmCollider.Initialize(this, ladder);
@@ -246,7 +243,7 @@ namespace KerbalVR
 			thumbTransform.SetParent(handObject.transform); // This will be modified in SwitchProfile
 
 			// set up pinch behavior
-			pinchTransform = new GameObject("KVR_PinchCollider").transform;
+			var pinchTransform = new GameObject("KVR_PinchCollider").transform;
 			pinchTransform.SetParent(handObject.transform); // This will be modified in SwitchProfile
 			pinchCollider = pinchTransform.gameObject.AddComponent<PinchCollider>();
 			pinchCollider.Initialize(this);
@@ -479,7 +476,7 @@ namespace KerbalVR
 		private void UpdateCollider()
 		{
 			// update position of the pinch transform to the middle between the tip of the index finger and the tip of the thumb
-			pinchTransform.position = Vector3.Lerp(fingertipTransform.position, thumbTransform.position, 0.5f);
+			pinchCollider.transform.position = Vector3.Lerp(fingertipCollider.transform.position, thumbTransform.position, 0.5f);
 		}
 
 		private void SwitchProfile()
@@ -487,7 +484,7 @@ namespace KerbalVR
 			if (!Core.IsVrEnabled) return;
 
 			Utils.SetLayer(gameObject, UseIVAProfile ? 20 : 0);
-			palmTransform.gameObject.layer = 3; //  UseIVAProfile ? 20 : 3; // layer 3 interacts with everything, and we want to be able to grab both layer 16 and layer 20 in IVA
+			palmCollider.transform.gameObject.layer = 3; //  UseIVAProfile ? 20 : 3; // layer 3 interacts with everything, and we want to be able to grab both layer 16 and layer 20 in IVA
 
 			IVAObject.SetActive(UseIVAProfile);
 			EVAObject.SetActive(!UseIVAProfile);
@@ -498,9 +495,9 @@ namespace KerbalVR
 			pinchCollider.collider.radius = CurrentProfile.pinchColliderSize;
 
 			// re-parent index tip collider
-			fingertipTransform.SetParent(CurrentHandObject.transform.Find(CurrentProfile.indexTipTransformPath));
-			fingertipTransform.localRotation = Quaternion.identity;
-			fingertipTransform.localPosition = CurrentProfile.fingertipOffset;
+			fingertipCollider.transform.SetParent(CurrentHandObject.transform.Find(CurrentProfile.indexTipTransformPath));
+			fingertipCollider.transform.localRotation = Quaternion.identity;
+			fingertipCollider.transform.localPosition = CurrentProfile.fingertipOffset;
 
 			// re-parent thumb tip collider
 			thumbTransform.SetParent(CurrentHandObject.transform.Find(CurrentProfile.thumbTipTransformPath));
@@ -508,9 +505,9 @@ namespace KerbalVR
 			thumbTransform.localPosition = Vector3.zero;
 
 			// re-parent palm collider
-			palmTransform.SetParent(CurrentHandObject.transform.Find(CurrentProfile.gripTransformPath));
-			palmTransform.localRotation = Quaternion.identity;
-			palmTransform.localPosition = CurrentProfile.gripOffset;
+			palmCollider.transform.SetParent(CurrentHandObject.transform.Find(CurrentProfile.gripTransformPath));
+			palmCollider.transform.localRotation = Quaternion.identity;
+			palmCollider.transform.localPosition = CurrentProfile.gripOffset;
 
 			// update render model
 			renderModel = CurrentHandObject.transform.Find(CurrentProfile.renderModelPath).gameObject.GetComponent<SkinnedMeshRenderer>();
