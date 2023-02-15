@@ -99,6 +99,7 @@ namespace KerbalVR
 		{
 			Utils.Log("Flight.OnDestroy");
 			GameEvents.OnCameraChange.Remove(OnCameraChange);
+			GameEvents.onVesselChange.Remove(OnVesselChange);
 
 			if (KerbalVR.InteractionSystem.Instance != null)
 			{
