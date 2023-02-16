@@ -55,6 +55,9 @@
       },
       {
         "name": "ProbeControlRoomRecontrolled"
+      },
+      {
+        "name": "ALCORIVAPatch"
       }
     ],
     "suggests": [
