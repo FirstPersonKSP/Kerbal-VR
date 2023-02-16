@@ -73,8 +73,8 @@ namespace KerbalVR
 
 		// default cylinder is 2 units tall and 1 unit in diameter
 		static Vector3 x_wandScale = new Vector3(0.008f, 0.1f, 0.008f);
-		static Vector3 x_wandRotation = new Vector3(90, 90, 0);
-		static Vector3 x_wandPosition = new Vector3(-0.05f, 0, 0);
+		static Vector3 x_wandRotation = new Vector3(0, 0, 0);
+		static Vector3 x_wandPosition = new Vector3(0.04f, -0.05f, 0.04f);
 
 		GameObject wandObject;
 
@@ -83,11 +83,20 @@ namespace KerbalVR
 			wandObject = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
 			Component.Destroy(wandObject.GetComponent<Collider>());
 
-			wandObject.transform.SetParent(pinchCollider.transform, false);
+			Vector3 wandRotation = x_wandRotation;
+			Vector3 wandPosition = x_wandPosition;
+
+			if (handType == SteamVR_Input_Sources.LeftHand)
+			{
+				wandRotation.x = -wandRotation.x;
+				wandPosition.x = -wandPosition.x;
+			}
+
+			wandObject.transform.SetParent(palmCollider.transform, false);
 			wandObject.layer = 20;
 			wandObject.transform.localScale = x_wandScale;
-			wandObject.transform.localRotation = Quaternion.Euler(x_wandRotation);
-			wandObject.transform.localPosition = x_wandPosition;
+			wandObject.transform.localRotation = Quaternion.Euler(wandRotation);
+			wandObject.transform.localPosition = wandPosition;
 
 			fingertipCollider.transform.SetParent(wandObject.transform, false);
 			fingertipCollider.transform.localPosition = new Vector3(0, -1, 0);
