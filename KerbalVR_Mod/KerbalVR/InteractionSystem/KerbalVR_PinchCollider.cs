@@ -44,17 +44,31 @@ namespace KerbalVR
 		{
 			bool isPinching = IsPinching();
 
-			if (isPinching && !wasPinching && hoveredInteractable != null)
+			if (isPinching && !wasPinching)
 			{
-				heldInteractable = hoveredInteractable;
-				heldInteractable.OnPinch(hand);
-				hand.FingertipEnabled = false;
+				if (hoveredInteractable != null)
+				{
+					heldInteractable = hoveredInteractable;
+					heldInteractable.OnPinch(hand);
+					hand.FingertipEnabled = false;
+				}
+				else if (Scene.IsInIVA())
+				{
+					hand.SummonDialingWand();
+				}
 			}
-			else if (!isPinching && wasPinching && heldInteractable != null)
+			else if (!isPinching && wasPinching)
 			{
-				heldInteractable.OnRelease(hand);
-				heldInteractable = null;
-				hand.FingertipEnabled = true;
+				if (heldInteractable != null)
+				{
+					heldInteractable.OnRelease(hand);
+					heldInteractable = null;
+					hand.FingertipEnabled = true;
+				}
+				else if (Scene.IsInIVA())
+				{
+					hand.DismissDialingWand();
+				}
 			}
 			else if (isPinching && wasPinching && heldInteractable != null)
 			{

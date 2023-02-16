@@ -58,7 +58,7 @@ namespace KerbalVR
 				SwitchProfile();
 			}
 		}
-
+		
 		public Vector3 GripPosition
 		{
 			get
@@ -69,6 +69,40 @@ namespace KerbalVR
 				Vector3 relativeGripLocation = handObject.transform.InverseTransformPoint(palmCollider.transform.position);
 				return transform.TransformPoint(relativeGripLocation);
 			}
+		}
+
+		// default cylinder is 2 units tall and 1 unit in diameter
+		static Vector3 x_wandScale = new Vector3(0.008f, 0.1f, 0.008f);
+		static Vector3 x_wandRotation = new Vector3(90, 90, 0);
+		static Vector3 x_wandPosition = new Vector3(-0.05f, 0, 0);
+
+		GameObject wandObject;
+
+		internal void SummonDialingWand()
+		{
+			wandObject = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+			Component.Destroy(wandObject.GetComponent<Collider>());
+
+			wandObject.transform.SetParent(pinchCollider.transform, false);
+			wandObject.layer = 20;
+			wandObject.transform.localScale = x_wandScale;
+			wandObject.transform.localRotation = Quaternion.Euler(x_wandRotation);
+			wandObject.transform.localPosition = x_wandPosition;
+
+			fingertipCollider.transform.SetParent(wandObject.transform, false);
+			fingertipCollider.transform.localPosition = new Vector3(0, -1, 0);
+			fingertipCollider.transform.localRotation = Quaternion.identity;
+			fingertipCollider.transform.localScale = new Vector3(1.0f / x_wandScale.x, 1.0f / x_wandScale.y, 1.0f / x_wandScale.z) * 0.8f;
+		}
+
+		internal void DismissDialingWand()
+		{
+			fingertipCollider.transform.SetParent(CurrentHandObject.transform.Find(CurrentProfile.indexTipTransformPath));
+			fingertipCollider.transform.localRotation = Quaternion.identity;
+			fingertipCollider.transform.localPosition = CurrentProfile.fingertipOffset;
+			fingertipCollider.transform.localScale = Vector3.one;
+
+			GameObject.Destroy(wandObject);
 		}
 
 		public Vector3 FingertipPosition => fingertipCollider.transform.position;
@@ -476,7 +510,10 @@ namespace KerbalVR
 		private void UpdateCollider()
 		{
 			// update position of the pinch transform to the middle between the tip of the index finger and the tip of the thumb
-			pinchCollider.transform.position = Vector3.Lerp(fingertipCollider.transform.position, thumbTransform.position, 0.5f);
+			if (wandObject == null)
+			{
+				pinchCollider.transform.position = Vector3.Lerp(fingertipCollider.transform.position, thumbTransform.position, 0.5f);
+			}
 		}
 
 		private void SwitchProfile()
