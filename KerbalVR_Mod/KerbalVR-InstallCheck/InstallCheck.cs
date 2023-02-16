@@ -18,7 +18,7 @@ namespace InstallCheck
 			new Dependency { assemblyName = "0Harmony", minVersion = new Version(2, 0)},
 			new Dependency { assemblyName = "ModuleManager", minVersion = new Version(4, 2, 2) },
 			new Dependency { assemblyName = "ThroughTheEyes", minVersion = new Version(2, 0, 4, 1) },
-			new Dependency { assemblyName = "FreeIva", minVersion = new Version(0, 2, 4)},
+			new Dependency { assemblyName = "FreeIva", minVersion = new Version(0, 2, 9)},
 		};
 
 		// not required, but if they exist then verify the version number
