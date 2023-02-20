@@ -74,7 +74,7 @@ namespace KerbalVR
 					hoveredSeat = seat;
 					hoveredObjectIsHighPriority = true;
 				}
-				else if (other.gameObject.layer == 16 && !hoveredObjectIsHighPriority && !FreeIva.KerbalIvaAddon.Instance.buckled)
+				else if (other.gameObject.layer == 16 && !hoveredObjectIsHighPriority && !FreeIva.KerbalIvaAddon.Instance.buckled && other.gameObject != FreeIva.KerbalIvaAddon.Instance.KerbalIva.gameObject)
 				{
 					// all other layer-16 things are grabbable as ladders when unbuckled, as long as you're not already hovering over something more important
 					HoveredObject = ladder;
