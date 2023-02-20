@@ -1,3 +1,8 @@
+glass_break.wav
+By JohanDeecke
+https://freesound.org/s/368358/
+http://creativecommons.org/licenses/by/3.0/
+
 velcro4.wav
 (c) HerbertBoland
 https://freesound.org/s/28549/
@@ -5,6 +10,15 @@ https://creativecommons.org/licenses/by/4.0/
 
 thunk.wav
 https://freesound.org/s/252265/
+https://creativecommons.org/publicdomain/zero/1.0/
+
+thunk_glass.wav
+https://freesound.org/s/353105/
+http://creativecommons.org/publicdomain/zero/1.0/
+
+thunk_metal.wav
+modified from original
+https://freesound.org/s/650573/
 https://creativecommons.org/publicdomain/zero/1.0/
 
 thunk_big.wav
@@ -19,6 +33,12 @@ cameraShutter.wav
 (c) hcolq
 https://freesound.org/s/253342/
 https://creativecommons.org/licenses/by/4.0/
+
+squeak.wav
+modified from original: converted to mono, reduced volume, converted to wav
+By DANMITCH3LL
+https://freesound.org/s/232017/
+http://creativecommons.org/licenses/by/3.0/
 
 stickyNote.wav
 Modified from original: trimmed 

@@ -194,6 +194,11 @@ namespace KerbalVR.InternalModules
 
 		public void OnImpact(float magnitude)
 		{
+			if (m_interaction != null)
+			{
+				m_interaction.OnImpact(magnitude);
+			}
+
 			// TOD: maybe randomize a bit?
 			// m_audioSource.pitch = UnityEngine.Random.Range(-0.2f, 0.2f);
 			float volume = Mathf.InverseLerp(1.0f, 5.0f, magnitude);
@@ -217,7 +222,7 @@ namespace KerbalVR.InternalModules
 			m_otherHandGrabbed = true;
 		}
 
-		GameObject rigidBodyObject => internalProp.hasModel ? gameObject : m_collider.gameObject;
+		GameObject rigidBodyObject => m_collider.gameObject;
 
 		private void OnRelease(Hand hand)
 		{
@@ -382,12 +387,14 @@ namespace KerbalVR.InternalModules
 
 			public virtual void OnGrab(Hand hand) { }
 			public virtual void OnRelease(Hand hand) { }
+			public virtual void OnImpact(float magnitude) { }
 		}
 
 
 		public class VRInteractionExtinguisher : Interaction
 		{
 			[SerializeField] Vector3 thrustVector;
+			[SerializeField] Vector3 thrustPosition;
 			public Transform thrustTransform;
 			public AudioClip m_audioClip;
 			[SerializeField] ParticleSystem m_particleSystem;
@@ -402,6 +409,8 @@ namespace KerbalVR.InternalModules
 				string transformName = interactionNode.GetValue("thrustTransformName");
 				thrustTransform = PhysicalProp.FindTransform(transformName);
 				enabled = false;
+
+				interactionNode.TryGetValue(nameof(thrustPosition), ref thrustPosition);
 
 				if (!interactionNode.TryGetValue(nameof(thrustVector), ref thrustVector))
 				{
@@ -420,6 +429,7 @@ namespace KerbalVR.InternalModules
 						
 						particleObject.layer = 20;
 						particleObject.transform.SetParent(thrustTransform, false);
+						particleObject.transform.localPosition = thrustPosition;
 						particleObject.transform.localRotation = Quaternion.FromToRotation(Vector3.forward, -thrustVector);
 
 						m_particleSystem = particleObject.GetComponent<ParticleSystem>();
@@ -587,6 +597,98 @@ namespace KerbalVR.InternalModules
 					{
 						m_lensMaterial.SetColor(EMISSIVE_COLOR_PROPERTY_ID, m_light.enabled ? Color.white : Color.black);
 					}
+				}
+			}
+		}
+
+		public class VRInteractionSqueak : Interaction
+		{
+			[SerializeReference] AudioClip m_squeakSound;
+
+			SteamVR_Action_Boolean_Source m_pinchAction;
+
+			public override void OnLoad(ConfigNode interactionNode)
+			{
+				base.OnLoad(interactionNode);
+				m_squeakSound = PhysicalProp.LoadAudioClip(interactionNode, "squeakSound");
+			}
+
+			public override void OnGrab(Hand hand)
+			{
+				base.OnGrab(hand);
+				m_pinchAction = SteamVR_Input.GetBooleanAction("default", "PinchIndex")[hand.handType];
+				m_pinchAction.onStateDown += OnPinchStateDown;
+				enabled = true;
+
+				PhysicalProp.PlayAudioClip(m_squeakSound);
+			}
+
+			public override void OnRelease(Hand hand)
+			{
+				base.OnRelease(hand);
+
+				m_pinchAction.onStateDown -= OnPinchStateDown;
+			}
+
+			void OnDestroy()
+			{
+				if (m_pinchAction != null)
+				{
+					m_pinchAction.onStateDown -= OnPinchStateDown;
+				}
+			}
+
+			private void OnPinchStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
+			{
+				PhysicalProp.PlayAudioClip(m_squeakSound);
+			}
+		}
+
+		public class VRInteractionBreakable : Interaction
+		{
+			[SerializeReference] AudioClip breakSound;
+			[SerializeField] float breakSpeed = 4;
+			[SerializeField] ParticleSystem m_particleSystem;
+
+			public override void OnLoad(ConfigNode interactionNode)
+			{
+				breakSound = PhysicalProp.LoadAudioClip(interactionNode, nameof(breakSound));
+
+				interactionNode.TryGetValue(nameof(breakSpeed), ref breakSpeed);
+
+				string particleSystemName = interactionNode.GetValue(nameof(particleSystemName));
+				if (particleSystemName != null)
+				{
+					var particlePrefab = AssetLoader.Instance.GetGameObject(particleSystemName);
+					if (particlePrefab != null)
+					{
+						var particleObject = GameObject.Instantiate(particlePrefab);
+
+						particleObject.layer = 20;
+						particleObject.transform.SetParent(PhysicalProp.m_collider.transform, false);
+						particleObject.transform.localPosition = PhysicalProp.m_collider.bounds.center;
+
+						m_particleSystem = particleObject.GetComponent<ParticleSystem>();
+					}
+				}
+			}
+
+			public override void OnImpact(float magnitude)
+			{
+				if (magnitude > breakSpeed)
+				{
+					var freeIvaModule = FreeIva.FreeIva.CurrentInternalModuleFreeIva;
+
+					m_particleSystem.transform.SetParent(freeIvaModule.Centrifuge?.IVARotationRoot ?? freeIvaModule.internalModel.transform, true);
+					m_particleSystem.Play();
+
+					if (breakSound != null)
+					{
+						var audioSource = m_particleSystem.gameObject.AddComponent<AudioSource>();
+						audioSource.PlayOneShot(breakSound);
+					}
+					
+					GameObject.Destroy(PhysicalProp.gameObject);
 				}
 			}
 		}
