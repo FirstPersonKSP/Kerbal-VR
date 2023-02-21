@@ -34,6 +34,10 @@ cameraShutter.wav
 https://freesound.org/s/253342/
 https://creativecommons.org/licenses/by/4.0/
 
+cameraShutter_disposable.wav
+https://freesound.org/s/85675/
+http://creativecommons.org/publicdomain/zero/1.0/
+
 squeak.wav
 modified from original: converted to mono, reduced volume, converted to wav
 By DANMITCH3LL
