@@ -140,7 +140,9 @@ namespace KerbalVR.InternalModules
 					}
 				}
 
-				transform.localPosition = initialLocalPosition + buttonModule.axis * delta;
+				Vector3 axisInParentSpace = transform.parent.InverseTransformDirection(transform.TransformDirection(buttonModule.axis));
+
+				transform.localPosition = initialLocalPosition + axisInParentSpace * delta;
 			}
 		}
 	}
