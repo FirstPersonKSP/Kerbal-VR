@@ -29,7 +29,7 @@ namespace KerbalVR.InternalModules
 		public float maxAngle = 40;
 
 		/// <summary>
-		/// If has a cover, whether the cover turns off the switch when close
+		/// If has a cover, whether the cover turns off the switch when closed
 		/// </summary>
 		[KSPField]
 		public bool coverTurnsOffSwitch = true;
