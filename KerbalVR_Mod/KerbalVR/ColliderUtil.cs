@@ -23,7 +23,7 @@ namespace KerbalVR
 		[Persistent] public string tag;
 #pragma warning restore 0649
 
-		public Collider Create(Transform root)
+		public Collider Create(Transform root, ConfigNode node)
 		{
 			Transform parentTransform = string.IsNullOrEmpty(parentTransformName)
 					? root
@@ -87,6 +87,13 @@ namespace KerbalVR
 						capsuleCollider.center = center;
 						capsuleCollider.height = height;
 						capsuleCollider.radius = radius;
+
+						var axis = (FreeIva.ColliderUtil.CapsuleAxis)capsuleCollider.direction;
+						if (node.TryGetEnum("axis", ref axis, axis))
+						{
+							capsuleCollider.direction = (int)axis;
+						}
+
 						if (radius == 0)
 						{
 							Utils.LogError($"Invalid radius for collider ${colliderTransformName} in {root.name}");

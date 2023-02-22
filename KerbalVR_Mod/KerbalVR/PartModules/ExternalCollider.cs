@@ -20,7 +20,7 @@ namespace KerbalVR
 				ConfigNode.LoadObjectFromConfig(result, node);
 				colliderParams = (ColliderParams)result;
 
-				colliderParams.Create(part.transform);
+				colliderParams.Create(part.transform, node);
 			}
 
 			enabled = false;

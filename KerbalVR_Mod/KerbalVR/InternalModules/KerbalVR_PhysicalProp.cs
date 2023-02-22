@@ -18,6 +18,9 @@ namespace KerbalVR.InternalModules
 		[KSPField]
 		public string placeSound = string.Empty;
 
+		[KSPField]
+		public string transformName = string.Empty;
+
 		[SerializeField]
 		InteractableBehaviour m_interactableBehaviour;
 		[SerializeField]
@@ -57,7 +60,15 @@ namespace KerbalVR.InternalModules
 					ConfigNode.LoadObjectFromConfig(obj, colliderNode);
 					var colliderParams = (ColliderParams)obj;
 
-					m_collider = colliderParams.Create(internalProp.hasModel ? transform : internalModel.transform);
+					m_collider = colliderParams.Create(internalProp.hasModel ? transform : internalModel.transform, colliderNode);
+				}
+				else if (transformName != string.Empty)
+				{
+					var colliderTransform = this.FindTransform(transformName);
+					if (colliderTransform != null)
+					{
+						m_collider = colliderTransform.GetComponent<Collider>();
+					}
 				}
 				else
 				{
@@ -434,7 +445,7 @@ namespace KerbalVR.InternalModules
 
 						m_particleSystem = particleObject.GetComponent<ParticleSystem>();
 					}
-				}
+				}	
 			}
 
 			public override void OnGrab(Hand hand)
@@ -684,11 +695,12 @@ namespace KerbalVR.InternalModules
 
 					if (breakSound != null)
 					{
-						var audioSource = m_particleSystem.gameObject.AddComponent<AudioSource>();
+						var audioSource = CameraUtils.CloneComponent(PhysicalProp.m_audioSource, m_particleSystem.gameObject);
+
 						audioSource.PlayOneShot(breakSound);
 					}
 					
-					GameObject.Destroy(PhysicalProp.gameObject);
+					GameObject.Destroy(PhysicalProp.rigidBodyObject);
 				}
 			}
 		}

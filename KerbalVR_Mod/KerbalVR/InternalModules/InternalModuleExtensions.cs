@@ -13,7 +13,11 @@ namespace KerbalVR.InternalModules
 		{
 			Transform result = null;
 
-			if (nameOrPath.StartsWith("/") || !internalModule.internalProp.hasModel)
+			if (string.IsNullOrEmpty(nameOrPath))
+			{
+				return internalModule.internalProp.transform;
+			}
+			else if (nameOrPath.StartsWith("/") || !internalModule.internalProp.hasModel)
 			{
 				// try to find the path relative to the entire IVA
 				var internalModelInstance = internalModule.internalModel.transform.Find("model").GetChild(0);
