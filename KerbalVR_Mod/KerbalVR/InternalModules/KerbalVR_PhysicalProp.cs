@@ -342,6 +342,7 @@ namespace KerbalVR.InternalModules
 			void FixedUpdate()
 			{
 				ContactCollider = null;
+				enabled = false;
 			}
 
 			void OnCollisionEnter(Collision other)
@@ -363,6 +364,7 @@ namespace KerbalVR.InternalModules
 				{
 					PhysicalProp.PlayStickyFeedback();
 					ContactCollider = other;
+					enabled = true;
 				}
 			}
 
