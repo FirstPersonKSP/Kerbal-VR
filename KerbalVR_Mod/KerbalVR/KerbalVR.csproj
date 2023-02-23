@@ -179,6 +179,7 @@
     <Compile Include="MainScreenTweaker.cs" />
     <Compile Include="PartModules\EVAHelper.cs" />
     <Compile Include="PartModules\ExternalCollider.cs" />
+    <Compile Include="PartModules\ExternalObjectReplacer.cs" />
     <Compile Include="PartModules\KerbalVR_ExternalHatch.cs" />
     <Compile Include="KerbalVR_Globals.cs" />
     <Compile Include="KerbalVR_InteractionSystem.cs" />
