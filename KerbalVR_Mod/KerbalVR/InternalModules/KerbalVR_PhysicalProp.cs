@@ -248,6 +248,7 @@ namespace KerbalVR.InternalModules
 				m_interaction.OnRelease(hand);
 			}
 
+			// are we sticking to something?
 			if (isSticky && m_collisionTracker.ContactCollider != null)
 			{
 				if (m_rigidBody != null)
@@ -336,7 +337,6 @@ namespace KerbalVR.InternalModules
 		internal class CollisionTracker : MonoBehaviour
 		{
 			public VRPhysicalProp PhysicalProp;
-
 			public Collider ContactCollider;
 
 			void FixedUpdate()
@@ -360,7 +360,7 @@ namespace KerbalVR.InternalModules
 
 			void OnTriggerEnter(Collider other)
 			{
-				if (other.gameObject.layer == 16 && !other.isTrigger)
+				if (other.gameObject.layer == 16 && !other.isTrigger && PhysicalProp.m_interactableBehaviour.IsGrabbed && !ColliderIsKerbalIva(other))
 				{
 					PhysicalProp.PlayStickyFeedback();
 					ContactCollider = other;
@@ -371,10 +371,16 @@ namespace KerbalVR.InternalModules
 			void OnTriggerStay(Collider other)
 			{
 				// how do we determine if this is a part of the iva shell?
-				if (other.gameObject.layer == 16 && !other.isTrigger)
+				if (other.gameObject.layer == 16 && !other.isTrigger && PhysicalProp.m_interactableBehaviour.IsGrabbed && !ColliderIsKerbalIva(other))
 				{
 					ContactCollider = other;
+					enabled = true;
 				}
+			}
+
+			static bool ColliderIsKerbalIva(Collider collider)
+			{
+				return collider.attachedRigidbody == FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody;
 			}
 		}
 
