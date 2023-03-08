@@ -80,8 +80,11 @@ namespace KerbalVR
 
 		internal void SummonDialingWand()
 		{
-			wandObject = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-			Component.Destroy(wandObject.GetComponent<Collider>());
+			if (wandObject == null)
+			{
+				wandObject = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+				Component.Destroy(wandObject.GetComponent<Collider>());
+			}
 
 			Vector3 wandRotation = x_wandRotation;
 			Vector3 wandPosition = x_wandPosition;
@@ -106,12 +109,15 @@ namespace KerbalVR
 
 		internal void DismissDialingWand()
 		{
-			fingertipCollider.transform.SetParent(CurrentHandObject.transform.Find(CurrentProfile.indexTipTransformPath));
-			fingertipCollider.transform.localRotation = Quaternion.identity;
-			fingertipCollider.transform.localPosition = CurrentProfile.fingertipOffset;
-			fingertipCollider.transform.localScale = Vector3.one;
+			if (wandObject != null)
+			{
+				fingertipCollider.transform.SetParent(CurrentHandObject.transform.Find(CurrentProfile.indexTipTransformPath));
+				fingertipCollider.transform.localRotation = Quaternion.identity;
+				fingertipCollider.transform.localPosition = CurrentProfile.fingertipOffset;
+				fingertipCollider.transform.localScale = Vector3.one;
 
-			GameObject.Destroy(wandObject);
+				GameObject.Destroy(wandObject);
+			}
 		}
 
 		public Vector3 FingertipPosition => fingertipCollider.transform.position;
@@ -527,6 +533,7 @@ namespace KerbalVR
 
 		private void SwitchProfile()
 		{
+			DismissDialingWand();
 			if (!Core.IsVrEnabled) return;
 
 			Utils.SetLayer(gameObject, UseIVAProfile ? 20 : 0);
