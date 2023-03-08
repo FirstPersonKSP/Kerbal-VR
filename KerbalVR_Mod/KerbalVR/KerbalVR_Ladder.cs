@@ -9,6 +9,15 @@ using Valve.VR;
 
 namespace KerbalVR
 {
+	static class UnityObjectExtensions
+	{
+		// if an object reference isn't actually null but pointing to a destroyed object, then obj?.name will throw a NullReferenceException.  Use this instead.
+		public static string SafeName(this UnityEngine.Object obj)
+		{
+			return obj == null ? null : obj.name;
+		}
+	}
+
 	// This component gets added to each hand, and represents the ladder that hand is grabbing (both IVA and EVA)
 	public class VRLadder : InteractableBehaviour
 	{
@@ -31,7 +40,7 @@ namespace KerbalVR
 
 		private void OnReleased(Hand hand)
 		{
-			Utils.Log($"VRLadder.OnReleased: {hand.handType} - LadderTransform {LadderTransform?.name}");
+			Utils.Log($"VRLadder.OnReleased: {hand.handType} - LadderTransform {LadderTransform.SafeName()}");
 
 			if (hand.otherHand.heldObject is VRLadder otherLadder && otherLadder.GrabbedHand == hand.otherHand)
 			{
@@ -68,7 +77,7 @@ namespace KerbalVR
 
 		private void OnGrabbed(Hand hand)
 		{
-			Utils.Log($"VRLadder.OnReleased: {hand.handType} - LadderTransform {LadderTransform?.name}");
+			Utils.Log($"VRLadder.OnReleased: {hand.handType} - LadderTransform {LadderTransform.SafeName()}");
 
 			m_grabbedPosition = LadderTransform.InverseTransformPoint(hand.GripPosition);
 			HapticUtils.Heavy(hand.handType);
