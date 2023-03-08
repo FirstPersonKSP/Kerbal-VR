@@ -92,6 +92,7 @@ namespace KerbalVR.InteractionCommon
 
 			interactable.OnGrab += OnGrab;
 			interactable.OnRelease += OnRelease;
+			interactable.OnOtherHandGrab += OnRelease;
 
 			FlightInputHandler.OnRawAxisInput += GetInput;
 		}
