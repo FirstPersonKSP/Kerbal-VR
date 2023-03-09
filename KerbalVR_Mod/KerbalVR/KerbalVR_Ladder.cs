@@ -77,9 +77,8 @@ namespace KerbalVR
 
 		private void OnGrabbed(Hand hand)
 		{
-			Utils.Log($"VRLadder.OnReleased: {hand.handType} - LadderTransform {LadderTransform.SafeName()}");
-
 			m_grabbedPosition = LadderTransform.InverseTransformPoint(hand.GripPosition);
+			Utils.Log($"VRLadder.OnGrabbed: {hand.handType} - LadderTransform {LadderTransform.SafeName()}; LadderTransform {LadderTransform.position}; grabbedPosition {m_grabbedPosition}");
 			HapticUtils.Heavy(hand.handType);
 
 			// VRLadder is weird because the interactable is on the hand, not the ladder - so the normal OnOtherHandGrab even won't be used
@@ -102,15 +101,15 @@ namespace KerbalVR
 				//kerbalEVA.fsm.RunEvent(kerbalEVA.On_ladderGrabStart);
 				kerbalEVA.fsm.RunEvent(evafsm.m_vrGrabLadderEvent);
 			}
-			else
+			else if (FreeIva.KerbalIvaAddon.Instance.buckled)
 			{
 				FreeIva.KerbalIvaAddon.Instance.Unbuckle();
 				FreeIva.KerbalIvaAddon.Instance.KerbalIva.FreezeUpdates = true;
-				FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody.interpolation = RigidbodyInterpolation.None;
 			}
 		}
 
 		static float x_gain = 10f;
+		static float x_maxOffset = 0.1f;
 
 		void FixedUpdate()
 		{
@@ -120,7 +119,7 @@ namespace KerbalVR
 
 				if (LadderTransform == null)
 				{
-					OnReleased(GrabbedHand);
+					GrabbedHand = null;
 					return;
 				}
 
@@ -143,8 +142,18 @@ namespace KerbalVR
 				}
 				else
 				{
+					float offsetMag = offset.magnitude;
+					if (offsetMag > x_maxOffset)
+					{
+						offset = offset.normalized * x_maxOffset;
+					}
+
 					rigidBody = FreeIva.KerbalIvaAddon.Instance.KerbalIva.KerbalRigidbody;
-					rigidBody.MovePosition(rigidBody.position - offset);
+					//rigidBody.MovePosition(rigidBody.position - offset);
+					// rigidBody.AddForce(-offset / Time.fixedDeltaTime, ForceMode.VelocityChange);
+					rigidBody.velocity = -offset / Time.fixedDeltaTime;
+
+					// Debug.Log($"KerbalVR ladder: Offset {offset.magnitude}; Floating Origin: {FloatingOrigin.Offset.magnitude}; thisFrame: {FloatingOrigin.fetch.SetOffsetThisFrame}");
 				}
 
 				velocity = (x_gain * -offset / Time.fixedDeltaTime + velocity) / (1 + x_gain);

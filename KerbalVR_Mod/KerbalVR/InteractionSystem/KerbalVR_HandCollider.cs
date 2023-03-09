@@ -14,6 +14,8 @@ namespace KerbalVR
 
 		bool hoveredObjectIsHighPriority;
 
+		Hand hand;
+
 		internal void Initialize(Hand hand, VRLadder ladder)
 		{
 			// add interactable collider
@@ -26,6 +28,7 @@ namespace KerbalVR
 			handRigidbody.isKinematic = true;
 
 			this.ladder = ladder;
+			this.hand = hand;
 
 			// debugging stuff
 #if HAND_GIZMOS
@@ -53,6 +56,8 @@ namespace KerbalVR
 			{
 				if (otherLayer != 21) return; // TODO: what about just grabbing anywhere on the outside of a part?
 			}
+
+			if (hand.heldObject != null) return;
 
 			InteractableBehaviour interactable = other.gameObject.GetComponent<InteractableBehaviour>();
 			if (interactable != null && interactable.enabled)
@@ -105,7 +110,12 @@ namespace KerbalVR
 				if (other.transform == ladder.LadderTransform && HoveredObject == ladder)
 				{
 					HoveredObject = null;
-					ladder.LadderTransform = null;
+
+					if (hand.heldObject != ladder)
+					{
+						ladder.LadderTransform = null;
+					}
+
 					hoveredObjectIsHighPriority = false;
 				}
 			}
