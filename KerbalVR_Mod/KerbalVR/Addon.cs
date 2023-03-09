@@ -17,6 +17,7 @@ namespace KerbalVR
 		public void Awake()
 		{
 			Utils.Log("Addon Awake");
+			DontDestroyOnLoad(this);
 
 			if (XRSettings.enabled)
 			{
@@ -32,8 +33,6 @@ namespace KerbalVR
 
 			GameEvents.onLevelWasLoaded.Add(OnLevelWasLoaded);
 			GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
-
-			DontDestroyOnLoad(this);
 		}
 
 		public static void ModuleManagerPostLoad()
