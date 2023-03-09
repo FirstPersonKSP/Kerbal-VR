@@ -578,7 +578,7 @@ namespace KerbalVR
 		}
 	}
 
-	[HarmonyPatch(typeof(CameraManager), nameof(CameraManager.NextCameraIVA))]
+	[HarmonyPatch(typeof(CameraManager), nameof(CameraManager.SetCameraIVA), new Type[] {typeof(Kerbal), typeof(bool)})]
 	class CameraManagerPatch
 	{
 		static void Prefix()

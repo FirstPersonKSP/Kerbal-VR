@@ -54,7 +54,6 @@ namespace KerbalVR
 					FreeIva.KerbalIvaAddon.Instance.ReturnToSeat();
 					CameraManager.Instance.SetCameraIVA(internalSeat.kerbalRef, true);
 					GameEvents.OnIVACameraKerbalChange.Fire(internalSeat.kerbalRef);
-					FirstPersonKerbalFlight.Instance.OnIVACameraKerbalChange();
 				}
 				else if (!FreeIva.KerbalIvaAddon.Instance.buckled)
 				{
