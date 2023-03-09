@@ -588,8 +588,13 @@ namespace KerbalVR
 			GameObject.DontDestroyOnLoad(KerbalVR.InteractionSystem.Instance);
 		}
 
-		static void Postfix()
+		static void Postfix(Kerbal kerbal)
 		{
+			if (KerbalVR.Core.IsVrRunning)
+			{
+				kerbal.eyeTransform.localPosition = FirstPersonKerbalAddon.kerbalEyePosition;
+			}
+
 			FirstPersonKerbalFlight.Instance.OnIVACameraKerbalChange();
 		}
 	}

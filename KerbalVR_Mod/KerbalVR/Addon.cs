@@ -13,6 +13,7 @@ namespace KerbalVR
 	public class FirstPersonKerbalAddon : MonoBehaviour
 	{
 		static KeyBinding m_vrToggle = new KeyBinding(KeyCode.V);
+		static public Vector3 kerbalEyePosition = new Vector3(0, 0.7f, 0);
 
 		public void Awake()
 		{
@@ -38,6 +39,13 @@ namespace KerbalVR
 		public static void ModuleManagerPostLoad()
 		{
 			Utils.Log("ModuleManagerPostLoad");
+
+			var settingsNode = GameDatabase.Instance.GetConfigs("KerbalVRConfig").FirstOrDefault();
+
+			if (settingsNode != null)
+			{
+				settingsNode.config.TryGetValue(nameof(kerbalEyePosition), ref kerbalEyePosition);
+			}
 
 		}
 		private static void Scatterer_CreateRenderTextures_Prefix(ref int width, ref int height)
