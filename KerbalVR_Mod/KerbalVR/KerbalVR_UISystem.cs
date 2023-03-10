@@ -636,6 +636,7 @@ namespace KerbalVR
 
 		public void PushCanvas(Canvas canvas)
 		{
+			canvas.enabled = true;
 			m_canvasStack.Remove(canvas);
 			m_canvasStack.Add(canvas);
 		}
@@ -785,7 +786,7 @@ namespace KerbalVR
 
 		public override bool ShouldActivateModule()
 		{
-			return Core.IsVrRunning && m_hand.UIHand.enabled && !VRFingerTipInputModule.Instance.ShouldActivateModule();
+			return Core.IsVrRunning && m_hand.UIHand.enabled && !VRFingerTipInputModule.Instance.ShouldActivateModule() && !Scene.IsInIVA();
 		}
 
 		protected override void CastRay(out Collider hitCollider, ref PointerEventData pointerData)
