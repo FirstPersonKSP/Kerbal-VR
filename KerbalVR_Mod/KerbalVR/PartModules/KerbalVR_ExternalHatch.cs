@@ -105,7 +105,9 @@ namespace KerbalVR
 
 					var kerbalEVA = FlightGlobals.ActiveVessel.evaController;
 					var protoCrewMember = kerbalEVA.part.protoModuleCrew[0];
-					kerbalEVA.BoardPart(part);
+					kerbalEVA.checkExperiments(part);
+					PopupDialog.ClearPopUps();
+					kerbalEVA.proceedAndBoard(part);
 
 					// try to move to the seats in order of preference
 					foreach (var internalSeatName in internalSeatNames)
