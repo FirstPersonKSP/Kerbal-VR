@@ -45,25 +45,19 @@ namespace KerbalVR
 			var oldSetting = GameSettings.IVA_RETAIN_CONTROL_POINT;
 			GameSettings.IVA_RETAIN_CONTROL_POINT = true;
 
-			// if there is a kerbal here, switch to them
-			if (internalSeat.kerbalRef != null)
+			FreeIva.KerbalIvaAddon.Instance.TargetedSeat = internalSeat;
+
+			// if there is a kerbal here that isn't us, switch to them
+			if (internalSeat.kerbalRef != null && internalSeat.kerbalRef != CameraManager.Instance.IVACameraActiveKerbal)
 			{
-				// .. as long as it's not us..
-				if (internalSeat.kerbalRef != CameraManager.Instance.IVACameraActiveKerbal)
-				{
-					FreeIva.KerbalIvaAddon.Instance.ReturnToSeat();
-					CameraManager.Instance.SetCameraIVA(internalSeat.kerbalRef, true);
-					GameEvents.OnIVACameraKerbalChange.Fire(internalSeat.kerbalRef);
-				}
-				else if (!FreeIva.KerbalIvaAddon.Instance.buckled)
-				{
-					FreeIva.KerbalIvaAddon.Instance.TargetedSeat = internalSeat;
-					FreeIva.KerbalIvaAddon.Instance.Buckle();
-				}
+				FreeIva.KerbalIvaAddon.Instance.SwitchToKerbal();
+			}
+			else if (FreeIva.KerbalIvaAddon.Instance.buckled)
+			{
+				FreeIva.KerbalIvaAddon.Instance.Unbuckle();
 			}
 			else
 			{
-				FreeIva.KerbalIvaAddon.Instance.TargetedSeat = internalSeat;
 				FreeIva.KerbalIvaAddon.Instance.Buckle();
 			}
 
