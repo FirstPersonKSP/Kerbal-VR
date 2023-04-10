@@ -30,6 +30,8 @@ namespace KerbalVR.InternalModules
 
 		void Start()
 		{
+			base.Start();
+
 			if (m_interactableBehaviour != null)
 			{
 				m_interactableBehaviour.OnGrab += OnGrab;
