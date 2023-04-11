@@ -57,8 +57,11 @@ namespace KerbalVR.InternalModules
 
 		void UnbindPinchAction()
 		{
-			m_action.onStateDown -= OnPinchStateDown;
-			m_action.onStateUp -= OnPinchStateUp;
+			if (m_action != null)
+			{
+				m_action.onStateDown -= OnPinchStateDown;
+				m_action.onStateUp -= OnPinchStateUp;
+			}
 		}
 
 		private void OnOtherHandGrab(Hand hand)
@@ -66,6 +69,7 @@ namespace KerbalVR.InternalModules
 			UnbindPinchAction();
 			BindPinchAction(hand);
 			m_otherHandGrabbed = true;
+			rigidBodyObject.transform.SetParent(hand.handObject.transform, true);
 		}
 
 		private void OnRelease(Hand hand)
