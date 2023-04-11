@@ -82,15 +82,12 @@ namespace KerbalVR.InternalModules
 
 		// TODO: maybe this should be pushed up to the interaction system level, and PhysicalProp is a certain kind of Interaction?
 		// then stuff like flightStick etc are also just interactions?
-		public class VRInteraction : MonoBehaviour, IVRInteraction
+		public class VRInteraction : FreeIva.PhysicalProp.Interaction, IVRInteraction
 		{
-			public VRPhysicalProp PhysicalProp;
+			public new VRPhysicalProp VRPhysicalProp => PhysicalProp as VRPhysicalProp;
 
-			public virtual void OnLoad(ConfigNode interactionNode) { }
-
-			public virtual void OnGrab(Hand hand) { }
-			public virtual void OnRelease(Hand hand) { }
-			public virtual void OnImpact(float magnitude) { }
+			public virtual void OnGrab(Hand hand) { base.OnGrab(); }
+			public virtual void OnRelease(Hand hand) { base.OnRelease(); }
 		}
 
 		public class VRInteractionExtinguisher : VRInteraction
@@ -343,56 +340,6 @@ namespace KerbalVR.InternalModules
 			private void OnPinchStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
 			{
 				PhysicalProp.PlayAudioClip(m_squeakSound);
-			}
-		}
-
-		public class VRInteractionBreakable : VRInteraction
-		{
-			[SerializeReference] AudioClip breakSound;
-			[SerializeField] float breakSpeed = 4;
-			[SerializeField] ParticleSystem m_particleSystem;
-
-			public override void OnLoad(ConfigNode interactionNode)
-			{
-				breakSound = PhysicalProp.LoadAudioClip(interactionNode, nameof(breakSound));
-
-				interactionNode.TryGetValue(nameof(breakSpeed), ref breakSpeed);
-
-				string particleSystemName = interactionNode.GetValue(nameof(particleSystemName));
-				if (particleSystemName != null)
-				{
-					var particlePrefab = AssetLoader.Instance.GetGameObject(particleSystemName);
-					if (particlePrefab != null)
-					{
-						var particleObject = GameObject.Instantiate(particlePrefab);
-
-						particleObject.layer = 20;
-						particleObject.transform.SetParent(PhysicalProp.m_collider.transform, false);
-						particleObject.transform.localPosition = PhysicalProp.m_collider.bounds.center;
-
-						m_particleSystem = particleObject.GetComponent<ParticleSystem>();
-					}
-				}
-			}
-
-			public override void OnImpact(float magnitude)
-			{
-				if (magnitude > breakSpeed)
-				{
-					var freeIvaModule = FreeIva.FreeIva.CurrentInternalModuleFreeIva;
-
-					m_particleSystem.transform.SetParent(freeIvaModule.Centrifuge?.IVARotationRoot ?? freeIvaModule.internalModel.transform, true);
-					m_particleSystem.Play();
-
-					if (breakSound != null)
-					{
-						var audioSource = CameraUtils.CloneComponent(PhysicalProp.m_audioSource, m_particleSystem.gameObject);
-
-						audioSource.PlayOneShot(breakSound);
-					}
-
-					GameObject.Destroy(PhysicalProp.rigidBodyObject);
-				}
 			}
 		}
 	}
