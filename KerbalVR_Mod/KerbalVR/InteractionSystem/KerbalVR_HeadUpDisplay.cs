@@ -114,9 +114,9 @@ namespace KerbalVR
 
 		private void UpdateResources()
 		{
-			Vessel activeVessel = FlightGlobals.ActiveVessel;
+			var kerbalEVA = KerbalVR.Scene.GetKerbalEVA();
 
-			var resourceInfo = activeVessel.evaController.propellantResource;
+			var resourceInfo = kerbalEVA.propellantResource;
 
 			resourceMeter.SetData(resourceInfo.info.displayName, resourceInfo.amount, resourceInfo.maxAmount);
 		}

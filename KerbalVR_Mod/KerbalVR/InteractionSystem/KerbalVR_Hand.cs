@@ -432,16 +432,21 @@ namespace KerbalVR
 
 		private void SeatInteract_OnStateDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromSource)
 		{
-			if (Scene.IsInIVA())
+			var kerbalEVA = Scene.GetKerbalEVA();
+			
+			if (kerbalEVA != null && kerbalEVA.IsSeated())
 			{
-				if (palmCollider.HoveredSeat != null)
-				{
-					palmCollider.HoveredSeat.OnInteract(this);
-				}
-				else if (FreeIva.KerbalIvaAddon.Instance.buckled)
-				{
-					FreeIva.KerbalIvaAddon.Instance.Unbuckle();
-				}
+				kerbalEVA.OnDeboardSeat();
+				KerbalVR.Scene.EnterFirstPerson();
+			}
+			else if (palmCollider.HoveredSeat != null)
+			{
+				palmCollider.HoveredSeat.OnInteract(this);
+				palmCollider.ClearHoveredObject();
+			}
+			else if (Scene.IsInIVA() && FreeIva.KerbalIvaAddon.Instance.buckled)
+			{
+				FreeIva.KerbalIvaAddon.Instance.Unbuckle();
 			}
 		}
 

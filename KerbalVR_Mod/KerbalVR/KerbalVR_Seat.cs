@@ -135,7 +135,7 @@ namespace KerbalVR
 				seatModule.BoardSeat();
 				var collider = gameObject.GetComponent<Collider>();
 				collider.enabled = false;
-				KerbalVR.FirstPersonKerbalFlight.Instance.OnSeatBoarded(); // during the boarding process we switch vessels which confuses the flight system; restore it here
+				// KerbalVR.FirstPersonKerbalFlight.Instance.OnSeatBoarded(); // during the boarding process we switch vessels which confuses the flight system; restore it here
 
 				KerbalVR.Scene.EnterFirstPerson();
 			}
