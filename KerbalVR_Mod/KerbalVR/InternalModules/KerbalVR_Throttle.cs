@@ -31,7 +31,7 @@ namespace KerbalVR.InternalModules
 			var leverTransform = this.FindTransform(m_throttleLever.leverName);
 			if (leverTransform == null) return;
 
-			m_throttleLever.OnStart(leverTransform);
+			m_throttleLever.OnStart(leverTransform, true);
 
 #if PROP_GIZMOS
 			if (gizmo == null)

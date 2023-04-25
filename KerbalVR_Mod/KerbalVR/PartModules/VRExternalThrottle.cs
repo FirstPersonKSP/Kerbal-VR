@@ -27,7 +27,7 @@ namespace KerbalVR.PartModules
 				return;
 			}
 
-			m_throttleLever.OnStart(leverTransform);
+			m_throttleLever.OnStart(leverTransform, false);
 		}
 
 		public override void OnUpdate()

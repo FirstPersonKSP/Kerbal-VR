@@ -53,7 +53,7 @@ namespace KerbalVR.InteractionCommon
 			}
 		}
 
-		internal void OnStart(Transform stickTransform, Vessel vessel)
+		internal void OnStart(Transform stickTransform, Vessel vessel, bool iva)
 		{
 			m_stickTransform = stickTransform;
 			m_vessel = vessel;
@@ -83,7 +83,7 @@ namespace KerbalVR.InteractionCommon
 				collider = capsule;
 			}
 
-			collider.gameObject.layer = 20;
+			collider.gameObject.layer = iva ? 20 : 21;
 			interactable = Utils.GetOrAddComponent<InteractableBehaviour>(collider.gameObject);
 
 			interactable.SkeletonPoser = Utils.GetOrAddComponent<SteamVR_Skeleton_Poser>(stickTransform.gameObject);

@@ -31,7 +31,7 @@ namespace KerbalVR.InteractionCommon
 			}
 		}
 
-		public void OnStart(Transform leverTransform)
+		public void OnStart(Transform leverTransform, bool iva)
 		{
 			// TODO: add generic collider internal module?
 
@@ -49,7 +49,7 @@ namespace KerbalVR.InteractionCommon
 
 			m_rotationUtil = new RotationUtil(leverTransform, axis, angleMin, angleMax);
 
-			collider.gameObject.layer = 20;
+			collider.gameObject.layer = iva ? 20 : 21;
 			interactable = Utils.GetOrAddComponent<InteractableBehaviour>(collider.gameObject);
 
 			interactable.SkeletonPoser = Utils.GetOrAddComponent<SteamVR_Skeleton_Poser>(m_rotationUtil.Transform.gameObject);

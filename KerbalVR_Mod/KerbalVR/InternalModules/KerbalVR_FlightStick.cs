@@ -29,7 +29,7 @@ namespace KerbalVR.InternalModules
 			var stickTransform = this.FindTransform(m_flightStick.stickTransformName);
 			if (stickTransform == null) { return; }
 
-			m_flightStick.OnStart(stickTransform, vessel);
+			m_flightStick.OnStart(stickTransform, vessel, true);
 
 #if PROP_GIZMOS
 			if (gizmo == null)
