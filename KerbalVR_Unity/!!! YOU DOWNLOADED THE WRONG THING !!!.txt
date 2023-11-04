@@ -1,0 +1,7 @@
+If youre seeing this file, you cloned the repository from github instead of downloading a release package. 
+
+The repository does not have compiled dlls for the KerbalVR mod and will not work. 
+
+Please follow the installation guide carefully: https://github.com/JonnyOThan/Kerbal-VR/wiki/Installation-Guide  
+
+And specifically download KerbalVR from the releases page: https://github.com/JonnyOThan/Kerbal-VR/releases
