@@ -21,9 +21,6 @@ namespace KerbalVR
 		[KSPField]
 		public float maxRotation = 175.0f;
 
-		[SerializeField]
-		public List<string> internalSeatNames = new List<string>();
-
 		InteractableBehaviour m_interactableBehaviour;
 		Hand m_grabbedHand;
 		RotationUtil m_rotationUtil;
@@ -33,8 +30,6 @@ namespace KerbalVR
 			if (HighLogic.LoadedScene != GameScenes.LOADING) return;
 
 			base.OnLoad(node);
-
-			internalSeatNames = node.GetValuesList("internalSeatName");
 		}
 
 		void Start()
@@ -102,28 +97,38 @@ namespace KerbalVR
 				if (m_rotationUtil.IsAtMax())
 				{
 					m_grabbedHand.Detach(true);
+					m_rotationUtil.Reset();
 
 					var kerbalEVA = FlightGlobals.ActiveVessel.evaController;
-					var protoCrewMember = kerbalEVA.part.protoModuleCrew[0];
-					kerbalEVA.checkExperiments(part);
-					PopupDialog.ClearPopUps();
-					kerbalEVA.proceedAndBoard(part);
 
-					// try to move to the seats in order of preference
-					foreach (var internalSeatName in internalSeatNames)
+					// find a nearby airlock collider to use
+					if (kerbalEVA.currentAirlockTrigger == null)
 					{
-						var seat = FindSeat(internalSeatName);
-						if (seat != null && !seat.taken && seat != protoCrewMember.seat)
+						Transform[] airlocks = part.FindModelTransformsWithTag(FreeIva.FreeIvaHatch.AIRLOCK_TAG);
+						float closestDistance = float.MaxValue;
+						Collider closestAirlock = null;
+
+						foreach (var airlockTransform in airlocks)
 						{
-							VRInternalSeat.MoveKerbalToSeat(protoCrewMember.KerbalRef, seat);
-							break;
+							Collider airlockCollider = airlockTransform.GetComponent<Collider>();
+							if (airlockCollider != null)
+							{
+								Vector3 closestPoint = airlockCollider.ClosestPoint(m_rotationUtil.Transform.position);
+								float distance = Vector3.Distance(closestPoint, m_rotationUtil.Transform.position);
+								if (distance < closestDistance)
+								{
+									closestDistance = distance;
+									closestAirlock = airlockCollider;
+								}
+							}
 						}
+
+						kerbalEVA.currentAirlockTrigger = closestAirlock;
+						kerbalEVA.currentAirlockPart = part;
 					}
 
-					yield return null; // we have to wait a frame so the kerbal gets set up
+					FreeIva.FreeIva.BoardPartFromAirlock(kerbalEVA, false);
 
-					CameraManager.Instance.SetCameraIVA(protoCrewMember.KerbalRef, false);
-					m_rotationUtil.Reset();
 					yield break;
 				}
 
