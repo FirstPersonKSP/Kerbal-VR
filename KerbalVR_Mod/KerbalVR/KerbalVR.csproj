@@ -190,6 +190,7 @@
     <Compile Include="KerbalVR_Utils.cs" />
     <Compile Include="PartModules\VRExternalFlightStick.cs" />
     <Compile Include="PartModules\VRExternalThrottle.cs" />
+    <Compile Include="PushUtil.cs" />
     <Compile Include="RotationUtil.cs" />
     <Compile Include="SkeletonPoses\KerbalVR_FallbackRelaxedPose.cs" />
     <Compile Include="SkeletonPoses\KerbalVR_FlapLeverPose_Human.cs" />

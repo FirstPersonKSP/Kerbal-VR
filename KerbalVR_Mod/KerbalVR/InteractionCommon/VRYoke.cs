@@ -17,20 +17,21 @@ namespace KerbalVR.InteractionCommon
 		public float steerAngle = 30.0f;
 
 		[Persistent]
-		public Vector3 steerAxis = Vector3.up;
+		public Vector3 steerAxis = Vector3.back;
 
 		[Persistent]
 		public string pushTransformName = string.Empty;
 
 		[Persistent]
-		public float pushAngle = 9.0f;
+		public float pushDistance = 0.02f;
 
 		[Persistent]
-		public Vector3 pushAxis = Vector3.right;
+		public Vector3 pushAxis = Vector3.back;
 
 		InteractableBehaviour m_interactable;
 		RotationUtil m_steerRotationUtil;
-		RotationUtil m_pushRotationUtil;
+		PushUtil m_pushUtil;
+		
 		Vessel m_vessel;
 
 		public static void Create(GameObject gameObject, ref VRYoke yoke, ConfigNode node)
@@ -45,7 +46,8 @@ namespace KerbalVR.InteractionCommon
 		public void OnStart(Transform steerTransform, Transform pushTransform, Vessel vessel)
 		{
 			m_steerRotationUtil = new RotationUtil(steerTransform, steerAxis, -steerAngle, steerAngle);
-			m_pushRotationUtil = new RotationUtil(pushTransform, pushAxis, -pushAngle, pushAngle);
+			m_pushUtil = new PushUtil(pushTransform, pushAxis, -pushDistance, pushDistance);
+			
 			m_vessel = vessel;
 
 			var collider = steerTransform.GetComponentInChildren<Collider>();
@@ -69,7 +71,7 @@ namespace KerbalVR.InteractionCommon
 		private void OnGrab(Hand hand)
 		{
 			m_steerRotationUtil.Grabbed(hand.GripPosition);
-			m_pushRotationUtil.Grabbed(hand.GripPosition);
+			m_pushUtil.Grabbed(hand.GripPosition);
 
 			m_vessel.OnPostAutopilotUpdate += OnPostAutopilotUpdate;
 
@@ -79,7 +81,7 @@ namespace KerbalVR.InteractionCommon
 		private void OnPostAutopilotUpdate(FlightCtrlState st)
 		{
 			st.wheelSteer = m_steerRotationUtil.GetInterpolatedPosition() * 2.0f - 1.0f;
-			st.wheelThrottle = m_pushRotationUtil.GetInterpolatedPosition() * 2.0f - 1.0f;
+			st.wheelThrottle = m_pushUtil.GetInterpolatedPosition() * 2.0f - 1.0f;
 		}
 
 		public void OnUpdate()
@@ -87,12 +89,12 @@ namespace KerbalVR.InteractionCommon
 			if (m_interactable != null && m_interactable.IsGrabbed)
 			{
 				m_steerRotationUtil.Update(m_interactable.GrabbedHand.GripPosition);
-				m_pushRotationUtil.Update(m_interactable.GrabbedHand.GripPosition);
+				m_pushUtil.Update(m_interactable.GrabbedHand.GripPosition);
 			}
 			else
 			{
 				m_steerRotationUtil.SetInterpolatedPosition((FlightInputHandler.state.wheelSteer + 1.0f) / 2.0f);
-				m_pushRotationUtil.SetInterpolatedPosition((FlightInputHandler.state.wheelThrottle + 1.0f) / 2.0f);
+				m_pushUtil.SetInterpolatedPosition((FlightInputHandler.state.wheelThrottle + 1.0f) / 2.0f);
 			}
 		}
 	}
