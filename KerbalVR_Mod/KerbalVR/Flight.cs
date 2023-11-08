@@ -419,7 +419,8 @@ namespace KerbalVR
 
 			const float YAW_SCALE = 0.5f;
 
-			FirstPerson.FirstPersonEVA.instance.fpStateWalkRun.current_turn += YAW_SCALE * yaw * kerbalEVA.turnRate * Time.fixedDeltaTime * Mathf.Rad2Deg;
+			float yawDelta = YAW_SCALE * yaw * kerbalEVA.turnRate * Time.fixedDeltaTime * Mathf.Rad2Deg;
+			FirstPerson.FirstPersonEVA.instance.fpStateWalkRun.current_turn += yawDelta;
 
 			if (FirstPerson.FirstPersonEVA.instance.fpStateWalkRun.current_turn < 0)
 			{
@@ -434,6 +435,14 @@ namespace KerbalVR
 			// use both sticks the same for now
 			kerbalEVA.parachuteInput.x = Mathf.Clamp(lookStickInput.y + moveStickInput.y, -1.0f, 1.0f);
 			kerbalEVA.parachuteInput.y = Mathf.Clamp(lookStickInput.x + moveStickInput.x, -1.0f, 1.0f);
+
+			// the movement code will not try to turn in place if tgtRPos is zero
+			if (kerbalEVA.tgtRpos == Vector3.zero && yawDelta != 0 && kerbalEVA.SurfaceOrSplashed())
+			{
+				Vector3 newFwd = Quaternion.AngleAxis(yawDelta, kerbalEVA.fUp) * kerbalEVA.transform.forward;
+
+				kerbalEVA.tgtRpos = newFwd * 0.0001f;
+			}
 		}
 
 		internal void GetKerbalRotationInput(out float yaw, out float pitch, out float roll)
