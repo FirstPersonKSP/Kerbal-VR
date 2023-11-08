@@ -106,14 +106,23 @@ namespace KerbalVR_RPM
 						break;
 				}
 			}
-			else if (m_jsiNumericInput != null)
+			else if (m_perPodPersistenceName != null)
 			{
-				float minValue = m_jsiNumericInput.minRange.AsFloat();
-				float maxValue = m_jsiNumericInput.maxRange.AsFloat();
+				float value = 0.0f;
 
-				var val = Mathf.Lerp(minValue, maxValue, fraction);
+				if (m_jsiNumericInput != null)
+				{
+					float minValue = m_jsiNumericInput.minRange.AsFloat();
+					float maxValue = m_jsiNumericInput.maxRange.AsFloat();
 
-				m_rpmComp.SetPersistentVariable(m_perPodPersistenceName, val, m_perPodPersistenceIsGlobal);
+					value = Mathf.Lerp(minValue, maxValue, fraction);
+				}
+				else
+				{
+					value = fraction;
+				}
+
+				m_rpmComp.SetPersistentVariable(m_perPodPersistenceName, value, m_perPodPersistenceIsGlobal);
 			}
 		}
 
@@ -160,11 +169,17 @@ namespace KerbalVR_RPM
 			}
 
 			m_jsiNumericInput = knobComponent.gameObject.GetComponent<JSI.JSINumericInput>();
+			m_jsiActionGroupSwitch = knobComponent.gameObject.GetComponent<JSI.JSIActionGroupSwitch>();
 
 			if (m_jsiNumericInput != null)
 			{
 				m_perPodPersistenceName = m_jsiNumericInput.perPodPersistenceName;
 				m_perPodPersistenceIsGlobal = m_jsiNumericInput.perPodPersistenceIsGlobal;
+			}
+			else if (m_jsiActionGroupSwitch != null)
+			{
+				m_perPodPersistenceName = m_jsiActionGroupSwitch.perPodPersistenceName;
+				m_perPodPersistenceIsGlobal = m_jsiActionGroupSwitch.perPodPersistenceIsGlobal;
 			}
 		}
 	}
