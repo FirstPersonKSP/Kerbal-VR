@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -135,7 +136,13 @@ namespace KerbalVR.InternalModules
 					if (!latched)
 					{
 						latched = true;
-						gameObject.SendMessage("OnMouseDown");
+						
+						// some buttons do things like change scenes (revert to launch, quickload) which cannot be called from an OnStay callback - so delay a frame and this will be executed during coroutine evaluation
+						StartCoroutine(CallbackUtil.DelayedCallback(1, delegate
+						{
+							gameObject.SendMessage("OnMouseDown");
+						}));
+						
 						HapticUtils.Light(hand.handType);
 					}
 				}
