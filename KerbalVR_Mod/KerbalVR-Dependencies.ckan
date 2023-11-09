@@ -57,7 +57,22 @@
         "name": "ProbeControlRoomRecontrolled"
       },
       {
-        "name": "ALCORIVAPatch"
+        "name": "ALCOR"
+      },
+      {
+        "name": "ExplorationRoverSystembyASET"
+      },
+      {
+        "name": "Astrogator"
+      },
+      {
+        "name": "DockingPortAlignmentIndicator"
+      },
+      {
+        "name": "SCANSat"
+      },
+      {
+        "name": "kOSPropMonitor"
       }
     ],
     "suggests": [
@@ -70,9 +85,15 @@
         {
           "name": "BluedogDB"
         },
-      {
-        "name": "AvionicsSystems"
-      }
+        {
+          "name": "ArtemisConstructionKit"
+        },
+        {
+          "name": "ShuttleOrbiterConstructionKit"
+        },
+        {
+          "name": "VexarpIVA"
+        }
     ],
     "kind": "metapackage",
     "release_date": "2022-10-18T12:20:19.2682623-04:00"
