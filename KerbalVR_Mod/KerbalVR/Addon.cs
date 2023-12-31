@@ -31,6 +31,10 @@ namespace KerbalVR
 
 				ApplyPatches();
 			}
+			else
+			{
+				Utils.Log("VR is not enabled");
+			}
 
 			GameEvents.onLevelWasLoaded.Add(OnLevelWasLoaded);
 			GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
