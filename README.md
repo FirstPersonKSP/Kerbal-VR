@@ -2,12 +2,10 @@ This mod is still in very early development. The primary focus is on flying a sh
 
 Installation Guide (Start Here): https://github.com/JonnyOThan/Kerbal-VR/wiki/Installation-Guide
 
-How to fly: https://github.com/JonnyOThan/Kerbal-VR/wiki/User-Guide
-
 Please join the discord for updates and discussion: https://discord.gg/vBDzZAq3AF
 
-Demo flight to orbit and back: https://www.twitch.tv/videos/1313229804
+Video collection on Youtube: https://www.youtube.com/playlist?list=PLDO10NRxfG07Y43LoyW83pbSMfKHhReal
 
-Demo mun landing and return: https://www.twitch.tv/videos/1510695670
+How to fly: https://github.com/JonnyOThan/Kerbal-VR/wiki/User-Guide
 
 Note: this is a fork of Kerbal-VR originally created by @Vivero. This version uses Unity's native VR systems to render, which means it generally performs better but doesn't support special effects or UI out of the box. I've also added an extensive interaction system for manipulating switches, buttons, knobs, etc. in IVA.
