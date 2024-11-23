@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\KSPBuildTools.0.0.2\build\KSPBuildTools.props" Condition="Exists('..\packages\KSPBuildTools.0.0.2\build\KSPBuildTools.props')" />
+  <Import Project="..\packages\JsonPoke.1.2.0\build\JsonPoke.props" Condition="Exists('..\packages\JsonPoke.1.2.0\build\JsonPoke.props')" />
   <Import Project="..\packages\Krafs.Publicizer.1.0.3\build\Krafs.Publicizer.props" Condition="Exists('..\packages\Krafs.Publicizer.1.0.3\build\Krafs.Publicizer.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -31,31 +33,11 @@
     <OutputPath>bin\Release\</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <RunPostBuildEvent>Always</RunPostBuildEvent>
-  </PropertyGroup>
-  <!--Import targets now, which will import KSPCommunityFixes.csproj.user where the path to the KSP install root must be defined in ReferencePath-->
-  <!--This must be done after the main project poperties are defined because it needs the target framework property to be defined -->
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  </PropertyGroup>  
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
+    <Reference Include="$(KSPRoot)\GameData\JSI\RasterPropMonitor\Plugins\RasterPropMonitor.dll">
       <Private>False</Private>
-    </Reference>
-    <Reference Include="RasterPropMonitor">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="UnityEngine">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.AnimationModule">
-      <Private>False</Private>
+      <CKANIdentifier>RasterPropMonitor-Core</CKANIdentifier>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -80,13 +62,17 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Krafs.Publicizer.1.0.3\build\Krafs.Publicizer.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Krafs.Publicizer.1.0.3\build\Krafs.Publicizer.props'))" />
     <Error Condition="!Exists('..\packages\Krafs.Publicizer.1.0.3\build\Krafs.Publicizer.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Krafs.Publicizer.1.0.3\build\Krafs.Publicizer.targets'))" />
+    <Error Condition="!Exists('..\packages\JsonPoke.1.2.0\build\JsonPoke.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JsonPoke.1.2.0\build\JsonPoke.props'))" />
+    <Error Condition="!Exists('..\packages\JsonPoke.1.2.0\build\JsonPoke.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JsonPoke.1.2.0\build\JsonPoke.targets'))" />
+    <Error Condition="!Exists('..\packages\KSPBuildTools.0.0.2\build\KSPBuildTools.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\KSPBuildTools.0.0.2\build\KSPBuildTools.props'))" />
+    <Error Condition="!Exists('..\packages\KSPBuildTools.0.0.2\build\KSPBuildTools.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\KSPBuildTools.0.0.2\build\KSPBuildTools.targets'))" />
   </Target>
   <Import Project="..\packages\Krafs.Publicizer.1.0.3\build\Krafs.Publicizer.targets" Condition="Exists('..\packages\Krafs.Publicizer.1.0.3\build\Krafs.Publicizer.targets')" />
   <ItemGroup>
     <Publicize Include="RasterPropMonitor" />
   </ItemGroup>
   <ItemGroup />
-  <PropertyGroup>
-    <PostBuildEvent>xcopy /Y $(TargetDir)$(TargetName).* $(SolutionDir)GameData\KerbalVR\Plugins\*</PostBuildEvent>
-  </PropertyGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\JsonPoke.1.2.0\build\JsonPoke.targets" Condition="Exists('..\packages\JsonPoke.1.2.0\build\JsonPoke.targets')" />
+  <Import Project="..\packages\KSPBuildTools.0.0.2\build\KSPBuildTools.targets" Condition="Exists('..\packages\KSPBuildTools.0.0.2\build\KSPBuildTools.targets')" />
 </Project>
