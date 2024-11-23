@@ -89,11 +89,11 @@ namespace KerbalVR_RPM
 			{
 				foreach(var numericInput in input.numericInputs)
 				{
-					if (numericInput.increment > 0)
+					if (numericInput.increment.AsDouble() > 0)
 					{
 						m_incrementInput = numericInput;
 					}
-					else if (numericInput.increment < 0)
+					else if (numericInput.increment.AsDouble() < 0)
 					{
 						m_decrementInput = numericInput;
 					}
