@@ -7,6 +7,8 @@ namespace Valve.VR
 {
     public class SteamVR_RingBuffer<T>
     {
+        public static bool UseDateTimeForTicks = false;
+
         protected T[] buffer;
         protected int currentIndex;
         protected T lastElement;
@@ -86,9 +88,6 @@ namespace Valve.VR
 
         }
 
-        // one datetime tick is one 10-millionth of a second
-        static readonly long stopwatchTicksPerDateTimeTick = System.Diagnostics.Stopwatch.Frequency / 10000000;
-
         public void Update(Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 angularVelocity)
         {
             if (buffer[currentIndex] == null)
@@ -98,7 +97,17 @@ namespace Valve.VR
             buffer[currentIndex].rotation = rotation;
             buffer[currentIndex].velocity = velocity;
             buffer[currentIndex].angularVelocity = angularVelocity;
-            buffer[currentIndex].timeInTicks = System.Diagnostics.Stopwatch.GetTimestamp() / stopwatchTicksPerDateTimeTick;
+
+            if (UseDateTimeForTicks)
+                buffer[currentIndex].timeInTicks = System.DateTime.Now.Ticks;
+            else
+            {
+#if UNITY_2020_2_OR_NEWER
+                buffer[currentIndex].timeInTicks = (long)(Time.realtimeSinceStartupAsDouble * 1000);
+#else
+                buffer[currentIndex].timeInTicks = (long)(Time.realtimeSinceStartup * 1000);
+#endif
+            }
 
             StepForward();
         }

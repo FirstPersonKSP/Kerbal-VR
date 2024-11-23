@@ -772,11 +772,7 @@ namespace Valve.VR.InteractionSystem
 
 
         //-------------------------------------------------
-#if KERBALVR
-        public void Initialize()
-#else
         protected virtual void Awake()
-#endif
         {
             inputFocusAction = SteamVR_Events.InputFocusAction(OnInputFocus);
 
@@ -1439,12 +1435,12 @@ namespace Valve.VR.InteractionSystem
 
         public void ShowGrabHint()
         {
-            ControllerButtonHints.ShowButtonHint(this, grabGripAction); //todo: assess
+            ControllerButtonHints.ShowButtonHint(this, grabGripAction);
         }
 
         public void HideGrabHint()
         {
-            ControllerButtonHints.HideButtonHint(this, grabGripAction); //todo: assess
+            ControllerButtonHints.HideTextHint(this, grabGripAction);
         }
 
         public void ShowGrabHint(string text)

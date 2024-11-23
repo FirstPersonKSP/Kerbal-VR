@@ -1504,16 +1504,11 @@ namespace Valve.VR
 
         public static string GetActionsFileFolder(bool fullPath = true)
         {
-#if KERBALVR
-            string modRoot = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
-            string streamingAssets_SteamVR = Path.Combine(modRoot, "Input");
-#else
             string streamingAssets = Application.streamingAssetsPath;
             if (Directory.Exists(streamingAssets) == false)
                 Directory.CreateDirectory(streamingAssets);
 
             string streamingAssets_SteamVR = Path.Combine(streamingAssets, "SteamVR");
-#endif
             if (Directory.Exists(streamingAssets_SteamVR) == false)
                 Directory.CreateDirectory(streamingAssets_SteamVR);
 
