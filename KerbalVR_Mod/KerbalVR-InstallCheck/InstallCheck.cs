@@ -26,7 +26,7 @@ namespace InstallCheck
 		{
 			new Dependency { assemblyName = "EVEManager", minVersion = new Version(1, 11, 7, 1)},
 			new Dependency { assemblyName = "TUFX", minVersion = new Version(1, 0, 5)},
-			new Dependency { assemblyName = "Scatterer", minVersion = new Version(0, 838, 1)},
+			new Dependency { assemblyName = "Scatterer", minVersion = new Version(0, 880, 1)},
 			new Dependency { assemblyName = "AvionicsSystems", minVersion = new Version(1, 3, 6)},
 			new Dependency { assemblyName = "RasterPropMonitor", minVersion = new Version(0, 31, 10, 2)},
 		};
