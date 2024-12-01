@@ -48,7 +48,7 @@
       <Private>False</Private>
       <CKANIdentifier>ThroughTheEyesOfaKerbal</CKANIdentifier>
     </Reference>
-    <Reference Include="$(KSPRoot)\GameData\FreeIVA\Plugins\FreeIva.dll">
+    <Reference Include="$(KSPRoot)\GameData\FreeIva\Plugins\FreeIva.dll">
       <Private>False</Private>
       <CKANIdentifier>FreeIva</CKANIdentifier>
     </Reference>
