@@ -17,7 +17,11 @@ Vivero's version of KerbalVR achieved stereoscopic rendering by using custom cam
 
   **KerbalVR-RPM**
 
-  This contains any RPM-specific logic.  KerbalVR will have abstract interfaces for props that need to take action based on VR events, and this library contains the implementation of those interfaces that are hooked up to RPM.  Some day, another library could be made for interfacing with MAS in order to support that system as well.  This project references RPM directly and uses Krafs publicizer to get at some of the internals.
+  This contains any RPM-specific logic.  KerbalVR will have abstract interfaces for props that need to take action based on VR events, and this library contains the implementation of those interfaces that are hooked up to RPM.  This project references RPM directly and uses Krafs publicizer to get at some of the internals.
+
+  **KerbalVR-MAS**
+
+  Same as above but for MAS.
 
 - **KerbalVR_Unity**
 
@@ -34,7 +38,7 @@ Vivero's version of KerbalVR achieved stereoscopic rendering by using custom cam
 
 - **KerbalVR_Mod solution**
 
-  Open in **Visual Studio 2022**. For each of the KerbalVR and KerbalVR-RPM projects, in the project properties under Reference Paths, add the path to your KSP root directory (where the executable is).  This information is not stored in the csproj so different developers can have different KSP install locations.  To compile,  hit **Build > Build Solution**.
+  Create a `KerbalVR_Mod.props.user` file adjacent to your solution.  Add a PropertyGroup with the KSPRoot property set to your KSP install directory.  Open the solution file and restore nuget packages.
 
   These projects automatically copy files into the local repo's GameData directory.  If you are iterating on code, I suggest making a junction or symlink from your KSP's GameData directory to point at your development directory.
 
