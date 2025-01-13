@@ -1,30 +1,9 @@
 {
   "NAME": "KerbalVR",
-  "URL": "https://github.com/JonnyOThan/Kerbal-VR/master/KerbalVR_Mod/GameData/KerbalVR.version",
-  "DOWNLOAD": "https://github.com/JonnyOThan/Kerabl-VR/releases",
-  "VERSION":
-  {
-    "MAJOR": 0,
-    "MINOR": 9,
-    "PATCH": 4,
-    "BUILD": 1
-  },
-  "KSP_VERSION":
-  {
-    "MAJOR": 1,
-    "MINOR": 12,
-    "PATCH": 3
-  },
-  "KSP_VERSION_MIN":
-  {
-  	"MAJOR": 1,
-  	"MINOR": 12,
-	"PATCH": 0
-  },
-  "KSP_VERSION_MAX":
-  {
-    "MAJOR": 1,
-    "MINOR": 12,
-    "PATCH": 99
-  }
+  "URL": "https://github.com/FirstPersonKSP/Kerbal-VR/releases/latest/download/KerbalVR.version",
+  "DOWNLOAD": "https://github.com/FirstPersonKSP/Kerbal-VR/releases/latest",
+  "VERSION": "0.9.4.1",
+  "KSP_VERSION": "1.12.3",
+  "KSP_VERSION_MIN": "1.12.3",
+  "KSP_VERSION_MAX": "1.12.99"
 }
