@@ -17,4 +17,4 @@ jobs:
     with:
       solution-file-path: KerbalVR_Mod/KerbalVR_Mod.sln
       use-ckan: true
-      artifacts: KerbalVR_Mod/GameData 'KerbalVR_Mod/Optional Mods' KerbalVR_Mod/KSP_x64_Data KerbalVR_Mod/vrinstaller.exe KerbalVR_Mod/KerbalVR-Dependencies.ckan README.md
+      artifacts: KerbalVR_Mod/GameData 'KerbalVR_Mod/Optional Mods' KerbalVR_Mod/KSP_x64_Data KerbalVR_Mod/vrinstaller.exe KerbalVR_Mod/KerbalVR-Dependencies.ckan README.md CHANGELOG.md
