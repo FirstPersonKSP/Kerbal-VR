@@ -8,8 +8,8 @@ Please always post your [KSP.log file](https://gist.github.com/JonnyOThan/04c207
 
 ### Notable Changes
 
+- SteamVR updated to 2.8.  You **MUST** install the KSP_x64_Data folder from this release.
 - Newer versions of Scatterer and Volumetric Clouds v4 are now supported.  See the readme file in Optional Mods or the [installation guide](https://github.com/FirstPersonKSP/Kerbal-VR/wiki/Installation-Guide) for details.
-- SteamVR updated to 2.8
 
 ### Known Issues
 
