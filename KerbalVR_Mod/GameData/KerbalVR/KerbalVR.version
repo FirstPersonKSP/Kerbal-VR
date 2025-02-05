@@ -2,8 +2,8 @@
   "NAME": "KerbalVR",
   "URL": "https://github.com/FirstPersonKSP/Kerbal-VR/releases/latest/download/KerbalVR.version",
   "DOWNLOAD": "https://github.com/FirstPersonKSP/Kerbal-VR/releases/latest",
-  "VERSION": "0.9.4.1",
-  "KSP_VERSION": "1.12.3",
-  "KSP_VERSION_MIN": "1.12.3",
-  "KSP_VERSION_MAX": "1.12.99"
+  "VERSION": "0.9.4",
+  "KSP_VERSION": "1.12",
+  "KSP_VERSION_MIN": "1.8",
+  "KSP_VERSION_MAX": "'1.12'"
 }

@@ -1,9 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\KSPBuildTools.0.0.2\build\KSPBuildTools.props" Condition="Exists('..\packages\KSPBuildTools.0.0.2\build\KSPBuildTools.props')" />
-  <Import Project="..\packages\JsonPoke.1.2.0\build\JsonPoke.props" Condition="Exists('..\packages\JsonPoke.1.2.0\build\JsonPoke.props')" />
-  <Import Project="..\packages\Krafs.Publicizer.1.0.2\build\Krafs.Publicizer.props" Condition="Exists('..\packages\Krafs.Publicizer.1.0.2\build\Krafs.Publicizer.props')" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -12,7 +7,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>KerbalVR</RootNamespace>
     <AssemblyName>KerbalVR</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFramework>net4.8</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
@@ -37,6 +32,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <KSPVersionFile Include="$(RepoRootPath)\KerbalVR_Mod\GameData\KerbalVR\KerbalVR.version">
+      <Destination>$(RepoRootPath)\KerbalVR_Mod\GameData\KerbalVR\KerbalVR.version</Destination>
+    </KSPVersionFile>
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="$(RepoRootPath)\$(BinariesOutputRelativePath)\KSPDev_Utils.2.7.dll">
       <Private>False</Private>
     </Reference>
@@ -58,119 +58,16 @@
     <Publicize Include="Assembly-CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Addon.cs" />
-    <Compile Include="CameraUtils.cs" />
-    <Compile Include="ColliderUtil.cs" />
-    <Compile Include="Components\KerbalVR_EVAFSM.cs" />
-    <Compile Include="Flight.cs" />
-    <Compile Include="Components\KerbalVR_AvionicsComputer.cs" />
-    <Compile Include="HapticUtils.cs" />
-    <Compile Include="HardwareUtils.cs" />
-    <Compile Include="InteractionCommon\VRFlightStick.cs" />
-    <Compile Include="InteractionCommon\VRThrottleLever.cs" />
-    <Compile Include="InteractionCommon\VRYoke.cs" />
-    <Compile Include="InteractionSystem\HandProfileManager.cs" />
-    <Compile Include="InteractionSystem\KerbalSkeletonHelper.cs" />
-    <Compile Include="InteractionSystem\KerbalVR_FingertipCollider.cs" />
-    <Compile Include="InteractionSystem\KerbalVR_FingertipInteractable.cs" />
-    <Compile Include="InteractionSystem\KerbalVR_Hand.cs" />
-    <Compile Include="InteractionSystem\KerbalVR_HandCollider.cs" />
-    <Compile Include="InteractionSystem\KerbalVR_HeadUpDisplay.cs" />
-    <Compile Include="InteractionSystem\KerbalVR_InteractableBehaviour.cs" />
-    <Compile Include="InteractionSystem\KerbalVR_PinchCollider.cs" />
-    <Compile Include="InteractionSystem\KerbalVR_PinchInteractable.cs" />
-    <Compile Include="InternalModules\InternalCollider.cs" />
-    <Compile Include="InternalModules\InternalModuleExtensions.cs" />
-    <Compile Include="InternalModules\InternalObjectDeleter.cs" />
-    <Compile Include="InternalModules\KerbalVR_BuckleLever.cs" />
-    <Compile Include="InternalModules\KerbalVR_Button.cs" />
-    <Compile Include="InternalModules\KerbalVR_Cover.cs" />
-    <Compile Include="InternalModules\KerbalVR_FlightStick.cs" />
-    <Compile Include="InternalModules\KerbalVR_InternalCameraSwitch.cs" />
-    <Compile Include="InternalModules\KerbalVR_InternalHatch.cs" />
-    <Compile Include="InternalModules\KerbalVR_Knob.cs" />
-    <Compile Include="InternalModules\KerbalVR_Lever.cs" />
-    <Compile Include="InternalModules\KerbalVR_PhysicalProp.cs" />
-    <Compile Include="InternalModules\KerbalVR_Switch.cs" />
-    <Compile Include="InternalModules\KerbalVR_Throttle.cs" />
-    <Compile Include="InternalModules\KerbalVR_TouchDisplay.cs" />
-    <Compile Include="InternalModules\KerbalVR_TranslationControl.cs" />
-    <Compile Include="InternalModules\KerbalVR_Yoke.cs" />
-    <Compile Include="IVAAdaptors\IVAKnob.cs" />
-    <Compile Include="IVAAdaptors\IVALever.cs" />
-    <Compile Include="IVAAdaptors\IVASwitch.cs" />
-    <Compile Include="Components\KerbalVR_ArmScaler.cs" />
-    <Compile Include="KerbalVR_AssetLoader.cs" />
-    <Compile Include="KerbalVR_Core.cs" />
-    <Compile Include="KerbalVR_FreeIVA.cs" />
-    <Compile Include="KerbalVR_MainMenu.cs" />
-    <Compile Include="KerbalVR_Seat.cs" />
-    <Compile Include="KerbalVR_SpaceCenter.cs" />
-    <Compile Include="KerbalVR_UISystem.cs" />
-    <Compile Include="Loaders\ExternalSeatLoader.cs" />
-    <Compile Include="Loaders\InternalModelLoader.cs" />
-    <Compile Include="Loaders\PropLoader.cs" />
-    <Compile Include="MainScreenTweaker.cs" />
-    <Compile Include="PartModules\EVAHelper.cs" />
-    <Compile Include="PartModules\ExternalCollider.cs" />
-    <Compile Include="PartModules\ExternalObjectReplacer.cs" />
-    <Compile Include="PartModules\KerbalVR_ExternalHatch.cs" />
-    <Compile Include="KerbalVR_Globals.cs" />
-    <Compile Include="KerbalVR_InteractionSystem.cs" />
-    <Compile Include="KerbalVR_Ladder.cs" />
-    <Compile Include="KerbalVR_MathUtils.cs" />
-    <Compile Include="KerbalVR_Scene.cs" />
-    <Compile Include="KerbalVR_Types.cs" />
-    <Compile Include="KerbalVR_Utils.cs" />
-    <Compile Include="PartModules\VRExternalFlightStick.cs" />
-    <Compile Include="PartModules\VRExternalThrottle.cs" />
-    <Compile Include="PushUtil.cs" />
-    <Compile Include="RotationUtil.cs" />
-    <Compile Include="SkeletonPoses\KerbalVR_FallbackRelaxedPose.cs" />
-    <Compile Include="SkeletonPoses\KerbalVR_FlapLeverPose_Human.cs" />
-    <Compile Include="SkeletonPoses\KerbalVR_FlapLeverPose_Kerbal.cs" />
-    <Compile Include="SkeletonPoses\KerbalVR_FlapLeverPose.cs" />
-    <Compile Include="SkeletonPoses\KerbalVR_GearLeverPose_Human.cs" />
-    <Compile Include="SkeletonPoses\KerbalVR_GearLeverPose_Kerbal.cs" />
-    <Compile Include="SkeletonPoses\KerbalVR_HandleRailGrabPose.cs" />
-    <Compile Include="SkeletonPoses\KerbalVR_GearLeverPose.cs" />
-    <Compile Include="SkeletonPoses\KerbalVR_KnobPose.cs" />
-    <Compile Include="SkeletonPoses\KerbalVR_KnobPose_Human.cs" />
-    <Compile Include="SkeletonPoses\KerbalVR_KnobPose_Kerbal.cs" />
-    <Compile Include="SteamVR_Input\ActionSetClasses\SteamVR_Input_ActionSet_default.cs" />
-    <Compile Include="SteamVR_Input\ActionSetClasses\SteamVR_Input_ActionSet_editor.cs" />
-    <Compile Include="SteamVR_Input\ActionSetClasses\SteamVR_Input_ActionSet_EVA.cs" />
-    <Compile Include="SteamVR_Input\ActionSetClasses\SteamVR_Input_ActionSet_flight.cs" />
-    <Compile Include="SteamVR_Input\SteamVR_Input_Actions.cs" />
-    <Compile Include="SteamVR_Input\SteamVR_Input_ActionSets.cs" />
-    <Compile Include="SteamVR_Input\SteamVR_Input_Initialization.cs" />
-    <Compile Include="TMPFonts\KerbalVR_Futura_Medium_BT_SDF.cs" />
-    <Compile Include="TMPFonts\KerbalVR_SpaceMono_Regular_SDF.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\SteamVR\SteamVR.csproj">
       <Project>{4e8088be-3db1-401a-a643-6d034551e22a}</Project>
       <Name>SteamVR</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <PackageReference Include="Krafs.Publicizer" Version="2.3.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="KSPBuildTools" Version="0.0.3" />
   </ItemGroup>
-  <ItemGroup />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Krafs.Publicizer.1.0.2\build\Krafs.Publicizer.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Krafs.Publicizer.1.0.2\build\Krafs.Publicizer.props'))" />
-    <Error Condition="!Exists('..\packages\Krafs.Publicizer.1.0.2\build\Krafs.Publicizer.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Krafs.Publicizer.1.0.2\build\Krafs.Publicizer.targets'))" />
-    <Error Condition="!Exists('..\packages\JsonPoke.1.2.0\build\JsonPoke.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JsonPoke.1.2.0\build\JsonPoke.props'))" />
-    <Error Condition="!Exists('..\packages\JsonPoke.1.2.0\build\JsonPoke.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JsonPoke.1.2.0\build\JsonPoke.targets'))" />
-    <Error Condition="!Exists('..\packages\KSPBuildTools.0.0.2\build\KSPBuildTools.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\KSPBuildTools.0.0.2\build\KSPBuildTools.props'))" />
-    <Error Condition="!Exists('..\packages\KSPBuildTools.0.0.2\build\KSPBuildTools.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\KSPBuildTools.0.0.2\build\KSPBuildTools.targets'))" />
-  </Target>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\Krafs.Publicizer.1.0.2\build\Krafs.Publicizer.targets" Condition="Exists('..\packages\Krafs.Publicizer.1.0.2\build\Krafs.Publicizer.targets')" />
-  <Import Project="..\packages\JsonPoke.1.2.0\build\JsonPoke.targets" Condition="Exists('..\packages\JsonPoke.1.2.0\build\JsonPoke.targets')" />
-  <Import Project="..\packages\KSPBuildTools.0.0.2\build\KSPBuildTools.targets" Condition="Exists('..\packages\KSPBuildTools.0.0.2\build\KSPBuildTools.targets')" />
 </Project>
