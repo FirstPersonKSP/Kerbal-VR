@@ -4,19 +4,14 @@ Install as normal, then copy the Scatterer directory from KerbalVR/Optional Mods
 
 # Volumetric Clouds
 
-If you have blackrack's volumetric clouds, install it as normal and then follow the instructions below according to which version you have.
+If you have blackrack's volumetric clouds, install it as normal.  Then install the contents of one of the KerbalVR/OptionalMods/VolumetricClouds folders into GameData, overwriting any existing files.  Note that VolumetricClouds-v2 is empty; it does not need any special treatment.
 
-## Volumetric Clouds V4 (released December 22 2023)
+For reference, release dates of each version are below:
 
-Copy the EnvironmentalVisualEnhancements and Scatterer folders from the KerbalVR/Optional Mods folder into your GameData directory and overwrite the existing files.
-
-## Volumetric Clouds V3 (released August 26 2023)
-
-Download https://github.com/JonnyOThan/Kerbal-VR/files/12777949/RaymarchedClouds-VR-8.26.23.zip and copy it over your existing EVE install, overwriting the existing files.
-
-## Volumetric Clouds V2 (released May 21 2023)
-
-No additional steps
+ * v1 - January 14, 2023
+ * v2 - May 21 through June 7, 2023
+ * v3 - August 20 through 26, 2023
+ * v4 - December 22, 2023 through July 16, 2024
 
 # Optional VR patches
 

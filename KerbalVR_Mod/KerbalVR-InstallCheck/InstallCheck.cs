@@ -26,7 +26,6 @@ namespace InstallCheck
 		{
 			new Dependency { assemblyName = "EVEManager", minVersion = new Version(1, 11, 7, 1)},
 			new Dependency { assemblyName = "TUFX", minVersion = new Version(1, 0, 5)},
-			new Dependency { assemblyName = "Scatterer", minVersion = new Version(0, 880, 1)},
 			new Dependency { assemblyName = "AvionicsSystems", minVersion = new Version(1, 3, 6)},
 			new Dependency { assemblyName = "RasterPropMonitor", minVersion = new Version(0, 31, 10, 2)},
 		};
@@ -47,6 +46,7 @@ namespace InstallCheck
 			CheckVREnabled();
 			CheckDependencies();
 			CheckOptionalMods();
+			CheckScatterer();
 			CheckRequiredFiles();
 		}
 
@@ -120,6 +120,49 @@ namespace InstallCheck
 			{
 				Alert(errorMessage);
 			}
+		}
+
+		// If a given mod exists, checks it against a list of known good versions.
+		// If it's not there, looks up a specific error message for the given version, or else a generic "unsupported" one
+		private static void CheckComplexMappings(string assemblyName, Version[] goodVersions, Dictionary<Version, string> errorMessages)
+		{
+			var assembly = AssemblyLoader.loadedAssemblies.FirstOrDefault(a => a.name == assemblyName);
+			if (assembly == null) return;
+
+			var assemblyVersion = assembly.assembly.GetName().Version;
+
+			// note: not using contains because this is a class and apparently it doesn't compare equal
+			if (goodVersions.IndexOf(assemblyVersion) != -1)
+			{
+				return;
+			}
+			
+			if (errorMessages.TryGetValue(assemblyVersion, out var message))
+			{
+				Alert(message);
+			}
+			else
+			{
+				Alert($"Unsupported {assemblyName} version {assemblyVersion}");
+			}
+		}
+
+		private static void CheckScatterer()
+		{
+			CheckComplexMappings("Scatterer",
+				new Version[]
+				{
+					new Version(0, 851, 0, 0), // volclouds v1
+					new Version(0, 856, 0, 0), // volclouds v2
+					new Version(0, 859, 0, 0), // volclouds v3
+					new Version(0, 878, 1, 0), // VR patch on latest publicly available
+					new Version(0, 880, 1, 0), // VR patch on volumetrics V4
+				},
+				new Dictionary<Version, string>()
+				{
+					{new Version(0, 878, 0, 0), "Install Scatterer from the Optional Mods folder"},
+					{new Version(0, 880, 0, 0), "Install the files from Optional Mods/VolumetricClouds-v4"},
+				});
 		}
 
 		private static void CheckRequiredFiles()
