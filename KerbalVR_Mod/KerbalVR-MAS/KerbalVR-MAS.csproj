@@ -31,9 +31,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="$(KSPRoot)/GameData/MOARdV/AvionicsSystems/AvionicsSystems.dll">
+    <Reference Include="AvionicsSystems">
+      <HintPath>$(KSPRoot)/GameData/MOARdV/AvionicsSystems/AvionicsSystems.dll</HintPath>
       <Private>False</Private>
       <CKANIdentifier>AvionicsSystems</CKANIdentifier>
+      <KSPAssemblyName>MOARdVAvionicsSystems</KSPAssemblyName>
+      <KSPAssemblyVersion>1.3</KSPAssemblyVersion>
     </Reference>
   </ItemGroup>
   <ItemGroup>
