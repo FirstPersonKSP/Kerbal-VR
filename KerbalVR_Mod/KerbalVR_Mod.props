@@ -2,10 +2,12 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Condition="$(MSBuildProjectName) != SteamVR" Project="KerbalVR_Mod.version.props"/>
   <PropertyGroup Condition="$(MSBuildProjectName) != SteamVR">
-    <RepoRootPath>$(MSBuildThisFileDirectory)\..</RepoRootPath>
-    <BinariesOutputRelativePath>KerbalVR_Mod\GameData\KerbalVR\Plugins</BinariesOutputRelativePath>
     <GenerateKSPAssemblyAttribute>true</GenerateKSPAssemblyAttribute>
     <GenerateKSPAssemblyDependencyAttributes>true</GenerateKSPAssemblyDependencyAttributes>
     <AssemblyProduct>KerbalVR</AssemblyProduct>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RepoRootPath>$(MSBuildThisFileDirectory)\..</RepoRootPath>
+    <BinariesOutputRelativePath>KerbalVR_Mod\GameData\KerbalVR\Plugins</BinariesOutputRelativePath>
   </PropertyGroup>
 </Project>
