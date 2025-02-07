@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -32,8 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <KSPVersionFile Include="$(RepoRootPath)\KerbalVR_Mod\GameData\KerbalVR\KerbalVR.version">
+    <KSPVersionFile Include="$(RepoRootPath)\KerbalVR_Mod\KerbalVR.version">
       <Destination>$(RepoRootPath)\KerbalVR_Mod\GameData\KerbalVR\KerbalVR.version</Destination>
+      <KSP_Version_Min>1.12.3</KSP_Version_Min>
     </KSPVersionFile>
   </ItemGroup>
   <ItemGroup>

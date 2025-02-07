@@ -7,7 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		..\.gitignore = ..\.gitignore
 		KerbalVR-Dependencies.ckan = KerbalVR-Dependencies.ckan
-		GameData\KerbalVR\KerbalVR.version = GameData\KerbalVR\KerbalVR.version
+		KerbalVR.version = KerbalVR.version
+		KerbalVR_Mod.props = KerbalVR_Mod.props
 		KerbalVR_Mod.props.user = KerbalVR_Mod.props.user
 		KerbalVR_Mod.version.props = KerbalVR_Mod.version.props
 		..\LICENSE = ..\LICENSE
@@ -18,15 +19,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\README_DEV.md = ..\README_DEV.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamVR", "SteamVR\SteamVR.csproj", "{4E8088BE-3DB1-401A-A643-6D034551E22A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SteamVR", "SteamVR\SteamVR.csproj", "{4E8088BE-3DB1-401A-A643-6D034551E22A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KerbalVR", "KerbalVR\KerbalVR.csproj", "{BBE6013A-E30C-43D6-919D-36176CDB2599}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KerbalVR", "KerbalVR\KerbalVR.csproj", "{BBE6013A-E30C-43D6-919D-36176CDB2599}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KerbalVR-RPM", "KerbalVR-RPM\KerbalVR-RPM.csproj", "{132C7D00-6367-4312-BAE1-4286435638E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KerbalVR-RPM", "KerbalVR-RPM\KerbalVR-RPM.csproj", "{132C7D00-6367-4312-BAE1-4286435638E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KerbalVR-MAS", "KerbalVR-MAS\KerbalVR-MAS.csproj", "{D2EFBFE8-DA01-427F-ABFA-F2F52278787D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KerbalVR-MAS", "KerbalVR-MAS\KerbalVR-MAS.csproj", "{D2EFBFE8-DA01-427F-ABFA-F2F52278787D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KerbalVR-InstallCheck", "KerbalVR-InstallCheck\KerbalVR-InstallCheck.csproj", "{FAE38731-3EFB-4F04-B342-242D97597474}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KerbalVR-InstallCheck", "KerbalVR-InstallCheck\KerbalVR-InstallCheck.csproj", "{FAE38731-3EFB-4F04-B342-242D97597474}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
