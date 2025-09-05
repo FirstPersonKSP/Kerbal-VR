@@ -24,7 +24,6 @@ namespace InstallCheck
 		// not required, but if they exist then verify the version number
 		static readonly Dependency[] optionalMods = new Dependency[]
 		{
-			new Dependency { assemblyName = "EVEManager", minVersion = new Version(1, 11, 7, 1)},
 			new Dependency { assemblyName = "TUFX", minVersion = new Version(1, 0, 5)},
 			new Dependency { assemblyName = "AvionicsSystems", minVersion = new Version(1, 3, 6)},
 			new Dependency { assemblyName = "RasterPropMonitor", minVersion = new Version(0, 31, 10, 2)},
@@ -47,6 +46,7 @@ namespace InstallCheck
 			CheckDependencies();
 			CheckOptionalMods();
 			CheckScatterer();
+			CheckEVE();
 			CheckRequiredFiles();
 		}
 
@@ -122,6 +122,16 @@ namespace InstallCheck
 			}
 		}
 
+		static bool CompareVersions(Version required, Version actual)
+		{
+			if (required.Major != actual.Major) return false;
+			if (required.Minor != actual.Minor) return false;
+			if (required.Build != -1 && required.Build != actual.Build) return false;
+			if (required.Revision != -1 && required.Revision != actual.Revision) return false;
+
+			return true;
+		}
+
 		// If a given mod exists, checks it against a list of known good versions.
 		// If it's not there, looks up a specific error message for the given version, or else a generic "unsupported" one
 		private static void CheckComplexMappings(string assemblyName, Version[] goodVersions, Dictionary<Version, string> errorMessages)
@@ -131,8 +141,7 @@ namespace InstallCheck
 
 			var assemblyVersion = assembly.assembly.GetName().Version;
 
-			// note: not using contains because this is a class and apparently it doesn't compare equal
-			if (goodVersions.IndexOf(assemblyVersion) != -1)
+			if (goodVersions.Any(v => CompareVersions(v, assemblyVersion)))
 			{
 				return;
 			}
@@ -164,6 +173,23 @@ namespace InstallCheck
 					{new Version(0, 878, 1, 0), "Install Scatterer from the Optional Mods folder"},
 					{new Version(0, 880, 0, 0), "Install the files from Optional Mods/VolumetricClouds-v4"},
 					{new Version(0, 880, 1, 0), "Install the files from Optional Mods/VolumetricClouds-v4"},
+				});
+		}
+
+		private static void CheckEVE()
+		{
+			CheckComplexMappings("Atmosphere",
+				new Version[]
+				{
+					new Version(1, 11, 7, 1), // public version
+					new Version(2, 0, 1, 0), // volclouds v1
+					new Version(2, 1), // volclouds v2
+					new Version(2, 2, 1, 0), // volclouds v3
+					new Version(2, 3, 3, 1), // VR patch on volclouds v4
+				},
+				new Dictionary<Version, string>()
+				{
+					{ new Version(2, 3, 3, 0), "Install the files from Optional Mods/VolumetricClouds-v4" },
 				});
 		}
 
