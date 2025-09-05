@@ -1,35 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BBE6013A-E30C-43D6-919D-36176CDB2599}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>KerbalVR</RootNamespace>
     <AssemblyName>KerbalVR</AssemblyName>
     <TargetFramework>net4.8</TargetFramework>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;UNITY_5_3_OR_NEWER; UNITY_2017_2_OR_NEWER;</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>portable</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;UNITY_5_3_OR_NEWER; UNITY_2017_2_OR_NEWER;</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <DefineConstants>UNITY_5_3_OR_NEWER; UNITY_2017_2_OR_NEWER;</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <KSPVersionFile Include="$(RepoRootPath)\KerbalVR_Mod\KerbalVR.version">
@@ -74,6 +49,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="KSPBuildTools" Version="0.0.3-alpha.2" />
+    <PackageReference Include="KSPBuildTools" Version="0.0.4" />
   </ItemGroup>
 </Project>

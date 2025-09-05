@@ -1,38 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>2.8</Version>
-    <AssemblyVersion>2.8</AssemblyVersion>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4E8088BE-3DB1-401A-A643-6D034551E22A}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SteamVR</RootNamespace>
     <AssemblyName>SteamVR</AssemblyName>
     <Company>Valve</Company>
     <TargetFramework>net4.8</TargetFramework>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;UNITY_5_3_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2019_3_OR_NEWER;KERBALVR</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>portable</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;UNITY_5_3_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2019_3_OR_NEWER;KERBALVR</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <DefineConstants>UNITY_5_3_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2019_3_OR_NEWER;KERBALVR</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Valve.Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -41,6 +14,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="KSPBuildTools" Version="0.0.3-alpha.2" />
+    <PackageReference Include="KSPBuildTools" Version="0.0.4" />
   </ItemGroup>
 </Project>
