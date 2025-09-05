@@ -155,13 +155,15 @@ namespace InstallCheck
 					new Version(0, 851, 0, 0), // volclouds v1
 					new Version(0, 856, 0, 0), // volclouds v2
 					new Version(0, 859, 0, 0), // volclouds v3
-					new Version(0, 878, 1, 0), // VR patch on latest publicly available
-					new Version(0, 880, 1, 0), // VR patch on volumetrics V4
+					new Version(0, 878, 2, 0), // VR patch on latest publicly available
+					new Version(0, 880, 2, 0), // VR patch on volumetrics V4
 				},
 				new Dictionary<Version, string>()
 				{
 					{new Version(0, 878, 0, 0), "Install Scatterer from the Optional Mods folder"},
+					{new Version(0, 878, 1, 0), "Install Scatterer from the Optional Mods folder"},
 					{new Version(0, 880, 0, 0), "Install the files from Optional Mods/VolumetricClouds-v4"},
+					{new Version(0, 880, 1, 0), "Install the files from Optional Mods/VolumetricClouds-v4"},
 				});
 		}
 
