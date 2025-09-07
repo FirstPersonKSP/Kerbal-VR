@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DEEFC1C1-94D1-482E-BF16-87AD0A5C398E}"
 	ProjectSection(SolutionItems) = preProject
 		..\.gitignore = ..\.gitignore
+		..\CHANGELOG.md = ..\CHANGELOG.md
 		KerbalVR-Dependencies.ckan = KerbalVR-Dependencies.ckan
 		KerbalVR.version = KerbalVR.version
 		KerbalVR_Mod.props = KerbalVR_Mod.props
