@@ -52,11 +52,6 @@ namespace KerbalVR
 			}
 
 		}
-		private static void Scatterer_CreateRenderTextures_Prefix(ref int width, ref int height)
-		{
-			width = UnityEngine.XR.XRSettings.eyeTextureWidth;
-			height = UnityEngine.XR.XRSettings.eyeTextureHeight;
-		}
 
 		private static IEnumerable<CodeInstruction> ScreenCopyCommandBuffer_Initialize_Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
@@ -86,38 +81,6 @@ namespace KerbalVR
 			var harmony = new Harmony("KerbalVR");
 			harmony.PatchAll(Assembly.GetExecutingAssembly());
 			CameraFOVPatch.PatchAll(harmony);
-
-			// I had thought the below code might help with the apparent aliasing issues when using scatterer in vr, but it didn't.
-#if false
-			var scattererAssembly = AssemblyLoader.loadedAssemblies.assemblies.FirstOrDefault(a => a.name == "scatterer");
-			if (scattererAssembly != null)
-			{
-				var commandBufferType = scattererAssembly.assembly.GetType("Scatterer.ScatteringCommandBuffer");
-
-				if (commandBufferType != null)
-				{
-					var CreateRenderTextures_MethodInfo = commandBufferType.GetMethod("CreateRenderTextures", BindingFlags.Instance | BindingFlags.NonPublic);
-					if (CreateRenderTextures_MethodInfo != null)
-					{
-						var prefix = new HarmonyMethod(GetType(), nameof(Scatterer_CreateRenderTextures_Prefix));
-						var result = harmony.Patch(CreateRenderTextures_MethodInfo, prefix);
-						Debug.Log($"patched scatterer: {result}");
-					}
-				}
-
-				var ScreenCopyCommandBufferType = scattererAssembly.assembly.GetType("Scatterer.ScreenCopyCommandBuffer");
-				if (ScreenCopyCommandBufferType != null)
-				{
-					var Initialize_MethodInfo = ScreenCopyCommandBufferType.GetMethod("Initialize", BindingFlags.Instance | BindingFlags.Public);
-					if (Initialize_MethodInfo != null)
-					{
-						var transpiler = new HarmonyMethod(GetType(), nameof(ScreenCopyCommandBuffer_Initialize_Transpiler));
-						harmony.Patch(Initialize_MethodInfo, null, null, transpiler);
-					}
-				}
-			}
-#endif
-
 		}
 
 		public void LateUpdate()
