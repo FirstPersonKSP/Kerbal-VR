@@ -8,6 +8,22 @@ Please always post your [KSP.log file](https://gist.github.com/JonnyOThan/04c207
 
 ### Notable Changes
 
+There are updates to non-volumetric Scatterer and Scatterer/Eve for volumetrics v4 in the Optional Mods folder.  Make sure to also install these if you're updating.  Many of the fixes are related to using the incorrect resolution for rendering.  You may notice a performance hit now that it's using the correct eye resolution.  You can compensate for this by reducing the eye resolution setting in SteamVR.
+
+### Bug Fixes
+
+- Fixed several issues in scatterer and volumetric EVE.
+- Fixed the external hatch lever on the Restock mk2 lander can when in rover mode
+- Disabled KSPCF's collisionmanager patch which interferes with grabbing ladders while on EVA
+
+### Known Issues
+
+- #145 PAW does not update or display properly when the game does not have focus
+
+## 0.9.4.2 - 2025-02-07
+
+### Notable Changes
+
 - SteamVR updated to 2.8.  You **MUST** install the KSP_x64_Data folder from this release.
 - Newer versions of Scatterer and Volumetric Clouds v4 are now supported.  See the readme file in Optional Mods or the [installation guide](https://github.com/FirstPersonKSP/Kerbal-VR/wiki/Installation-Guide) for details.
 
