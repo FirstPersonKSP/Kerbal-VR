@@ -8,7 +8,8 @@ Please always post your [KSP.log file](https://gist.github.com/JonnyOThan/04c207
 
 ### Notable Changes
 
-There are updates to non-volumetric Scatterer and Scatterer/Eve for volumetrics v4 in the Optional Mods folder.  Make sure to also install these if you're updating.  Many of the fixes are related to using the incorrect resolution for rendering.  You may notice a performance hit now that it's using the correct eye resolution.  You can compensate for this by reducing the eye resolution setting in SteamVR.
+- There are updates to non-volumetric Scatterer and Scatterer/Eve for volumetrics v4 in the Optional Mods folder.  Make sure to also install these if you're updating.  Many of the fixes are related to using the incorrect resolution for rendering.  You may notice a performance hit now that it's using the correct eye resolution.  You can compensate for this by reducing the eye resolution setting in SteamVR.
+- The VR toggle key can now be configured in KerbalVR's settings.cfg.
 
 ### Bug Fixes
 

@@ -44,36 +44,17 @@ namespace KerbalVR
 		{
 			Utils.Log("ModuleManagerPostLoad");
 
+			KeyCode toggleKey = GameSettings.CAMERA_NEXT.primary.code;
+
 			var settingsNode = GameDatabase.Instance.GetConfigs("KerbalVRConfig").FirstOrDefault();
 
 			if (settingsNode != null)
 			{
 				settingsNode.config.TryGetValue(nameof(kerbalEyePosition), ref kerbalEyePosition);
+				settingsNode.config.TryGetEnum<KeyCode>("toggleKey", ref toggleKey, toggleKey);
 			}
 
-		}
-
-		private static IEnumerable<CodeInstruction> ScreenCopyCommandBuffer_Initialize_Transpiler(IEnumerable<CodeInstruction> instructions)
-		{
-			var screenWidthProperty = typeof(Screen).GetProperty(nameof(Screen.width), BindingFlags.Static | BindingFlags.Public).GetGetMethod();
-			var screenHeightProperty = typeof(Screen).GetProperty(nameof(Screen.height), BindingFlags.Static | BindingFlags.Public).GetGetMethod();
-
-			var eyeWidthProperty = typeof(XRSettings).GetProperty(nameof(XRSettings.eyeTextureWidth), BindingFlags.Static | BindingFlags.Public).GetGetMethod();
-			var eyeHeightProperty = typeof(XRSettings).GetProperty(nameof(XRSettings.eyeTextureHeight), BindingFlags.Static | BindingFlags.Public).GetGetMethod();
-
-			foreach (var instruction in instructions)
-			{
-				if (instruction.Calls(screenWidthProperty))
-				{
-					instruction.operand = eyeWidthProperty;
-				}
-				else if (instruction.Calls(screenHeightProperty))
-				{
-					instruction.operand = eyeHeightProperty;
-				}
-
-				yield return instruction;
-			}
+			m_vrToggle = new KeyBinding(toggleKey);
 		}
 
 		private static void ApplyPatches()
