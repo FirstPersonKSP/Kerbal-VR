@@ -15,6 +15,7 @@ Please always post your [KSP.log file](https://gist.github.com/JonnyOThan/04c207
 
 - Fixed several issues in scatterer and volumetric EVE
 - Fixed the external hatch lever on the Restock mk2 lander can when in rover mode
+- Fixed several external hatches on stock parts when SSPX is installed
 - Fixed B9PS errors related to hatches on the mobile lab and hitchhiker pod when SSPX and restock were installed
 - Disabled KSPCF's collisionmanager patch which interferes with grabbing ladders while on EVA
 
