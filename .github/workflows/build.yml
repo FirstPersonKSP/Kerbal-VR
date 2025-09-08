@@ -5,9 +5,15 @@ on:
     branches: [ "master" ]
     paths:
       - '**/*.cs'
+      - '**/*.csproj'
+      - '**/*.props'
+      - '.github/workflows/*'
   pull_request:
     paths:
       - '**/*.cs'
+      - '**/*.csproj'
+      - '**/*.props'
+      - '.github/workflows/*'
   workflow_dispatch:
   workflow_call:
 
