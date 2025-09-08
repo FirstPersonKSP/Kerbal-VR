@@ -18,3 +18,5 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("d2efbfe8-da01-427f-abfa-f2f52278787d")]
 
+// this should eventually get populated by KSPBuildTools
+[assembly:KSPAssemblyDependency("KerbalVR", 0, 9)]

@@ -18,3 +18,6 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("bbe6013a-e30c-43d6-919d-36176cdb2599")]
 
+// Eventually this should be handled by KSPBuildTools
+[assembly: KSPAssemblyDependency("SteamVR", 2, 8)]
+
