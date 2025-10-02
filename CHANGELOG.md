@@ -4,6 +4,10 @@ Discord support server: https://discord.gg/vBDzZAq3AF.
 
 Please always post your [KSP.log file](https://gist.github.com/JonnyOThan/04c2074b56f78e56d115621effee30f9) when reporting issues.
 
+## Unreleased
+
+- Add patched version of scatterer for volumetric clouds V5
+
 ## 0.9.4.3 - 2025-09-08
 
 ### Notable Changes

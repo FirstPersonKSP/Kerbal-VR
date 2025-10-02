@@ -1,4 +1,4 @@
-# Scatterer
+# Scatterer (non-volumetric clouds)
 
 Install as normal, then copy the Scatterer directory from KerbalVR/Optional Mods on top of the one in your GameData directory and overwrite the existing files.
 
@@ -12,6 +12,7 @@ For reference, release dates of each version are below:
  * v2 - May 21 through June 7, 2023
  * v3 - August 20 through 26, 2023
  * v4 - December 22, 2023 through July 16, 2024
+ * v5 - September 28, 2025
 
 # Optional VR patches
 

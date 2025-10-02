@@ -42,12 +42,14 @@ namespace InstallCheck
 		{
 			Debug.Log("[KerbalVR] InstallCheck Awake");
 
+#if !DEBUG
 			CheckVREnabled();
 			CheckDependencies();
 			CheckOptionalMods();
 			CheckScatterer();
 			CheckEVE();
 			CheckRequiredFiles();
+#endif
 		}
 
 		private static void CheckVREnabled()
@@ -166,13 +168,15 @@ namespace InstallCheck
 					new Version(0, 859, 0, 0), // volclouds v3
 					new Version(0, 878, 2, 0), // VR patch on latest publicly available
 					new Version(0, 880, 2, 0), // VR patch on volumetrics V4
+					new Version(0, 990, 1, 0), // VR patch on volumetrics V5
 				},
 				new Dictionary<Version, string>()
 				{
-					{new Version(0, 878, 0, 0), "Install Scatterer from the Optional Mods folder"},
-					{new Version(0, 878, 1, 0), "Install Scatterer from the Optional Mods folder"},
-					{new Version(0, 880, 0, 0), "Install the files from Optional Mods/VolumetricClouds-v4"},
-					{new Version(0, 880, 1, 0), "Install the files from Optional Mods/VolumetricClouds-v4"},
+					{ new Version(0, 878, 0, 0), "Install Scatterer from the Optional Mods folder" },
+					{ new Version(0, 878, 1, 0), "Install Scatterer from the Optional Mods folder" },
+					{ new Version(0, 880, 0, 0), "Install the files from Optional Mods/VolumetricClouds-v4" },
+					{ new Version(0, 880, 1, 0), "Install the files from Optional Mods/VolumetricClouds-v4" },
+					{ new Version(0, 900, 0, 0), "Install the files from Optional Mods/VolumetricClouds-v5" },
 				});
 		}
 
@@ -186,6 +190,7 @@ namespace InstallCheck
 					new Version(2, 1), // volclouds v2
 					new Version(2, 2, 1, 0), // volclouds v3
 					new Version(2, 3, 3, 1), // VR patch on volclouds v4
+					new Version(3, 1, 0, 0), // volumetrics V5 (works fine)
 				},
 				new Dictionary<Version, string>()
 				{
