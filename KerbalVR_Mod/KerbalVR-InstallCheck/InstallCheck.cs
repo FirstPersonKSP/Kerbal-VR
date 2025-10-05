@@ -42,14 +42,12 @@ namespace InstallCheck
 		{
 			Debug.Log("[KerbalVR] InstallCheck Awake");
 
-#if !DEBUG
 			CheckVREnabled();
 			CheckDependencies();
 			CheckOptionalMods();
 			CheckScatterer();
 			CheckEVE();
 			CheckRequiredFiles();
-#endif
 		}
 
 		private static void CheckVREnabled()
@@ -168,7 +166,7 @@ namespace InstallCheck
 					new Version(0, 859, 0, 0), // volclouds v3
 					new Version(0, 878, 2, 0), // VR patch on latest publicly available
 					new Version(0, 880, 2, 0), // VR patch on volumetrics V4
-					new Version(0, 990, 1, 0), // VR patch on volumetrics V5
+					new Version(0, 900, 1, 0), // VR patch on volumetrics V5
 				},
 				new Dictionary<Version, string>()
 				{
