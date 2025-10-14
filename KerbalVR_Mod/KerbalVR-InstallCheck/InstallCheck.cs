@@ -167,6 +167,7 @@ namespace InstallCheck
 					new Version(0, 878, 2, 0), // VR patch on latest publicly available
 					new Version(0, 880, 2, 0), // VR patch on volumetrics V4
 					new Version(0, 900, 1, 0), // VR patch on volumetrics V5
+					new Version(0, 902, 0, 0), // later release of volumetrics V5
 				},
 				new Dictionary<Version, string>()
 				{
@@ -184,6 +185,7 @@ namespace InstallCheck
 				new Version[]
 				{
 					new Version(1, 11, 7, 1), // public version
+					new Version(1, 11, 7, 2), // public version
 					new Version(2, 0, 1, 0), // volclouds v1
 					new Version(2, 1), // volclouds v2
 					new Version(2, 2, 1, 0), // volclouds v3

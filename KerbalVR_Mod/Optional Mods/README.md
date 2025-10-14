@@ -4,7 +4,7 @@ Install as normal, then copy the Scatterer directory from KerbalVR/Optional Mods
 
 # Volumetric Clouds
 
-If you have blackrack's volumetric clouds, install it as normal.  Then install the contents of one of the KerbalVR/OptionalMods/VolumetricClouds folders into GameData, overwriting any existing files.  Note that VolumetricClouds-v2 is empty; it does not need any special treatment.
+If you have blackrack's volumetric clouds, install it as normal.  Then install the contents of one of the KerbalVR/OptionalMods/VolumetricClouds folders into GameData, overwriting any existing files.  Note that VolumetricClouds-v2 and VolumetricClouds-v5-NEW are empty; these do not need any special treatment.
 
 For reference, release dates of each version are below:
 
@@ -12,7 +12,8 @@ For reference, release dates of each version are below:
  * v2 - May 21 through June 7, 2023
  * v3 - August 20 through 26, 2023
  * v4 - December 22, 2023 through July 16, 2024
- * v5 - September 28, 2025
+ * v5-OLD - September 28 through 30, 2025
+ * v5-NEW - October 12, 2025
 
 # Optional VR patches
 
