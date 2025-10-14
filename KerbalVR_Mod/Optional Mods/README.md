@@ -15,6 +15,10 @@ For reference, release dates of each version are below:
  * v5-OLD - September 28 through 30, 2025
  * v5-NEW - October 12, 2025
 
+# ThroughTheEyes
+
+If you have Deferred AND Volumetric Clouds v5, install the files from ThroughTheEyes included in this directory on top of your existing ThroughTheEyes install.
+
 # Optional VR patches
 
 These can be placed anywhere in GameData.

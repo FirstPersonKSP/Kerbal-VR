@@ -12,42 +12,40 @@ namespace InstallCheck
 	[KSPAddon(KSPAddon.Startup.Instantly, true)]
 	public class InstallCheck : MonoBehaviour
 	{
-		// these mods must exist and pass the version requirements
-		static readonly Dependency[] dependencies = new Dependency[]
-		{
-			new Dependency { assemblyName = "0Harmony", minVersion = new Version(2, 0)},
-			new Dependency { assemblyName = "ModuleManager", minVersion = new Version(4, 2, 2) },
-			new Dependency { assemblyName = "ThroughTheEyes", minVersion = new Version(2, 0, 4, 1) },
-			new Dependency { assemblyName = "FreeIva", minVersion = new Version(0, 2, 18)},
-		};
-
-		// not required, but if they exist then verify the version number
-		static readonly Dependency[] optionalMods = new Dependency[]
-		{
-			new Dependency { assemblyName = "TUFX", minVersion = new Version(1, 0, 5)},
-			new Dependency { assemblyName = "AvionicsSystems", minVersion = new Version(1, 3, 6)},
-			new Dependency { assemblyName = "RasterPropMonitor", minVersion = new Version(0, 31, 10, 2)},
-		};
-
-		// these files must exist
-		static readonly string[] requiredFiles = new string[]
-		{
-			"KSP_x64_Data/Managed/System.Runtime.Serialization.dll",
-			"KSP_x64_Data/Managed/System.ServiceModel.Internals.dll",
-			"KSP_x64_Data/Plugins/openvr_api.dll",
-			"KSP_X64_Data/Plugins/XRSDKOpenVR.dll"
-		};
-
 		public void Awake()
 		{
 			Debug.Log("[KerbalVR] InstallCheck Awake");
 
 			CheckVREnabled();
-			CheckDependencies();
-			CheckOptionalMods();
+
+			// these mods must exist and pass the version requirements
+			CheckDependencies(true, new Dependency[]
+			{
+				new Dependency { assemblyName = "0Harmony", minVersion = new Version(2, 0)},
+				new Dependency { assemblyName = "ModuleManager", minVersion = new Version(4, 2, 2) },
+				new Dependency { assemblyName = "ThroughTheEyes", minVersion = new Version(2, 0, 4, 1) },
+				new Dependency { assemblyName = "FreeIva", minVersion = new Version(0, 2, 18)},
+			});
+
+			// not required, but if they exist then verify the version number
+			CheckDependencies(false, new Dependency[]
+			{
+				new Dependency { assemblyName = "TUFX", minVersion = new Version(1, 0, 5)},
+				new Dependency { assemblyName = "AvionicsSystems", minVersion = new Version(1, 3, 6)},
+				new Dependency { assemblyName = "RasterPropMonitor", minVersion = new Version(0, 31, 10, 2)},
+			});
 			CheckScatterer();
 			CheckEVE();
-			CheckRequiredFiles();
+			CheckThroughTheEyes();
+
+			// these files must exist
+			CheckRequiredFiles(new string[]
+			{
+				"KSP_x64_Data/Managed/System.Runtime.Serialization.dll",
+				"KSP_x64_Data/Managed/System.ServiceModel.Internals.dll",
+				"KSP_x64_Data/Plugins/openvr_api.dll",
+				"KSP_X64_Data/Plugins/XRSDKOpenVR.dll"
+			});
 		}
 
 		private static void CheckVREnabled()
@@ -82,37 +80,18 @@ namespace InstallCheck
 			}
 		}
 
-		private static void CheckDependencies()
+		private static void CheckDependencies(bool mandatory, Dependency[] dependencies)
 		{
 			string errorMessage = string.Empty;
 			foreach (var dependency in dependencies)
 			{
-				var assembly = AssemblyLoader.loadedAssemblies.FirstOrDefault(a => a.name == dependency.assemblyName);
-				if (assembly == null)
+				if (TryToGetAssemblyVersion(dependency.assemblyName, out var installedVersion))
+				{
+					dependency.CheckVersion(installedVersion, ref errorMessage);
+				}
+				else if (mandatory)
 				{
 					errorMessage += "Missing dependency: " + dependency.assemblyName + Environment.NewLine;
-				}
-				else
-				{
-					dependency.CheckVersion(assembly.assembly.GetName().Version, ref errorMessage);
-				}
-			}
-
-			if (errorMessage != string.Empty)
-			{
-				Alert(errorMessage);
-			}
-		}
-
-		private static void CheckOptionalMods()
-		{
-			string errorMessage = string.Empty;
-			foreach (var dependency in optionalMods)
-			{
-				var assembly = AssemblyLoader.loadedAssemblies.FirstOrDefault(a => a.name == dependency.assemblyName);
-				if (assembly != null)
-				{
-					dependency.CheckVersion(assembly.assembly.GetName().Version, ref errorMessage);
 				}
 			}
 
@@ -132,14 +111,24 @@ namespace InstallCheck
 			return true;
 		}
 
+		private static bool TryToGetAssemblyVersion(string assemblyName, out Version installedVersion)
+		{
+			var assembly = AssemblyLoader.loadedAssemblies.FirstOrDefault(a => a.name == assemblyName);
+			if (assembly == null)
+			{
+				installedVersion = default;
+				return false;
+			}
+
+			installedVersion = assembly.assembly.GetName().Version;
+			return true;
+		}
+
 		// If a given mod exists, checks it against a list of known good versions.
 		// If it's not there, looks up a specific error message for the given version, or else a generic "unsupported" one
 		private static void CheckComplexMappings(string assemblyName, Version[] goodVersions, Dictionary<Version, string> errorMessages)
 		{
-			var assembly = AssemblyLoader.loadedAssemblies.FirstOrDefault(a => a.name == assemblyName);
-			if (assembly == null) return;
-
-			var assemblyVersion = assembly.assembly.GetName().Version;
+			if (!TryToGetAssemblyVersion(assemblyName, out var assemblyVersion)) return;
 
 			if (goodVersions.Any(v => CompareVersions(v, assemblyVersion)))
 			{
@@ -198,7 +187,20 @@ namespace InstallCheck
 				});
 		}
 
-		private static void CheckRequiredFiles()
+		private static void CheckThroughTheEyes()
+		{
+			if (TryToGetAssemblyVersion("Deferred", out var deferredVersion) &&
+				TryToGetAssemblyVersion("Scatterer", out var scattererVersion) &&
+				TryToGetAssemblyVersion("ThroughTheEyes", out var tteVersion) &&
+				deferredVersion >= new Version(1, 3) &&
+				scattererVersion >= new Version(0, 900) &&
+				tteVersion <= new Version(2, 0, 4, 4))
+			{
+				Alert("Install the files from Optional Mods/ThroughTheEyes");
+			}
+		}
+
+		private static void CheckRequiredFiles(string[] requiredFiles)
 		{
 			string errorMessage = string.Empty;
 			foreach (var filePath in requiredFiles)
