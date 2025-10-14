@@ -4,13 +4,14 @@ Discord support server: https://discord.gg/vBDzZAq3AF.
 
 Please always post your [KSP.log file](https://gist.github.com/JonnyOThan/04c2074b56f78e56d115621effee30f9) when reporting issues.
 
-## Unreleased
+## 0.9.4.5 - 2025-10-14
 
 Updated installcheck compatibility for newer EVE and volumetric clouds versions.
 
 If you have volumetric clouds v5 from October 12, 2025 then *do not* overwrite it with the patched VR version - all the fixes are already there!
 
 If you have Deferred and Volumetric Clouds v5, you must install ThroughTheEyes from the Optional Mods folder on top of your existing ThroughTheEyes install.
+
 
 ## 0.9.4.4 - 2025-10-06
 
