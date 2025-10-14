@@ -175,7 +175,7 @@ namespace InstallCheck
 					{ new Version(0, 878, 1, 0), "Install Scatterer from the Optional Mods folder" },
 					{ new Version(0, 880, 0, 0), "Install the files from Optional Mods/VolumetricClouds-v4" },
 					{ new Version(0, 880, 1, 0), "Install the files from Optional Mods/VolumetricClouds-v4" },
-					{ new Version(0, 900, 0, 0), "Install the files from Optional Mods/VolumetricClouds-v5" },
+					{ new Version(0, 900, 0, 0), "Install the files from Optional Mods/VolumetricClouds-v5-OLD" },
 				});
 		}
 
